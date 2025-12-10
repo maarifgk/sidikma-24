@@ -6,7 +6,7 @@
     {{-- HEADER --}}
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0 fw-bold" style="font-size: 28px">
-            Data Siswa per Tahun Pelajaran
+            Data Siswa per Tahun Pelajaran  Baru
         </h5>
 
         @if(auth()->user()->role != 4)
@@ -93,7 +93,7 @@
                         <th>K8</th>
                         <th>K9</th>
                         <th>Total</th>
-                        @if (auth()->user()->role != 4)   
+                        @if (auth()->user()->role != 4)
                         <th width="120">Aksi</th>
                         @endif
                     </tr>
@@ -120,7 +120,7 @@
                             <td class="fw-bold text-primary">
                                 {{ $row->total }}
                             </td>
-                            @if (auth()->user()->role != 4) 
+                            @if (auth()->user()->role != 4)
                             <td>
                                 <a href="{{ route('data-siswa.edit', $row->id) }}"
                                    class="btn btn-success btn-sm mb-1">
