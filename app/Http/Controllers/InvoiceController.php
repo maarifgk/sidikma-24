@@ -52,68 +52,75 @@ class InvoiceController extends Controller
     }
 
     public function add($id)
-    {
-        Carbon::setLocale('id');
+{
+    Carbon::setLocale('id');
 
-        $data['title'] = "Invoice Pembayaran";
+    $data['title'] = "Invoice Pembayaran";
 
-        // ✅ Ambil data siswa (AMAN)
-        $data['siswa'] = DB::table('users')->where('id', $id)->first();
-        if (!$data['siswa']) {
-            abort(404, 'Data siswa tidak ditemukan');
-        }
-
-        // ✅ Ambil ID user login (FIX UTAMA 500)
-        $userId = auth()->id();
-        if (!$userId) {
-            abort(403, 'Harus login');
-        }
-
-        // ✅ Profile user login (AMAN dari null)
-        $data['profile'] = DB::table('users')
-            ->select(
-                'users.*',
-                'kelas.nama_kelas',
-                'jurusan.nama_jurusan',
-                'ketugasan.ketugasan'
-            )
-            ->leftJoin('kelas', 'kelas.id', '=', 'users.kelas_id')
-            ->leftJoin('jurusan', 'jurusan.id', '=', 'users.jurusan_id')
-            ->leftJoin('ketugasan', 'ketugasan.id', '=', 'users.ketugasan')
-            ->where('users.id', $userId)
-            ->first();
-
-        if (!$data['profile']) {
-            abort(404, 'Profile user tidak ditemukan');
-        }
-
-        $kelasId = $data['siswa']->kelas_id;
-
-        // ✅ RINGKASAN JUMLAH GURU (AMAN)
-        $data['gty_nonsertifikasi'] = DB::table('users')
-            ->where('role', 2)
-            ->where('kelas_id', $kelasId)
-            ->whereIn('jurusan_id', [1, 4, 6, 7])
-            ->count();
-
-        $data['pns'] = DB::table('users')
-            ->where('role', 2)
-            ->where('kelas_id', $kelasId)
-            ->where('jurusan_id', 5)
-            ->count();
-
-        $data['pns_nonsertifikasi'] = DB::table('users')
-            ->where('role', 2)
-            ->where('kelas_id', $kelasId)
-            ->where('jurusan_id', 8)
-            ->count();
-
-        $data['gty_sertifikasi'] = DB::table('users')
-            ->where('role', 2)
-            ->where('kelas_id', $kelasId)
-            ->whereIn('jurusan_id', [2, 3])
-            ->count();
-
-        return view('backend.invoice.add', $data);
+    // ✅ Ambil data siswa
+    $data['siswa'] = DB::table('users')->where('id', $id)->first();
+    if (!$data['siswa']) {
+        abort(404, 'Data siswa tidak ditemukan');
     }
+
+    // ✅ Pastikan login
+    $userId = auth()->id();
+    if (!$userId) {
+        abort(403, 'Harus login');
+    }
+
+    // ✅ Profile user login
+    $data['profile'] = DB::table('users')
+        ->select(
+            'users.*',
+            'kelas.nama_kelas',
+            'jurusan.nama_jurusan',
+            'ketugasan.ketugasan'
+        )
+        ->leftJoin('kelas', 'kelas.id', '=', 'users.kelas_id')
+        ->leftJoin('jurusan', 'jurusan.id', '=', 'users.jurusan_id')
+        ->leftJoin('ketugasan', 'ketugasan.id', '=', 'users.ketugasan')
+        ->where('users.id', $userId)
+        ->first();
+
+    if (!$data['profile']) {
+        abort(404, 'Profile user tidak ditemukan');
+    }
+
+    // ✅ KUNCI: pastikan kelas_id ada
+    if (!$data['siswa']->kelas_id) {
+        abort(400, 'Siswa belum memiliki kelas');
+    }
+
+    $kelasId = $data['siswa']->kelas_id;
+
+    // ✅ RINGKASAN JUMLAH GURU (AMAN dari NULL)
+    $data['gty_nonsertifikasi'] = DB::table('users')
+        ->where('role', 2)
+        ->whereNotNull('jurusan_id')
+        ->where('kelas_id', $kelasId)
+        ->whereIn('jurusan_id', [1, 4, 6, 7])
+        ->count();
+
+    $data['pns'] = DB::table('users')
+        ->where('role', 2)
+        ->where('kelas_id', $kelasId)
+        ->where('jurusan_id', 5)
+        ->count();
+
+    $data['pns_nonsertifikasi'] = DB::table('users')
+        ->where('role', 2)
+        ->where('kelas_id', $kelasId)
+        ->where('jurusan_id', 8)
+        ->count();
+
+    $data['gty_sertifikasi'] = DB::table('users')
+        ->where('role', 2)
+        ->where('kelas_id', $kelasId)
+        ->whereIn('jurusan_id', [2, 3])
+        ->count();
+
+    return view('backend.invoice.add', $data);
+}
+
 }
