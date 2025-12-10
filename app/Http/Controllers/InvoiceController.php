@@ -8,24 +8,33 @@ use Carbon\Carbon;
 
 class InvoiceController extends Controller
 {
+    /**
+     * WAJIB: pastikan semua method di controller ini
+     * hanya bisa diakses user yang sudah login
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function view(Request $request)
     {
         $tahunAjaran = $request->tahun_ajaran;
 
         $data['title'] = "Invoice Iuran LP. Ma'arif NU PCNU Gunungkidul";
 
-        // ambil data kelas
-        $data['kelas'] = DB::select("SELECT * FROM kelas");
+        // Data kelas
+        $data['kelas'] = DB::table('kelas')->get();
 
-        // daftar tahun ajaran (dropdown)
+        // List tahun ajaran (dropdown)
         $data['listTahunAjaran'] = DB::table('users')
             ->select('tahun_ajaran')
-            ->distinct()
             ->whereNotNull('tahun_ajaran')
+            ->distinct()
             ->orderBy('tahun_ajaran', 'desc')
             ->pluck('tahun_ajaran');
 
-        // data siswa sesuai tahun pelajaran
+        // Data siswa sesuai tahun ajaran
         $data['datasekolah'] = DB::table('users as u')
             ->leftJoin('kelas as k', 'u.kelas_id', '=', 'k.id')
             ->leftJoin('jurusan as j', 'u.jurusan_id', '=', 'j.id')
@@ -48,13 +57,19 @@ class InvoiceController extends Controller
 
         $data['title'] = "Invoice Pembayaran";
 
-        // data siswa yg dipilih
+        // ✅ Ambil data siswa (AMAN)
         $data['siswa'] = DB::table('users')->where('id', $id)->first();
         if (!$data['siswa']) {
-            abort(404);
+            abort(404, 'Data siswa tidak ditemukan');
         }
 
-        // profile user login
+        // ✅ Ambil ID user login (FIX UTAMA 500)
+        $userId = auth()->id();
+        if (!$userId) {
+            abort(403, 'Harus login');
+        }
+
+        // ✅ Profile user login (AMAN dari null)
         $data['profile'] = DB::table('users')
             ->select(
                 'users.*',
@@ -65,12 +80,16 @@ class InvoiceController extends Controller
             ->leftJoin('kelas', 'kelas.id', '=', 'users.kelas_id')
             ->leftJoin('jurusan', 'jurusan.id', '=', 'users.jurusan_id')
             ->leftJoin('ketugasan', 'ketugasan.id', '=', 'users.ketugasan')
-            ->where('users.id', auth()->id())
+            ->where('users.id', $userId)
             ->first();
+
+        if (!$data['profile']) {
+            abort(404, 'Profile user tidak ditemukan');
+        }
 
         $kelasId = $data['siswa']->kelas_id;
 
-        // RINGKASAN JUMLAH GURU
+        // ✅ RINGKASAN JUMLAH GURU (AMAN)
         $data['gty_nonsertifikasi'] = DB::table('users')
             ->where('role', 2)
             ->where('kelas_id', $kelasId)
