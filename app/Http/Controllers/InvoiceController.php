@@ -44,75 +44,16 @@ class InvoiceController extends Controller
         return view('backend.invoice.view', $data);
     }
 
-    // ✅ FIXED — AMAN DARI HTTP 500
     public function add($id)
-    {
-        Carbon::setLocale('id');
+{
+    $data = [];
+    $data['title'] = 'Invoice';
 
-        $data = [];
-        $data['title'] = "Invoice Pembayaran";
-
-        // ✅ Data siswa
-        $data['siswa'] = DB::table('users')->where('id', $id)->first();
-        if (!$data['siswa']) {
-            abort(404, 'Data siswa tidak ditemukan');
-        }
-
-        // ✅ User login
-        $userId = auth()->id();
-        if (!$userId) {
-            abort(403, 'Harus login');
-        }
-
-        // ✅ Profile user login
-        $data['profile'] = DB::table('users')
-            ->leftJoin('kelas', 'kelas.id', '=', 'users.kelas_id')
-            ->leftJoin('jurusan', 'jurusan.id', '=', 'users.jurusan_id')
-            ->leftJoin('ketugasan', 'ketugasan.id', '=', 'users.ketugasan')
-            ->where('users.id', $userId)
-            ->select(
-                'users.*',
-                'kelas.nama_kelas',
-                'jurusan.nama_jurusan',
-                'ketugasan.ketugasan'
-            )
-            ->first();
-
-        if (!$data['profile']) {
-            abort(404, 'Profile user tidak ditemukan');
-        }
-
-        if (!$data['siswa']->kelas_id) {
-            abort(400, 'Siswa belum memiliki kelas');
-        }
-
-        $kelasId = $data['siswa']->kelas_id;
-
-        // ✅ Rekap guru
-        $data['gty_nonsertifikasi'] = DB::table('users')
-            ->where('role', 2)
-            ->where('kelas_id', $kelasId)
-            ->whereIn('jurusan_id', [1, 4, 6, 7])
-            ->count();
-
-        $data['pns'] = DB::table('users')
-            ->where('role', 2)
-            ->where('kelas_id', $kelasId)
-            ->where('jurusan_id', 5)
-            ->count();
-
-        $data['pns_nonsertifikasi'] = DB::table('users')
-            ->where('role', 2)
-            ->where('kelas_id', $kelasId)
-            ->where('jurusan_id', 8)
-            ->count();
-
-        $data['gty_sertifikasi'] = DB::table('users')
-            ->where('role', 2)
-            ->where('kelas_id', $kelasId)
-            ->whereIn('jurusan_id', [2, 3])
-            ->count();
-
-        return view('backend.invoice.add', $data);
+    $data['siswa'] = DB::table('users')->where('id', $id)->first();
+    if (!$data['siswa']) {
+        abort(404);
     }
+
+    return view('backend.invoice.add', $data);
+}
 }
