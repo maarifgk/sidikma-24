@@ -18,7 +18,7 @@
             <li class="menu-item">
                 <a href="/dashboard" class="menu-link ">
                     <i class="fa-brands fa-slack"></i>
-                    <div style="margin-left: 8px;">Dashboards</div>
+                    <div style="margin-left: 8px;">Dashboardss</div>
                 </a>
             </li>
             <li class="menu-item">
