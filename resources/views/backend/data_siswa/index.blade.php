@@ -6,7 +6,7 @@
     {{-- HEADER --}}
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0 fw-bold" style="font-size: 28px">
-            Data Siswa per Tahun Pelajaran  Baru
+            Data Siswa per Tahun Pelajaran BARU
         </h5>
 
         @if(auth()->user()->role != 4)
