@@ -14,7 +14,7 @@
                         <small class="text-white-50">LP. Ma'arif NU PCNU Gunungkidul</small>
                     </div>
                     <div class="text-end">
-                        <span class="badge bg-light fs-6">
+                        <span class="badge bg-light text-dark fs-6">
                             <i class="fas fa-calendar me-1"></i>Tahun Pelajaran {{ $tahunTerpilih ?? '2024/2025' }}
                         </span>
                     </div>
