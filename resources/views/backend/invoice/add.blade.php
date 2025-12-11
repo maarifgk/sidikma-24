@@ -2,41 +2,22 @@
 
 @section('content')
 <div class="row">
-    <div class="col-xl-11 mx-auto">
-        <div class="card shadow-sm border-0">
+    <div class="col-xl-10 mx-auto">
+        <div class="card shadow-sm">
 
             {{-- HEADER --}}
-            <div class="card-body bg-gradient border-bottom">
+            <div class="card-body border-bottom">
                 <div class="row align-items-center">
-                    <div class="col-md-7">
-                        <div class="d-flex align-items-center gap-3">
-                            <div>
-                                <h2 class="mb-0 fw-bold text-primary">
-                                    <i class="fas fa-file-invoice me-2"></i>INVOICE PEMBAYARAN
-                                </h2>
-                                <small class="text-muted d-block">
-                                    <i class="fas fa-building me-1"></i>LP. Ma'arif NU PCNU Gunungkidul
-                                </small>
-                            </div>
-                        </div>
+                    <div class="col-md-8">
+                        <h3 class="mb-0 fw-bold">INVOICE PEMBAYARAN</h3>
+                        <small class="text-muted">
+                            LP. Ma'arif NU PCNU Gunungkidul
+                        </small>
                     </div>
-                    <div class="col-md-5 text-end">
-                        <span class="badge bg-primary fs-6 px-3 py-2">
-                            <i class="fas fa-calendar me-1"></i>Tahun Pelajaran 2024/2025
+                    <div class="col-md-4 text-end">
+                        <span class="badge bg-primary fs-6">
+                            Tahun Pelajaran 2024/2025
                         </span>
-                        @if($invoice->status == 'paid')
-                            <span class="badge bg-success fs-6 px-3 py-2 ms-2">
-                                <i class="fas fa-check-circle me-1"></i>LUNAS
-                            </span>
-                        @elseif($invoice->status == 'sent')
-                            <span class="badge bg-info fs-6 px-3 py-2 ms-2">
-                                <i class="fas fa-paper-plane me-1"></i>DIKIRIM
-                            </span>
-                        @else
-                            <span class="badge bg-warning fs-6 px-3 py-2 ms-2">
-                                <i class="fas fa-file-alt me-1"></i>DRAFT
-                            </span>
-                        @endif
                     </div>
                 </div>
             </div>
