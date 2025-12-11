@@ -29,7 +29,7 @@
                         <h5 class="text-primary mb-3">Informasi Madrasah</h5>
                         <table class="table table-borderless table-sm">
                             <tr>
-                                <td width="140" class="fw-semibold">Nama Madrasah</td>
+                                <td width="140" class="fw-semibold">Nama</td>
                                 <td>:</td>
                                 <td><strong>{{ $invoice->school_name ?? '-' }}</strong></td>
                             </tr>
