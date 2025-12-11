@@ -69,99 +69,73 @@ class InvoiceController extends Controller
         return view('backend.invoice.view', $data);
     }
 
-    public function add($id)
+    public function add($tagihanId)
     {
         Carbon::setLocale('id');
 
         $data['title'] = "Invoice Pembayaran";
 
-        // data siswa yg dipilih
-        $data['siswa'] = DB::table('users')->where('id', $id)->first();
+        // ============================
+        // AMBIL DATA TAGIHAN BERDASARKAN ID TAGIHAN
+        // ============================
+        $tagihan = DB::table('tagihan')->where('id', $tagihanId)->first();
+
+        if (!$tagihan) {
+            abort(404);
+        }
+
+        // Ambil user_id dari tagihan
+        $userId = $tagihan->user_id;
+
+        // Ambil tahun ajaran dari thajaran_id
+        $tahunAjaran = DB::table('tahun_ajaran')->where('id', $tagihan->thajaran_id)->first();
+
+        // Simpan tahun pelajaran full (2024/2025)
+        $data['tahunPelajaran'] = $tahunAjaran ? $tahunAjaran->tahun : '-';
+
+        // Gunakan tahun ajaran full utk invoice number
+        $tahunInvoiceFull = $data['tahunPelajaran'];
+
+        // Nomor invoice misalnya: INV-2024/2025-013
+        $invoiceNumber = 'INV-' . $tahunInvoiceFull . '-' . str_pad($tagihanId, 3, '0', STR_PAD_LEFT);
+
+        // ============================
+        // DATA SISWA BERDASARKAN user_id
+        // ============================
+        $data['siswa'] = DB::table('users')->where('id', $userId)->first();
+
         if (!$data['siswa']) {
             abort(404);
         }
 
         // ============================
-        // AMBIL TAHUN AJARAN LAUT TAGIHAN
+        // AMBIL DATA INVOICE (tabel invoices)
         // ============================
-        $tahunAjaran = DB::table('tagihan as t')
-            ->join('tahun_ajaran as ta', 't.thajaran_id', '=', 'ta.id')
-            ->where('t.user_id', $id)
-            ->select('ta.tahun')
-            ->orderBy('t.id', 'desc')
-            ->first();
-
-        // Tahun pelajaran full: contoh "2024/2025"
-        $data['tahunPelajaran'] = $tahunAjaran ? $tahunAjaran->tahun : '-';
-
-        // Gunakan tahun ajaran lengkap untuk invoice_number
-        if ($tahunAjaran) {
-            $tahunInvoiceFull = $tahunAjaran->tahun;  // contoh: 2024/2025
-        } else {
-            $tahunInvoiceFull = date('Y');  // fallback
-        }
-
-        // Nomor Invoice: INV-2024/2025-044
-        $invoiceNumber = 'INV-' . $tahunInvoiceFull . '-' . str_pad($id, 3, '0', STR_PAD_LEFT);
-
-
-        // Ambil invoice dari DB
-        $data['invoice'] = DB::table('invoices')->where('user_id', $id)->first();
+        $data['invoice'] = DB::table('invoices')->where('tagihan_id', $tagihanId)->first();
 
         // Jika belum ada invoice → buat default
         if (!$data['invoice']) {
             $data['invoice'] = (object) [
-                'invoice_number' => $invoiceNumber, // PAKAI YANG BARU
+                'invoice_number' => $invoiceNumber,
                 'invoice_date' => now()->format('Y-m-d'),
-                'school_name' => $data['siswa']->nama_lengkap ?? 'MI Ma\'arif Wonosari',
-                'school_address' => $data['siswa']->alamat ?? 'Gunungkidul',
-                'total_amount' => 1320000.00,
+                'school_name' => $data['siswa']->nama_lengkap,
+                'school_address' => $data['siswa']->alamat,
+                'total_amount' => $tagihan->nominal ?? 0,
                 'notes' => 'Pembayaran iuran dilakukan per semester. Invoice ini sah tanpa tanda tangan. Pembayaran dapat dilakukan melalui transfer bank atau tunai.',
                 'status' => 'draft'
             ];
         }
 
-        // Data Profil User Login
+        // ============================
+        // DATA TAMBAHAN (profile user login)
+        // ============================
         $data['profile'] = DB::table('users')
-            ->select(
-                'users.*',
-                'kelas.nama_kelas',
-                'jurusan.nama_jurusan',
-                'ketugasan.ketugasan'
-            )
             ->leftJoin('kelas', 'kelas.id', '=', 'users.kelas_id')
             ->leftJoin('jurusan', 'jurusan.id', '=', 'users.jurusan_id')
             ->leftJoin('ketugasan', 'ketugasan.id', '=', 'users.ketugasan')
+            ->select('users.*', 'kelas.nama_kelas', 'jurusan.nama_jurusan', 'ketugasan.ketugasan')
             ->where('users.id', auth()->id())
             ->first();
-
-        $kelasId = $data['siswa']->kelas_id;
-
-        // RINGKASAN GURU
-        $data['gty_nonsertifikasi'] = DB::table('users')
-            ->where('role', 2)
-            ->where('kelas_id', $kelasId)
-            ->whereIn('jurusan_id', [1, 4, 6, 7])
-            ->count();
-
-        $data['pns'] = DB::table('users')
-            ->where('role', 2)
-            ->where('kelas_id', $kelasId)
-            ->where('jurusan_id', 5)
-            ->count();
-
-        $data['pns_nonsertifikasi'] = DB::table('users')
-            ->where('role', 2)
-            ->where('kelas_id', $kelasId)
-            ->where('jurusan_id', 8)
-            ->count();
-
-        $data['gty_sertifikasi'] = DB::table('users')
-            ->where('role', 2)
-            ->where('kelas_id', $kelasId)
-            ->whereIn('jurusan_id', [2, 3])
-            ->count();
-
 
         return view('backend.invoice.add', $data);
     }
