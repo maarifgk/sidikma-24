@@ -91,7 +91,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('invoice.add', $t->user_id) }}" class="btn btn-sm btn-outline-primary">
+                                        <a href="{{ route('invoice.add.tagihan', $t->id) }}" class="btn btn-sm btn-outline-primary">
                                             Detail
                                         </a>
                                     </td>

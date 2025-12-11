@@ -90,7 +90,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/invoice/editProses', [InvoiceController::class, 'editProses'])->name('invoice.editProses');
     Route::get('/invoice/detail/{id}', [InvoiceController::class, 'detailKelas'])
     ->name('invoice.detail');
-    Route::get('/invoice/add/{tagihanId}', [InvoiceController::class, 'add'])->name('invoice.add');
+    Route::get('/invoice/add/{tagihanId}', [InvoiceController::class, 'add'])
+    ->name('invoice.add.tagihan');
 
     //Aktivasi
     Route::get('/aktivasi', [AktivasiController::class, 'view'])->name('aktivasi');
