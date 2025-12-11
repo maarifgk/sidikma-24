@@ -147,7 +147,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4">
+                                    <td colspan="4" class="text-center py-4">
                                         <div class="text-muted">
                                             <i class="fas fa-inbox fa-2x mb-2"></i>
                                             <p class="mb-0">Tidak ada data siswa</p>
