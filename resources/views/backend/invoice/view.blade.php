@@ -158,7 +158,7 @@
                         </tbody>
                         <tfoot class="table-light fw-bold">
                             <tr class="text-center">
-                                <th colspan="4" class="text-end">Total Siswa:</th>
+                                <th colspan="3" class="text-end">Total Siswa:</th>
                                 <th class="text-center text-primary">{{ $totalSiswa }}</th>
                             </tr>
                         </tfoot>
