@@ -77,43 +77,35 @@
                                 <th>Jenis Pembayaran</th>
                                 <th>Uraian</th>
                                 <th width="130">Nominal</th>
-                                <th>Status</th>
+                                <th width="100">Status</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            @php $no = 1; @endphp
-
-                            @forelse($paymentList as $pay)
-                                <tr>
-                                    <td class="text-center">{{ $no++ }}</td>
-                                    <td class="text-center">{{ $pay->jenis_pembayaran ?? '-' }}</td>
-                                    <td>{{ $pay->keterangan ?? '-' }}</td>
-                                    <td class="text-end">Rp {{ number_format($pay->nilai, 0, ',', '.') }}</td>
-                                    <td class="text-center">
-                                        @if($pay->status == 'Lunas')
-                                            <span class="badge bg-success">Lunas</span>
-                                        @elseif($pay->status == 'Pending')
-                                            <span class="badge bg-warning text-dark">Pending</span>
-                                        @else
-                                            <span class="badge bg-secondary">{{ $pay->status }}</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center py-3 text-muted">
-                                        <i>Tidak ada rincian pembayaran</i>
-                                    </td>
-                                </tr>
-                            @endforelse
+                            <tr>
+                                <td class="text-center">1</td>
+                                <td class="text-center">
+                                    {{ $tagihan->jenis ?? '-' }}
+                                </td>
+                                <td>{{ $tagihan->uraian ?? '-' }}</td>
+                                <td class="text-end">
+                                    Rp {{ number_format($tagihan->nominal ?? 0, 0, ',', '.') }}
+                                </td>
+                                <td class="text-center">
+                                    @if(($tagihan->status ?? '') == 'Lunas')
+                                        <span class="badge bg-success">Lunas</span>
+                                    @else
+                                        <span class="badge bg-warning text-dark">Belum Lunas</span>
+                                    @endif
+                                </td>
+                            </tr>
                         </tbody>
 
                         <tfoot class="table-light">
                             <tr>
                                 <th colspan="3" class="text-end fw-bold">Total</th>
                                 <th class="text-end text-success fs-5 fw-bold">
-                                    Rp {{ number_format($paymentList->sum('nominal'), 0, ',', '.') }}
+                                    Rp {{ number_format($tagihan->nominal ?? 0, 0, ',', '.') }}
                                 </th>
                                 <th></th>
                             </tr>

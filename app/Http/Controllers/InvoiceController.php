@@ -153,13 +153,7 @@ class InvoiceController extends Controller
 
         $data['paymentDate'] = $payment ? $payment->created_at : null;
 
-        // ===============================
-        // AMBIL LIST RINCIAN PEMBAYARAN BERDASARKAN tagihan_id
-        // ===============================
-        $data['paymentList'] = DB::table('payment')
-            ->where('tagihan_id', $tagihanId)
-            ->orderBy('id', 'asc')
-            ->get();
+        $data['tagihan'] = $tagihan;
 
         return view('backend.invoice.add', $data);
     }
