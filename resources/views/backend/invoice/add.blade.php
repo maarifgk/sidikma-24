@@ -85,11 +85,11 @@
                             <tr>
                                 <td class="text-center">1</td>
                                 <td class="text-center">
-                                    {{ $tagihan->jenis ?? '-' }}
+                                    {{ $tagihan->jenis_pembayaran ?? '-' }}
                                 </td>
-                                <td>{{ $tagihan->uraian ?? '-' }}</td>
+                                <td>{{ $tagihan->keterangan ?? '-' }}</td>
                                 <td class="text-end">
-                                    Rp {{ number_format($tagihan->nominal ?? 0, 0, ',', '.') }}
+                                    Rp {{ number_format($tagihan->nilai ?? 0, 0, ',', '.') }}
                                 </td>
                                 <td class="text-center">
                                     @if(($tagihan->status ?? '') == 'Lunas')
