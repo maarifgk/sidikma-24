@@ -49,6 +49,12 @@ class InvoiceController extends Controller
             $data['tahunTerpilih'] = null;
         }
 
+        // hitung total siswa dengan role 2 dari database users
+        $data['totalSiswaRole2'] = DB::table('users')
+            ->where('role', 2)
+            ->where('status', '!=', 'Lulus')
+            ->count();
+
         return view('backend.invoice.view', $data);
     }
 

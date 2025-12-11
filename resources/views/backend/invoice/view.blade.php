@@ -67,8 +67,8 @@
                                 <i class="fas fa-users text-white fs-5"></i>
                             </div>
                             <div>
-                                <p class="text-muted mb-0 small">Total Siswa</p>
-                                <h5 class="mb-0 fw-bold text-dark">{{ $totalSiswa }}</h5>
+                                <p class="text-muted mb-0 small">Total Siswa (Role: Siswa)</p>
+                                <h5 class="mb-0 fw-bold text-dark">{{ $totalSiswaRole2 ?? 0 }}</h5>
                             </div>
                         </div>
                     </div>
