@@ -54,6 +54,22 @@ class InvoiceController extends Controller
             abort(404);
         }
 
+        // Fetch invoice data for the student
+        $data['invoice'] = DB::table('invoices')->where('user_id', $id)->first();
+
+        // If no invoice exists, create default data
+        if (!$data['invoice']) {
+            $data['invoice'] = (object) [
+                'invoice_number' => 'INV-' . date('Y') . '-' . str_pad($id, 3, '0', STR_PAD_LEFT),
+                'invoice_date' => now()->format('Y-m-d'),
+                'school_name' => 'MI Ma\'arif Wonosari',
+                'school_address' => 'Gunungkidul',
+                'total_amount' => 1320000.00,
+                'notes' => 'Pembayaran iuran dilakukan per semester. Invoice ini sah tanpa tanda tangan. Pembayaran dapat dilakukan melalui transfer bank atau tunai.',
+                'status' => 'draft'
+            ];
+        }
+
         // profile user login
         $data['profile'] = DB::table('users')
             ->select(
