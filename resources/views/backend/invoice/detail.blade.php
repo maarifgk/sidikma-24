@@ -82,7 +82,7 @@
                                     <td>{{ $no++ }}</td>
                                     <td class="text-start fw-semibold">{{ $t->nama_lengkap }}</td>
                                     <td>{{ $t->thajaran_id }}</td>
-                                    <td>Rp {{ number_format($t->jumlah, 0, ',', '.') }}</td>
+                                    <td>Rp {{ number_format($t->nominal, 0, ',', '.') }}</td>
                                     <td>
                                         @if($t->status == 'Lunas')
                                             <span class="badge bg-success">Lunas</span>
