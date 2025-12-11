@@ -563,6 +563,11 @@
                                 <div>Data Siswa</div>
                             </a>
                         </li>
+                        <li class="menu-item">
+                            <a href="/data-tenaga" class="menu-link">
+                                <div>Data Tenaga Pendidik</div>
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 <li class="menu-item">
