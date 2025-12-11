@@ -129,7 +129,7 @@
                     @else
                         <li>Pembayaran iuran dilakukan per semester.</li>
                         <li>Invoice ini sah tanpa tanda tangan.</li>
-                        <li>Pembayaran dapat dilakukan melalui QRIS yang tersedia di Aplikasi</li>
+                        <li>Pembayaran dapat dilakukan melalui QRIS yang tersedia di Aplikasi.</li>
                     @endif
                 </ul>
             </div>
