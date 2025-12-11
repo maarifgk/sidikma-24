@@ -88,8 +88,8 @@
                                 <tr>
                                     <td class="text-center">{{ $no++ }}</td>
                                     <td class="text-center">{{ $pay->jenis_pembayaran ?? '-' }}</td>
-                                    <td>{{ $pay->uraian ?? '-' }}</td>
-                                    <td class="text-end">Rp {{ number_format($pay->nominal, 0, ',', '.') }}</td>
+                                    <td>{{ $pay->keterangan ?? '-' }}</td>
+                                    <td class="text-end">Rp {{ number_format($pay->nilai, 0, ',', '.') }}</td>
                                     <td class="text-center">
                                         @if($pay->status == 'Lunas')
                                             <span class="badge bg-success">Lunas</span>
