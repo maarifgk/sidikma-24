@@ -81,13 +81,37 @@ class InvoiceController extends Controller
             abort(404);
         }
 
-        // Fetch invoice data for the student
+        // ============================
+        // AMBIL TAHUN AJARAN LAUT TAGIHAN
+        // ============================
+        $tahunAjaran = DB::table('tagihan as t')
+            ->join('tahun_ajaran as ta', 't.thajaran_id', '=', 'ta.id')
+            ->where('t.user_id', $id)
+            ->select('ta.tahun')
+            ->orderBy('t.id', 'desc')
+            ->first();
+
+        // Tahun pelajaran full: contoh "2024/2025"
+        $data['tahunPelajaran'] = $tahunAjaran ? $tahunAjaran->tahun : '-';
+
+        // Gunakan tahun ajaran lengkap untuk invoice_number
+        if ($tahunAjaran) {
+            $tahunInvoiceFull = $tahunAjaran->tahun;  // contoh: 2024/2025
+        } else {
+            $tahunInvoiceFull = date('Y');  // fallback
+        }
+
+        // Nomor Invoice: INV-2024/2025-044
+        $invoiceNumber = 'INV-' . $tahunInvoiceFull . '-' . str_pad($id, 3, '0', STR_PAD_LEFT);
+
+
+        // Ambil invoice dari DB
         $data['invoice'] = DB::table('invoices')->where('user_id', $id)->first();
 
-        // If no invoice exists, create default data
+        // Jika belum ada invoice → buat default
         if (!$data['invoice']) {
             $data['invoice'] = (object) [
-                'invoice_number' => 'INV-' . date('Y') . '-' . str_pad($id, 3, '0', STR_PAD_LEFT),
+                'invoice_number' => $invoiceNumber, // PAKAI YANG BARU
                 'invoice_date' => now()->format('Y-m-d'),
                 'school_name' => $data['siswa']->nama_lengkap ?? 'MI Ma\'arif Wonosari',
                 'school_address' => $data['siswa']->alamat ?? 'Gunungkidul',
@@ -97,7 +121,7 @@ class InvoiceController extends Controller
             ];
         }
 
-        // profile user login
+        // Data Profil User Login
         $data['profile'] = DB::table('users')
             ->select(
                 'users.*',
@@ -113,7 +137,7 @@ class InvoiceController extends Controller
 
         $kelasId = $data['siswa']->kelas_id;
 
-        // RINGKASAN JUMLAH GURU
+        // RINGKASAN GURU
         $data['gty_nonsertifikasi'] = DB::table('users')
             ->where('role', 2)
             ->where('kelas_id', $kelasId)
@@ -138,15 +162,6 @@ class InvoiceController extends Controller
             ->whereIn('jurusan_id', [2, 3])
             ->count();
 
-        // Ambil tahun ajaran berdasarkan tagihan siswa
-        $tahunAjaran = DB::table('tagihan as t')
-            ->join('tahun_ajaran as ta', 't.thajaran_id', '=', 'ta.id')
-            ->where('t.user_id', $id)
-            ->select('ta.tahun')
-            ->orderBy('t.id', 'desc') // ambil tagihan terbaru
-            ->first();
-
-        $data['tahunPelajaran'] = $tahunAjaran ? $tahunAjaran->tahun : '-';
 
         return view('backend.invoice.add', $data);
     }
