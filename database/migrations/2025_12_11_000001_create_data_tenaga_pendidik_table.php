@@ -17,7 +17,6 @@ return new class extends Migration
             $table->unsignedBigInteger('madrasah_id')->nullable();
 
             // requested columns
-            $table->integer('peserta_didik')->default(0);
             $table->integer('kepala_guru_asn_sertifikasi')->default(0);
             $table->integer('kepala_guru_asn_non_sertifikasi')->default(0);
             $table->integer('kepala_guru_yayasan_sertifikasi_inpassing')->default(0);

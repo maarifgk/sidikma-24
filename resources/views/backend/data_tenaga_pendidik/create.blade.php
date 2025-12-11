@@ -35,10 +35,6 @@
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label class="form-label">Peserta Didik</label>
-                <input type="number" name="peserta_didik" class="form-control tenaga-input" value="0" min="0">
-            </div>
-            <div class="col-md-6 mb-3">
                 <label class="form-label">Kepala/Guru ASN Sertifikasi</label>
                 <input type="number" name="kepala_guru_asn_sertifikasi" class="form-control tenaga-input" value="0" min="0">
             </div>

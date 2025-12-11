@@ -89,7 +89,6 @@ class DataTenagaPendidikController extends Controller
         }
 
         $fields = [
-            'peserta_didik',
             'kepala_guru_asn_sertifikasi',
             'kepala_guru_asn_non_sertifikasi',
             'kepala_guru_yayasan_sertifikasi_inpassing',
@@ -104,7 +103,6 @@ class DataTenagaPendidikController extends Controller
         DataTenagaPendidik::create([
             'madrasah_id' => $request->madrasah_id,
             'tahun_pelajaran' => $request->tahun_pelajaran,
-            'peserta_didik' => $request->peserta_didik ?? 0,
             'kepala_guru_asn_sertifikasi' => $request->kepala_guru_asn_sertifikasi ?? 0,
             'kepala_guru_asn_non_sertifikasi' => $request->kepala_guru_asn_non_sertifikasi ?? 0,
             'kepala_guru_yayasan_sertifikasi_inpassing' => $request->kepala_guru_yayasan_sertifikasi_inpassing ?? 0,
@@ -136,7 +134,6 @@ class DataTenagaPendidikController extends Controller
         ]);
 
         $fields = [
-            'peserta_didik',
             'kepala_guru_asn_sertifikasi',
             'kepala_guru_asn_non_sertifikasi',
             'kepala_guru_yayasan_sertifikasi_inpassing',
@@ -151,7 +148,6 @@ class DataTenagaPendidikController extends Controller
         DataTenagaPendidik::findOrFail($id)->update([
             'madrasah_id' => $request->madrasah_id,
             'tahun_pelajaran' => $request->tahun_pelajaran,
-            'peserta_didik' => $request->peserta_didik ?? 0,
             'kepala_guru_asn_sertifikasi' => $request->kepala_guru_asn_sertifikasi ?? 0,
             'kepala_guru_asn_non_sertifikasi' => $request->kepala_guru_asn_non_sertifikasi ?? 0,
             'kepala_guru_yayasan_sertifikasi_inpassing' => $request->kepala_guru_yayasan_sertifikasi_inpassing ?? 0,

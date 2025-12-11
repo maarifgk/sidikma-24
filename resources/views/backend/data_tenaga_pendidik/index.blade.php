@@ -115,7 +115,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center text-muted">Belum ada data tenaga pendidik</td>
+                            <td colspan="9" class="text-center text-muted">Belum ada data tenaga pendidik</td>
                         </tr>
                     @endforelse
                 </tbody>
