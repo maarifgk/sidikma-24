@@ -68,42 +68,54 @@
             {{-- TABEL RINCIAN --}}
             <div class="card-body">
                 <h5 class="card-title text-primary mb-3">Rincian Pembayaran</h5>
+
                 <div class="table-responsive">
                     <table class="table table-striped table-hover table-bordered align-middle">
                         <thead class="table-primary">
                             <tr class="text-center">
                                 <th width="50">No</th>
+                                <th>Jenis Pembayaran</th>
                                 <th>Uraian</th>
-                                <th width="100">Satuan</th>
                                 <th width="130">Nominal</th>
-                                <th width="100">Qty</th>
-                                <th width="150">Jumlah</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            <tr>
-                                <td class="text-center">1</td>
-                                <td>Peserta Didik</td>
-                                <td class="text-center">Orang</td>
-                                <td class="text-end">Rp 1.000</td>
-                                <td class="text-center">120</td>
-                                <td class="text-end">Rp 720.000</td>
-                            </tr>
-                            <tr>
-                                <td class="text-center">2</td>
-                                <td>Guru ASN Sertifikasi</td>
-                                <td class="text-center">Orang</td>
-                                <td class="text-end">Rp 20.000</td>
-                                <td class="text-center">5</td>
-                                <td class="text-end">Rp 600.000</td>
-                            </tr>
+                            @php $no = 1; @endphp
+
+                            @forelse($paymentList as $pay)
+                                <tr>
+                                    <td class="text-center">{{ $no++ }}</td>
+                                    <td class="text-center">{{ $pay->jenis_pembayaran ?? '-' }}</td>
+                                    <td>{{ $pay->uraian ?? '-' }}</td>
+                                    <td class="text-end">Rp {{ number_format($pay->nominal, 0, ',', '.') }}</td>
+                                    <td class="text-center">
+                                        @if($pay->status == 'Lunas')
+                                            <span class="badge bg-success">Lunas</span>
+                                        @elseif($pay->status == 'Pending')
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        @else
+                                            <span class="badge bg-secondary">{{ $pay->status }}</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-3 text-muted">
+                                        <i>Tidak ada rincian pembayaran</i>
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
+
                         <tfoot class="table-light">
                             <tr>
-                                <th colspan="5" class="text-end fw-bold">Total</th>
+                                <th colspan="3" class="text-end fw-bold">Total</th>
                                 <th class="text-end text-success fs-5 fw-bold">
-                                    Rp {{ $invoice->total_amount ? number_format($invoice->total_amount, 0, ',', '.') : '-' }}
+                                    Rp {{ number_format($paymentList->sum('nominal'), 0, ',', '.') }}
                                 </th>
+                                <th></th>
                             </tr>
                         </tfoot>
                     </table>
