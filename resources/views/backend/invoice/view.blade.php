@@ -110,9 +110,9 @@
 
             {{-- TABLE SISWA --}}
             <div class="card-body py-3">
-                <h5 class="card-title text-primary mb-3">
-                    <i class="fas fa-list me-2"></i>Daftar Siswa & Invoice
-                </h5>
+                <label class="card-title text-dark mb-3">
+                    <i class="fas fa-list me-2"></i>Data Madrasah/Sekolah
+                </label>
                 <div class="table-responsive">
                     <table id="datatable" class="table table-striped table-hover table-sm">
                         <thead class="table-primary">
