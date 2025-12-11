@@ -142,7 +142,7 @@
                         <p class="mb-5">
                             Gunungkidul,
                             @if($paymentDate)
-                                        {{ \Carbon\Carbon::parse($paymentDate)->format('d M Y - H:i') }} WIB
+                                        {{ \Carbon\Carbon::parse($paymentDate)->format('d M Y') }} WIB
                                     @else
                                         <span class="text-danger">Belum Dibayar</span>
                                     @endif
