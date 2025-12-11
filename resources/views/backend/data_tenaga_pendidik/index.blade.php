@@ -57,7 +57,6 @@
                         <th>No</th>
                         <th>Tahun</th>
                         <th class="text-start">Madrasah</th>
-                        <th>Peserta Didik</th>
                         <th>ASN Sertifikasi</th>
                         <th>ASN Non Sertifikasi</th>
                         <th>Yayasan Sertifikasi/Inpassing</th>
@@ -75,7 +74,6 @@
                             <td>{{ $no++ }}</td>
                             <td>{{ $row->tahun_pelajaran }}</td>
                             <td class="text-start">{{ $row->nama_madrasah }}</td>
-                            <td>{{ $row->peserta_didik }}</td>
                             <td>{{ $row->kepala_guru_asn_sertifikasi }}</td>
                             <td>{{ $row->kepala_guru_asn_non_sertifikasi }}</td>
                             <td>{{ $row->kepala_guru_yayasan_sertifikasi_inpassing }}</td>
