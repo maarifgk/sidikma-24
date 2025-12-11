@@ -120,17 +120,9 @@
                     <i class="fas fa-info-circle me-2"></i>Catatan Penting
                 </h6>
                 <ul class="mb-0 text-muted">
-                    @if($invoice->notes)
-                        @foreach(explode('.', $invoice->notes) as $note)
-                            @if(trim($note))
-                                <li>{{ trim($note) }}.</li>
-                            @endif
-                        @endforeach
-                    @else
                         <li>Pembayaran iuran dilakukan per semester.</li>
                         <li>Invoice ini sah tanpa tanda tangan.</li>
                         <li>Pembayaran dapat dilakukan melalui QRIS yang tersedia di Aplikasi.</li>
-                    @endif
                 </ul>
             </div>
 
@@ -142,7 +134,7 @@
                         <p class="mb-5">
                             Gunungkidul,
                             @if($paymentDate)
-                                        {{ \Carbon\Carbon::parse($paymentDate)->format('d M Y') }} WIB
+                                        {{ \Carbon\Carbon::parse($paymentDate)->format('d M Y') }}
                                     @else
                                         <span class="text-danger">Belum Dibayar</span>
                                     @endif
