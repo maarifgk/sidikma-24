@@ -149,12 +149,37 @@ class InvoiceController extends Controller
             ->where('id', $tagihan->jenis_pembayaran)
             ->first();
 
+        // ======================================
+        // OTOMATIS AMBIL BULAN DARI JENIS PEMBAYARAN
+        // ======================================
+        $bulanText = '-';
+
+        if ($data['jenisPembayaran']) {
+
+            // Ambil text pembayaran
+            $pembayaranText = $data['jenisPembayaran']->pembayaran;
+
+            // Jika ada kata "Iuran" dan memiliki text di belakangnya
+            if (stripos($pembayaranText, 'Iuran') !== false) {
+
+                // Ambil semua teks setelah kata "Iuran"
+                $parts = explode('Iuran', $pembayaranText);
+
+                if (isset($parts[1])) {
+                    $bulanText = trim($parts[1]); // bersihkan spasi
+                }
+            }
+        }
+
+        // Simpan ke variabel untuk dipakai di Blade
+        $data['bulanIuran'] = $bulanText;
+
         $data['rincianIuran'] = [
         [
             'uraian' => 'Peserta Didik',
             'satuan' => 'Orang',
             'nominal' => 1000,
-            'bulan' => '-',
+            'bulan' => $bulanText,
             'kuantitas' => 0,
             'frekuensi' => 6,
         ],
@@ -162,7 +187,7 @@ class InvoiceController extends Controller
             'uraian' => 'Kepala/Guru ASN Sertifikasi',
             'satuan' => 'Orang',
             'nominal' => 20000,
-            'bulan' => '-',
+            'bulan' => $bulanText,
             'kuantitas' => 0,
             'frekuensi' => 6,
         ],
@@ -170,7 +195,7 @@ class InvoiceController extends Controller
             'uraian' => 'Kepala/Guru ASN Non Sertifikasi',
             'satuan' => 'Orang',
             'nominal' => 15000,
-            'bulan' => '-',
+            'bulan' => $bulanText,
             'kuantitas' => 0,
             'frekuensi' => 6,
         ],
@@ -178,7 +203,7 @@ class InvoiceController extends Controller
             'uraian' => 'Kepala/Guru Yayasan Sertifikasi/Inpassing',
             'satuan' => 'Orang',
             'nominal' => 10000,
-            'bulan' => '-',
+            'bulan' => $bulanText,
             'kuantitas' => 0,
             'frekuensi' => 6,
         ],
@@ -186,7 +211,7 @@ class InvoiceController extends Controller
             'uraian' => 'Kepala/Guru Yayasan Non-Sertifikasi',
             'satuan' => 'Orang',
             'nominal' => 2000,
-            'bulan' => '-',
+            'bulan' => $bulanText,
             'kuantitas' => 0,
             'frekuensi' => 6,
         ],
