@@ -80,7 +80,11 @@ class InvoiceController extends Controller
         // ============================
         $tagihan = DB::table('tagihan')->where('id', $tagihanId)->first();
 
-        // Ambil data payment berdasarkan tagihan_id
+        if (!$tagihan) {
+            abort(404);
+        }
+
+        // Ambil pembayaran berdasarkan tagihan_id
         $payment = DB::table('payment')
             ->where('tagihan_id', $tagihanId)
             ->orderBy('id', 'desc')
@@ -88,38 +92,33 @@ class InvoiceController extends Controller
 
         $data['paymentDate'] = $payment ? $payment->created_at : null;
 
-        if (!$tagihan) {
-            abort(404);
-        }
-
-        // Ambil user_id dan tahun ajaran dari tagihan
+        // Ambil user_id dan tahun ajaran
         $userId = $tagihan->user_id;
         $thAjarId = $tagihan->thajaran_id;
 
         // ============================
-        // AMBIL DATA SISWA BERDASARKAN user_id
+        // AMBIL DATA SISWA
         // ============================
         $data['siswa'] = DB::table('users')->where('id', $userId)->first();
+
         if (!$data['siswa']) {
             abort(404);
         }
 
         // ============================
-        // AMBIL TAHUN AJARAN (2024/2025)
+        // AMBIL TAHUN AJARAN
         // ============================
         $tahunAjaran = DB::table('tahun_ajaran')->where('id', $thAjarId)->first();
         $data['tahunPelajaran'] = $tahunAjaran ? $tahunAjaran->tahun : '-';
 
-        // Nomor invoice akan menggunakan tahun ajaran full, contoh:
-        // INV-2024/2025-013
+        // Nomor invoice format: INV-2024/2025-013
         $invoiceNumber = 'INV-' . $data['tahunPelajaran'] . '-' . str_pad($tagihanId, 3, '0', STR_PAD_LEFT);
 
         // ============================
-        // AMBIL DATA INVOICE DI TABEL invoices BERDASARKAN tagihan.id
+        // AMBIL DATA INVOICE (JIKA ADA)
         // ============================
         $data['invoice'] = DB::table('invoices')->where('id', $tagihanId)->first();
 
-        // Jika belum ada invoice → buat default
         if (!$data['invoice']) {
             $data['invoice'] = (object) [
                 'invoice_number' => $invoiceNumber,
@@ -133,7 +132,7 @@ class InvoiceController extends Controller
         }
 
         // ============================
-        // PROFILE USER LOGIN
+        // PROFILE LOGIN
         // ============================
         $data['profile'] = DB::table('users')
             ->leftJoin('kelas', 'kelas.id', '=', 'users.kelas_id')
@@ -144,15 +143,13 @@ class InvoiceController extends Controller
             ->first();
 
         // ===============================
-        // AMBIL DATA PAYMENT BERDASARKAN tagihan_id
+        // AMBIL JENIS PEMBAYARAN DARI TABEL jenis_pembayaran
         // ===============================
-        $payment = DB::table('payment')
-            ->where('tagihan_id', $tagihanId)
-            ->orderBy('id', 'desc') // kalau ada lebih dari 1 payment, ambil terbaru
+        $data['jenisPembayaran'] = DB::table('jenis_pembayaran')
+            ->where('id', $tagihan->jenis_pembayaran)
             ->first();
 
-        $data['paymentDate'] = $payment ? $payment->created_at : null;
-
+        // Kirim data tagihan
         $data['tagihan'] = $tagihan;
 
         return view('backend.invoice.add', $data);

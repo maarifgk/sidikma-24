@@ -76,7 +76,7 @@
                                 <th width="50">No</th>
                                 <th>Jenis Pembayaran</th>
                                 <th>Uraian</th>
-                                <th width="130">Nominal</th>
+                                <th width="160">Nominal</th>
                                 <th width="100">Status</th>
                             </tr>
                         </thead>
@@ -85,7 +85,7 @@
                             <tr>
                                 <td class="text-center">1</td>
                                 <td class="text-center">
-                                    {{ $tagihan->jenis_pembayaran ?? '-' }}
+                                    {{ $jenisPembayaran->pembayaran ?? '-' }}
                                 </td>
                                 <td>{{ $tagihan->keterangan ?? '-' }}</td>
                                 <td class="text-end">
