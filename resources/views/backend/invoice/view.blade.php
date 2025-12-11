@@ -120,7 +120,7 @@
                                 <th width="50">No</th>
                                 <th>Nama Madrasah/Sekolah</th>
                                 <th width="130">Jenjang</th>
-                                <th width="280" class="text-center">Aksi</th>
+                                <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
