@@ -185,36 +185,17 @@ class InvoiceController extends Controller
         $jumlahSiswa = $jumlahSiswa ?? 0;
 
         // ===============================
-        // HITUNG KUANTITAS GURU OTOMATIS
+        // AMBIL DATA TENAGA PENDIDIK DARI data_tenaga_pendidik
         // ===============================
+        $tenagaPendidik = DB::table('data_tenaga_pendidik')
+            ->where('madrasah_id', $kelasId)
+            ->where('tahun_pelajaran', $data['tahunPelajaran'])
+            ->first();
 
-        // Kepala/Guru ASN Sertifikasi → jurusan_id = 5
-        $asnSertifikasi = DB::table('users')
-            ->where('kelas_id', $kelasId)
-            ->where('role', 2)
-            ->where('jurusan_id', 5)
-            ->count();
-
-        // Kepala/Guru ASN Non Sertifikasi → jurusan_id = 8
-        $asnNonSertifikasi = DB::table('users')
-            ->where('kelas_id', $kelasId)
-            ->where('role', 2)
-            ->where('jurusan_id', 8)
-            ->count();
-
-        // Kepala/Guru Yayasan Sertifikasi / Inpassing → jurusan_id = 2 OR 3
-        $yayasanSertifikasi = DB::table('users')
-            ->where('kelas_id', $kelasId)
-            ->where('role', 2)
-            ->whereIn('jurusan_id', [2,3])
-            ->count();
-
-        // Kepala/Guru Yayasan Non Sertifikasi → jurusan_id = 1,4,6,7
-        $yayasanNonSertifikasi = DB::table('users')
-            ->where('kelas_id', $kelasId)
-            ->where('role', 2)
-            ->whereIn('jurusan_id', [1,4,6,7])
-            ->count();
+        $asnSertifikasi = $tenagaPendidik->kepala_guru_asn_sertifikasi ?? 0;
+        $asnNonSertifikasi = $tenagaPendidik->kepala_guru_asn_non_sertifikasi ?? 0;
+        $yayasanSertifikasi = $tenagaPendidik->kepala_guru_yayasan_sertifikasi_inpassing ?? 0;
+        $yayasanNonSertifikasi = $tenagaPendidik->kepala_guru_yayasan_non_sertifikasi ?? 0;
 
         // ===============================
         // RINCIAN IURAN (TERUPDATE KODENYA)
