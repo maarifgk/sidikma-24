@@ -50,9 +50,15 @@
                                 <td><span class="badge bg-secondary">{{ $invoice->invoice_number }}</span></td>
                             </tr>
                             <tr>
-                                <td class="fw-semibold">Tanggal</td>
+                                <td class="fw-semibold">Tanggal Pembayaran</td>
                                 <td>:</td>
-                                <td>{{ $invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('d M Y') : '-' }}</td>
+                                <td>
+                                    @if($paymentDate)
+                                        {{ \Carbon\Carbon::parse($paymentDate)->format('d M Y - H:i') }} WIB
+                                    @else
+                                        <span class="text-danger">Belum Dibayar</span>
+                                    @endif
+                                </td>
                             </tr>
                         </table>
                     </div>

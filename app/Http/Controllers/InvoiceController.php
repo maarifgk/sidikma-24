@@ -80,6 +80,14 @@ class InvoiceController extends Controller
         // ============================
         $tagihan = DB::table('tagihan')->where('id', $tagihanId)->first();
 
+        // Ambil data payment berdasarkan tagihan_id
+        $payment = DB::table('payment')
+            ->where('tagihan_id', $tagihanId)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $data['paymentDate'] = $payment ? $payment->created_at : null;
+
         if (!$tagihan) {
             abort(404);
         }
@@ -134,6 +142,16 @@ class InvoiceController extends Controller
             ->select('users.*', 'kelas.nama_kelas', 'jurusan.nama_jurusan', 'ketugasan.ketugasan')
             ->where('users.id', auth()->id())
             ->first();
+
+        // ===============================
+        // AMBIL DATA PAYMENT BERDASARKAN tagihan_id
+        // ===============================
+        $payment = DB::table('payment')
+            ->where('tagihan_id', $tagihanId)
+            ->orderBy('id', 'desc') // kalau ada lebih dari 1 payment, ambil terbaru
+            ->first();
+
+        $data['paymentDate'] = $payment ? $payment->created_at : null;
 
         return view('backend.invoice.add', $data);
     }
