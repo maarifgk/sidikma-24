@@ -57,7 +57,7 @@ class InvoiceController extends Controller
 
         // hitung pembayaran lunas dan belum lunas dari database tagihan sesuai tahun ajaran
         $tagihanQuery = DB::table('tagihan');
-        
+
         // jika ada tahun ajaran yang dipilih, filter berdasarkan tahun tersebut
         if ($tahunId) {
             $tagihanQuery->where('thajaran_id', $tahunId);
