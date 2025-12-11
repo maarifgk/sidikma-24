@@ -138,6 +138,15 @@ class InvoiceController extends Controller
             ->whereIn('jurusan_id', [2, 3])
             ->count();
 
+        $thAjar = DB::table('tagihan as t')
+            ->join('tahun_ajaran as ta', 't.thajaran_id', '=', 'ta.id')
+            ->where('t.user_id', $id)
+            ->orderBy('t.id', 'desc')
+            ->select('ta.tahun')
+            ->first();
+
+        $data['tahunPelajaran'] = $thAjar ? $thAjar->tahun : '-';
+
         return view('backend.invoice.add', $data);
     }
 

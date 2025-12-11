@@ -16,7 +16,7 @@
                     </div>
                     <div class="col-md-4 text-end">
                         <span class="badge bg-primary fs-6">
-                            Tahun Pelajaran 2024/2025
+                            Tahun Pelajaran {{ $tahunPelajaran }}
                         </span>
                     </div>
                 </div>
