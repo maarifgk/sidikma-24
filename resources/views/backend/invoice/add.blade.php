@@ -124,18 +124,40 @@
                         <table class="table table-bordered table-striped align-middle">
                             <thead class="table-info">
                                 <tr class="text-center">
-                                    <th width="50">No</th>
-                                    <th>Uraian Iuran</th>
-                                    <th width="150">Jumlah</th>
+                                    <th>No</th>
+                                    <th>Uraian</th>
+                                    <th>Satuan</th>
+                                    <th>Nominal</th>
+                                    <th>Bulan</th>
+                                    <th>Kuantitas</th>
+                                    <th>Frekuensi Bulan</th>
+                                    <th>Jumlah</th>
                                 </tr>
                             </thead>
+
                             <tbody>
-                                {{-- KOSONG DULU SESUAI PERMINTAAN BOSS --}}
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted py-3">
-                                        <em>Belum ada rincian iuran</em>
-                                    </td>
-                                </tr>
+                                @foreach($rincianIuran as $idx => $row)
+                                    <tr>
+                                        <td class="text-center">{{ $idx + 1 }}</td>
+                                        <td>{{ $row['uraian'] }}</td>
+                                        <td class="text-center">{{ $row['satuan'] }}</td>
+
+                                        <td class="text-end">
+                                            Rp {{ number_format($row['nominal'], 0, ',', '.') }}
+                                        </td>
+
+                                        <td class="text-center">{{ $row['bulan'] }}</td>
+
+                                        <td class="text-center">{{ $row['kuantitas'] }}</td>
+
+                                        <td class="text-center">{{ $row['frekuensi'] }}</td>
+
+                                        {{-- Perhitungan jumlah --}}
+                                        <td class="text-end">
+                                            Rp {{ number_format(($row['nominal'] * $row['kuantitas'] * $row['frekuensi']), 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>

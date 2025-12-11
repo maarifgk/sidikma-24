@@ -149,6 +149,49 @@ class InvoiceController extends Controller
             ->where('id', $tagihan->jenis_pembayaran)
             ->first();
 
+        $data['rincianIuran'] = [
+        [
+            'uraian' => 'Peserta Didik',
+            'satuan' => 'Orang',
+            'nominal' => 0,
+            'bulan' => '-',
+            'kuantitas' => 0,
+            'frekuensi' => 0,
+        ],
+        [
+            'uraian' => 'Kepala/Guru ASN Sertifikasi',
+            'satuan' => 'Orang',
+            'nominal' => 0,
+            'bulan' => '-',
+            'kuantitas' => 0,
+            'frekuensi' => 0,
+        ],
+        [
+            'uraian' => 'Kepala/Guru ASN Non Sertifikasi',
+            'satuan' => 'Orang',
+            'nominal' => 0,
+            'bulan' => '-',
+            'kuantitas' => 0,
+            'frekuensi' => 0,
+        ],
+        [
+            'uraian' => 'Kepala/Guru Yayasan Sertifikasi/Inpassing',
+            'satuan' => 'Orang',
+            'nominal' => 0,
+            'bulan' => '-',
+            'kuantitas' => 0,
+            'frekuensi' => 0,
+        ],
+        [
+            'uraian' => 'Kepala/Guru Yayasan Non-Sertifikasi',
+            'satuan' => 'Orang',
+            'nominal' => 0,
+            'bulan' => '-',
+            'kuantitas' => 0,
+            'frekuensi' => 0,
+        ],
+    ];
+
         // Kirim data tagihan
         $data['tagihan'] = $tagihan;
 
