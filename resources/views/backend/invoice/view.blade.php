@@ -5,7 +5,7 @@
     <div class="col-xl-12">
         <div class="card shadow-sm border-0">
             {{-- HEADER --}}
-            <div class="card-header bg-gradient bg-primary text-white border-0 py-3">
+            <div class="card-header bg-gradient bg-info text-white border-0 py-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h4 class="mb-0 fw-bold">
@@ -14,7 +14,7 @@
                         <small class="text-white-50">LP. Ma'arif NU PCNU Gunungkidul</small>
                     </div>
                     <div class="text-end">
-                        <span class="badge bg-light text-primary fs-6">
+                        <span class="badge bg-light text-info fs-6">
                             <i class="fas fa-calendar me-1"></i>Tahun Pelajaran {{ $tahunTerpilih ?? '2024/2025' }}
                         </span>
                     </div>
@@ -107,13 +107,13 @@
                                     <td class="text-muted small">{{ $siswa->nama_jurusan ?? '-' }}</td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a href="{{ route('invoice.add', $siswa->id) }}" 
-                                               class="btn btn-outline-primary" 
+                                            <a href="{{ route('invoice.add', $siswa->id) }}"
+                                               class="btn btn-outline-primary"
                                                title="Lihat Detail Invoice Siswa">
                                                 <i class="fas fa-file-alt me-1"></i>Detail
                                             </a>
-                                            <a href="{{ route('invoice.add', $siswa->kelas_id) }}" 
-                                               class="btn btn-outline-success" 
+                                            <a href="{{ route('invoice.add', $siswa->kelas_id) }}"
+                                               class="btn btn-outline-success"
                                                title="Lihat Tagihan Per Kelas">
                                                 <i class="fas fa-file-invoice-dollar me-1"></i>Tagihan Kelas
                                             </a>
@@ -146,7 +146,7 @@
                 <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
                     <small class="text-muted">
                         <i class="fas fa-info-circle me-1"></i>
-                        Menampilkan <strong>{{ $totalSiswa }}</strong> siswa 
+                        Menampilkan <strong>{{ $totalSiswa }}</strong> siswa
                         @if($tahunTerpilih)
                             pada tahun ajaran <strong>{{ $tahunTerpilih }}</strong>
                         @endif
@@ -170,12 +170,12 @@
         align-items: center;
         justify-content: center;
     }
-    
+
     .avatar-lg {
         width: 56px;
         height: 56px;
     }
-    
+
     .bg-gradient {
         background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
     }

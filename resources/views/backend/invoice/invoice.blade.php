@@ -115,25 +115,25 @@
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
                                             @if($studentInvoice)
-                                                <a href="{{ route('invoice.add', $student->id) }}" 
-                                                   class="btn btn-outline-primary" 
+                                                <a href="{{ route('invoice.add', $student->id) }}"
+                                                   class="btn btn-outline-primary"
                                                    title="Lihat Detail Invoice">
                                                     <i class="fas fa-file-alt me-1"></i>Detail
                                                 </a>
-                                                <button type="button" 
-                                                        class="btn btn-outline-success" 
+                                                <button type="button"
+                                                        class="btn btn-outline-success"
                                                         onclick="printInvoice({{ $student->id }})"
                                                         title="Cetak Invoice">
                                                     <i class="fas fa-print me-1"></i>Cetak
                                                 </button>
-                                                <a href="{{ route('invoice.edit', $studentInvoice->id) }}" 
-                                                   class="btn btn-outline-warning" 
+                                                <a href="{{ route('invoice.edit', $studentInvoice->id) }}"
+                                                   class="btn btn-outline-warning"
                                                    title="Edit Invoice">
                                                     <i class="fas fa-edit me-1"></i>Edit
                                                 </a>
                                             @else
-                                                <a href="{{ route('invoice.add', $student->id) }}" 
-                                                   class="btn btn-primary" 
+                                                <a href="{{ route('invoice.add', $student->id) }}"
+                                                   class="btn btn-primary"
                                                    title="Buat Invoice Baru">
                                                     <i class="fas fa-plus me-1"></i>Buat
                                                 </a>
