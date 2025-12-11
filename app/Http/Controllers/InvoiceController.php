@@ -84,34 +84,32 @@ class InvoiceController extends Controller
             abort(404);
         }
 
-        // Ambil user_id dari tagihan
+        // Ambil user_id dan tahun ajaran dari tagihan
         $userId = $tagihan->user_id;
-
-        // Ambil tahun ajaran dari thajaran_id
-        $tahunAjaran = DB::table('tahun_ajaran')->where('id', $tagihan->thajaran_id)->first();
-
-        // Simpan tahun pelajaran full (2024/2025)
-        $data['tahunPelajaran'] = $tahunAjaran ? $tahunAjaran->tahun : '-';
-
-        // Gunakan tahun ajaran full utk invoice number
-        $tahunInvoiceFull = $data['tahunPelajaran'];
-
-        // Nomor invoice misalnya: INV-2024/2025-013
-        $invoiceNumber = 'INV-' . $tahunInvoiceFull . '-' . str_pad($tagihanId, 3, '0', STR_PAD_LEFT);
+        $thAjarId = $tagihan->thajaran_id;
 
         // ============================
-        // DATA SISWA BERDASARKAN user_id
+        // AMBIL DATA SISWA BERDASARKAN user_id
         // ============================
         $data['siswa'] = DB::table('users')->where('id', $userId)->first();
-
         if (!$data['siswa']) {
             abort(404);
         }
 
         // ============================
-        // AMBIL DATA INVOICE (tabel invoices)
+        // AMBIL TAHUN AJARAN (2024/2025)
         // ============================
-        $data['invoice'] = DB::table('invoices')->where('tagihan_id', $tagihanId)->first();
+        $tahunAjaran = DB::table('tahun_ajaran')->where('id', $thAjarId)->first();
+        $data['tahunPelajaran'] = $tahunAjaran ? $tahunAjaran->tahun : '-';
+
+        // Nomor invoice akan menggunakan tahun ajaran full, contoh:
+        // INV-2024/2025-013
+        $invoiceNumber = 'INV-' . $data['tahunPelajaran'] . '-' . str_pad($tagihanId, 3, '0', STR_PAD_LEFT);
+
+        // ============================
+        // AMBIL DATA INVOICE DI TABEL invoices BERDASARKAN tagihan.id
+        // ============================
+        $data['invoice'] = DB::table('invoices')->where('id', $tagihanId)->first();
 
         // Jika belum ada invoice → buat default
         if (!$data['invoice']) {
@@ -127,7 +125,7 @@ class InvoiceController extends Controller
         }
 
         // ============================
-        // DATA TAMBAHAN (profile user login)
+        // PROFILE USER LOGIN
         // ============================
         $data['profile'] = DB::table('users')
             ->leftJoin('kelas', 'kelas.id', '=', 'users.kelas_id')
