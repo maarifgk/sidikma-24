@@ -114,6 +114,34 @@
                 </div>
             </div>
 
+            @php use Illuminate\Support\Str; @endphp
+
+            @if(isset($jenisPembayaran->pembayaran) && Str::contains($jenisPembayaran->pembayaran, 'Iuran'))
+                <div class="card-body mt-4">
+                    <h5 class="card-title text-primary mb-3">Rincian Iuran</h5>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle">
+                            <thead class="table-info">
+                                <tr class="text-center">
+                                    <th width="50">No</th>
+                                    <th>Uraian Iuran</th>
+                                    <th width="150">Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{-- KOSONG DULU SESUAI PERMINTAAN BOSS --}}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-3">
+                                        <em>Belum ada rincian iuran</em>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
+
             {{-- CATATAN --}}
             <div class="card-body border-top bg-light">
                 <h6 class="card-title text-primary mb-3">
