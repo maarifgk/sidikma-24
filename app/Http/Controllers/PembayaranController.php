@@ -320,31 +320,82 @@ class PembayaranController extends Controller
 
     public function paymentAddProses(Request $request)
     {
-        $dataMidtrans = json_decode($request->result_data);
+        try {
+            // Validasi input
+            if (!$request->filled('result_data') && $request->metode_pembayaran === 'Online') {
+                Alert::error('Error', 'Data pembayaran tidak lengkap');
+                return redirect()->back();
+            }
 
-        $data = [
-            'user_id' => $request->user_id,
-            'tagihan_id' => $request->tagihan_id,
-            'kelas_id' => $request->kelas_id,
-            'nilai' => str_replace(['Rp. ', '.', ','], '', $request->nilai),
-            'order_id' => isset($dataMidtrans->order_id) ? $dataMidtrans->order_id : null,
-            'pdf_url' => isset($dataMidtrans->pdf_url) ? $dataMidtrans->pdf_url : null,
-            'metode_pembayaran' => $request->metode_pembayaran,
-            'status' => $request->metode_pembayaran == "Online" ? "Pending" : 'Lunas',
-            'created_at' => now(),
-        ];
+            $dataMidtrans = null;
+            if ($request->filled('result_data')) {
+                $dataMidtrans = json_decode($request->result_data);
+            }
 
-        $getusers = DB::table('users')->where('id', $request->user_id)->first();
+            // Cek apakah payment sudah ada untuk mencegah duplikasi
+            $existingPayment = null;
+            if ($dataMidtrans && isset($dataMidtrans->order_id)) {
+                $existingPayment = DB::table('payment')
+                    ->where('order_id', $dataMidtrans->order_id)
+                    ->first();
+            }
 
-        Http::get('https://wa.dlhcode.com/send-message?api_key=' . Helper::apk()->token_whatsapp . '&sender=' . Helper::apk()->tlp . '&number=' . $getusers->no_tlp . '&message=Terima kasih, pembayaran dengan jumlah ' . $request->nilai . ' dengan nama siswa ' . $getusers->nama_lengkap . ' dengan nis ' . $getusers->nis . ' Berhasil. Silahkan cek tagihan anda di dashboard siswa');
+            // Jika sudah ada, jangan insert lagi
+            if ($existingPayment) {
+                Alert::warning('Peringatan', 'Pembayaran untuk transaksi ini sudah tercatat. Silahkan refresh halaman.');
+                return redirect("/pembayaran/search?kelas_id=$request->kelas_id&nis=$request->nis");
+            }
 
-        DB::table('payment')->insert($data);
+            $data = [
+                'user_id' => $request->user_id,
+                'tagihan_id' => $request->tagihan_id,
+                'kelas_id' => $request->kelas_id,
+                'nilai' => str_replace(['Rp. ', '.', ','], '', $request->nilai),
+                'order_id' => $dataMidtrans && isset($dataMidtrans->order_id) ? $dataMidtrans->order_id : null,
+                'pdf_url' => $dataMidtrans && isset($dataMidtrans->pdf_url) ? $dataMidtrans->pdf_url : null,
+                'metode_pembayaran' => $request->metode_pembayaran,
+                'status' => $request->metode_pembayaran == "Online" ? "Pending" : 'Lunas',
+                'created_at' => now(),
+            ];
 
-        $request->metode_pembayaran == "Manual"
-            ? Alert::success('Success', 'Pembayaran Berhasil')
-            : Alert::warning('Peringatan', 'Segera melakukan pembayaran!!!');
+            $getusers = DB::table('users')->where('id', $request->user_id)->first();
 
-        return redirect("/pembayaran/search?&kelas_id=$request->kelas_id&nis=$request->nis");
+            if ($getusers) {
+                // Kirim notifikasi WhatsApp (non-blocking)
+                try {
+                    \Illuminate\Support\Facades\Http::timeout(5)->get(
+                        'https://wa.dlhcode.com/send-message',
+                        [
+                            'api_key' => Helper::apk()->token_whatsapp,
+                            'sender' => Helper::apk()->tlp,
+                            'number' => $getusers->no_tlp,
+                            'message' => 'Terima kasih, pembayaran dengan jumlah ' . $request->nilai . ' dengan nama siswa ' . $getusers->nama_lengkap . ' dengan nis ' . $getusers->nis . ' Berhasil. Silahkan cek tagihan anda di dashboard siswa'
+                        ]
+                    );
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('WhatsApp notification failed', ['error' => $e->getMessage()]);
+                }
+            }
+
+            DB::table('payment')->insert($data);
+
+            $message = $request->metode_pembayaran == "Manual" 
+                ? 'Pembayaran berhasil dicatat' 
+                : 'Pembayaran sedang diproses. Silahkan tunggu notifikasi dari bank Anda.';
+
+            Alert::success('Success', $message);
+            return redirect("/pembayaran/search?kelas_id=$request->kelas_id&nis=$request->nis");
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Payment Error', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            
+            Alert::error('Error', 'Terjadi kesalahan saat memproses pembayaran: ' . $e->getMessage());
+            return redirect()->back();
+        }
     }
 
     public function iuran($id_tagihan)

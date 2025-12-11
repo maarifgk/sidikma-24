@@ -102,18 +102,32 @@
                         cache: false,
                         data: {
                             _token: $('#_token').val(),
+                            user_id: $('input[name="user_id"]').val(),
+                            tagihan_id: $('input[name="tagihan_id"]').val(),
+                            kelas_id: $('input[name="kelas_id"]').val(),
                             nama_lengkap: $('#nama_lengkap').val(),
                             pembayaran: $('#pembayaran').val(),
                             tahun: $('#tahun').val(),
-                            total: parseInt(nilai.replace(",", "")), // Pastikan angka bersih
+                            total: parseInt(nilai.replace(/\./g, '').replace(/,/g, '')), // Pastikan angka bersih
                         },
-                        success: function(data) {
-                            console.log('Token Midtrans:', data);
-                            handlePaymentResponse(data);
+                        success: function(response) {
+                            console.log('Midtrans Response:', response);
+                            if (response.success && response.snap_token) {
+                                // Store order_id untuk digunakan nanti
+                                $("#result-data").data('order_id', response.order_id);
+                                handlePaymentResponse(response.snap_token);
+                            } else {
+                                alert('Gagal mendapatkan token pembayaran: ' + (response.message || 'Unknown error'));
+                                $("#pay-button").removeAttr("disabled");
+                            }
                         },
                         error: function(err) {
-                            alert('Gagal mendapatkan token pembayaran.');
-                            console.error(err);
+                            console.error('Error:', err);
+                            let errorMsg = 'Gagal mendapatkan token pembayaran.';
+                            if (err.responseJSON && err.responseJSON.message) {
+                                errorMsg = err.responseJSON.message;
+                            }
+                            alert(errorMsg);
                             $("#pay-button").removeAttr("disabled");
                         }
                     });
@@ -126,16 +140,24 @@
         function handlePaymentResponse(token) {
             snap.pay(token, {
                 onSuccess: function(result) {
+                    console.log('Payment Success:', result);
                     submitPayment('success', result);
-                    redirectToPreviousPage();
+                    // Jangan langsung redirect, tunggu proses submit payment selesai
+                    setTimeout(() => {
+                        redirectToPreviousPage();
+                    }, 2000);
                 },
                 onPending: function(result) {
+                    console.log('Payment Pending:', result);
                     submitPayment('pending', result);
-                    redirectToPreviousPage();
+                    setTimeout(() => {
+                        redirectToPreviousPage();
+                    }, 2000);
                 },
                 onError: function(result) {
-                    submitPayment('error', result);
-                    redirectToPreviousPage();
+                    console.log('Payment Error:', result);
+                    alert('Pembayaran gagal. Silahkan coba lagi.');
+                    $("#pay-button").removeAttr("disabled");
                 }
             });
         }
