@@ -153,7 +153,7 @@ class InvoiceController extends Controller
         [
             'uraian' => 'Peserta Didik',
             'satuan' => 'Orang',
-            'nominal' => 0,
+            'nominal' => 1000,
             'bulan' => '-',
             'kuantitas' => 0,
             'frekuensi' => 6,
@@ -161,7 +161,7 @@ class InvoiceController extends Controller
         [
             'uraian' => 'Kepala/Guru ASN Sertifikasi',
             'satuan' => 'Orang',
-            'nominal' => 0,
+            'nominal' => 20000,
             'bulan' => '-',
             'kuantitas' => 0,
             'frekuensi' => 6,
@@ -169,7 +169,7 @@ class InvoiceController extends Controller
         [
             'uraian' => 'Kepala/Guru ASN Non Sertifikasi',
             'satuan' => 'Orang',
-            'nominal' => 0,
+            'nominal' => 15000,
             'bulan' => '-',
             'kuantitas' => 0,
             'frekuensi' => 6,
@@ -177,7 +177,7 @@ class InvoiceController extends Controller
         [
             'uraian' => 'Kepala/Guru Yayasan Sertifikasi/Inpassing',
             'satuan' => 'Orang',
-            'nominal' => 0,
+            'nominal' => 10000,
             'bulan' => '-',
             'kuantitas' => 0,
             'frekuensi' => 6,
@@ -185,7 +185,7 @@ class InvoiceController extends Controller
         [
             'uraian' => 'Kepala/Guru Yayasan Non-Sertifikasi',
             'satuan' => 'Orang',
-            'nominal' => 0,
+            'nominal' => 2000,
             'bulan' => '-',
             'kuantitas' => 0,
             'frekuensi' => 6,
