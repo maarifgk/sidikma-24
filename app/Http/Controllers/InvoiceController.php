@@ -76,7 +76,7 @@ class InvoiceController extends Controller
         $data['title'] = "Invoice Pembayaran";
 
         // ============================
-        // AMBIL DATA TAGIHAN BERDASARKAN ID TAGIHAN
+        // AMBIL DATA TAGIHAN
         // ============================
         $tagihan = DB::table('tagihan')->where('id', $tagihanId)->first();
 
@@ -84,7 +84,7 @@ class InvoiceController extends Controller
             abort(404);
         }
 
-        // Ambil pembayaran berdasarkan tagihan_id
+        // Ambil payment
         $payment = DB::table('payment')
             ->where('tagihan_id', $tagihanId)
             ->orderBy('id', 'desc')
@@ -92,7 +92,7 @@ class InvoiceController extends Controller
 
         $data['paymentDate'] = $payment ? $payment->created_at : null;
 
-        // Ambil user_id dan tahun ajaran
+        // Ambil user_id & tahun ajaran
         $userId = $tagihan->user_id;
         $thAjarId = $tagihan->thajaran_id;
 
@@ -105,17 +105,21 @@ class InvoiceController extends Controller
             abort(404);
         }
 
+        $kelasId = $data['siswa']->kelas_id;
+
         // ============================
         // AMBIL TAHUN AJARAN
         // ============================
         $tahunAjaran = DB::table('tahun_ajaran')->where('id', $thAjarId)->first();
         $data['tahunPelajaran'] = $tahunAjaran ? $tahunAjaran->tahun : '-';
 
-        // Nomor invoice format: INV-2024/2025-013
+        // ============================
+        // NOMOR INVOICE
+        // ============================
         $invoiceNumber = 'INV-' . $data['tahunPelajaran'] . '-' . str_pad($tagihanId, 3, '0', STR_PAD_LEFT);
 
         // ============================
-        // AMBIL DATA INVOICE (JIKA ADA)
+        // AMBIL DATA INVOICE
         // ============================
         $data['invoice'] = DB::table('invoices')->where('id', $tagihanId)->first();
 
@@ -143,7 +147,7 @@ class InvoiceController extends Controller
             ->first();
 
         // ===============================
-        // AMBIL JENIS PEMBAYARAN DARI TABEL jenis_pembayaran
+        // AMBIL JENIS PEMBAYARAN
         // ===============================
         $data['jenisPembayaran'] = DB::table('jenis_pembayaran')
             ->where('id', $tagihan->jenis_pembayaran)
@@ -156,68 +160,79 @@ class InvoiceController extends Controller
 
         if ($data['jenisPembayaran']) {
 
-            // Ambil text pembayaran
             $pembayaranText = $data['jenisPembayaran']->pembayaran;
 
-            // Jika ada kata "Iuran" dan memiliki text di belakangnya
             if (stripos($pembayaranText, 'Iuran') !== false) {
 
-                // Ambil semua teks setelah kata "Iuran"
                 $parts = explode('Iuran', $pembayaranText);
 
                 if (isset($parts[1])) {
-                    $bulanText = trim($parts[1]); // bersihkan spasi
+                    $bulanText = trim($parts[1]);
                 }
             }
         }
 
-        // Simpan ke variabel untuk dipakai di Blade
         $data['bulanIuran'] = $bulanText;
 
-        $data['rincianIuran'] = [
-        [
-            'uraian' => 'Peserta Didik',
-            'satuan' => 'Orang',
-            'nominal' => 1000,
-            'bulan' => $bulanText,
-            'kuantitas' => 0,
-            'frekuensi' => 6,
-        ],
-        [
-            'uraian' => 'Kepala/Guru ASN Sertifikasi',
-            'satuan' => 'Orang',
-            'nominal' => 20000,
-            'bulan' => $bulanText,
-            'kuantitas' => 0,
-            'frekuensi' => 6,
-        ],
-        [
-            'uraian' => 'Kepala/Guru ASN Non Sertifikasi',
-            'satuan' => 'Orang',
-            'nominal' => 15000,
-            'bulan' => $bulanText,
-            'kuantitas' => 0,
-            'frekuensi' => 6,
-        ],
-        [
-            'uraian' => 'Kepala/Guru Yayasan Sertifikasi/Inpassing',
-            'satuan' => 'Orang',
-            'nominal' => 10000,
-            'bulan' => $bulanText,
-            'kuantitas' => 0,
-            'frekuensi' => 6,
-        ],
-        [
-            'uraian' => 'Kepala/Guru Yayasan Non-Sertifikasi',
-            'satuan' => 'Orang',
-            'nominal' => 2000,
-            'bulan' => $bulanText,
-            'kuantitas' => 0,
-            'frekuensi' => 6,
-        ],
-    ];
+        // ===============================
+        // AMBIL TOTAL SISWA DARI data_siswa
+        // ===============================
+        $jumlahSiswa = DB::table('data_siswa')
+            ->where('madrasah_id', $kelasId)
+            ->where('tahun_pelajaran', $data['tahunPelajaran'])
+            ->value('total');
 
-        // Kirim data tagihan
+        $jumlahSiswa = $jumlahSiswa ?? 0;
+
+        // ===============================
+        // RINCIAN IURAN (KUANTITAS DIISI OTOMATIS)
+        // ===============================
+        $data['rincianIuran'] = [
+            [
+                'uraian' => 'Peserta Didik',
+                'satuan' => 'Orang',
+                'nominal' => 1000,
+                'bulan' => $bulanText,
+                'kuantitas' => $jumlahSiswa,
+                'frekuensi' => 6,
+            ],
+            [
+                'uraian' => 'Kepala/Guru ASN Sertifikasi',
+                'satuan' => 'Orang',
+                'nominal' => 20000,
+                'bulan' => $bulanText,
+                'kuantitas' => 0,
+                'frekuensi' => 6,
+            ],
+            [
+                'uraian' => 'Kepala/Guru ASN Non Sertifikasi',
+                'satuan' => 'Orang',
+                'nominal' => 15000,
+                'bulan' => $bulanText,
+                'kuantitas' => 0,
+                'frekuensi' => 6,
+            ],
+            [
+                'uraian' => 'Kepala/Guru Yayasan Sertifikasi/Inpassing',
+                'satuan' => 'Orang',
+                'nominal' => 10000,
+                'bulan' => $bulanText,
+                'kuantitas' => 0,
+                'frekuensi' => 6,
+            ],
+            [
+                'uraian' => 'Kepala/Guru Yayasan Non-Sertifikasi',
+                'satuan' => 'Orang',
+                'nominal' => 2000,
+                'bulan' => $bulanText,
+                'kuantitas' => 0,
+                'frekuensi' => 6,
+            ],
+        ];
+
+        // ===============================
+        // KIRIM TAGIHAN
+        // ===============================
         $data['tagihan'] = $tagihan;
 
         return view('backend.invoice.add', $data);
