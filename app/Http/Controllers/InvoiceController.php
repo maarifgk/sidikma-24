@@ -213,15 +213,18 @@ class InvoiceController extends Controller
     $data['tagihan'] = DB::table('tagihan as t')
         ->join('users as u', 't.user_id', '=', 'u.id')
         ->leftJoin('kelas as k', 'u.kelas_id', '=', 'k.id')
+        ->leftJoin('tahun_ajaran as ta', 't.thajaran_id', '=', 'ta.id') // JOIN TAHUN AJARAN
         ->where('u.kelas_id', $kelasId)
         ->select(
             't.*',
             'u.nama_lengkap',
             'k.nama_kelas',
-            'k.keterangan'
+            'k.keterangan',
+            'ta.tahun as tahun_ajaran'   // 🔥 Ambil kolom tahun
         )
         ->orderBy('t.id', 'desc')
         ->get();
+
 
     // Statistik
     $data['totalTagihan']     = $data['tagihan']->count();

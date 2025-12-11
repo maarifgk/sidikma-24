@@ -68,7 +68,7 @@
                         <thead class="table-primary text-center">
                             <tr>
                                 <th width="50">No</th>
-                                <th>Nama Siswa</th>
+                                <th>Nama Users</th>
                                 <th>Tahun Ajaran</th>
                                 <th>Jumlah</th>
                                 <th>Status</th>
