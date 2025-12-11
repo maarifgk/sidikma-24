@@ -89,6 +89,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/invoice/edit/{id}', [InvoiceController::class, 'edit'])->name('invoice.edit');
     Route::post('/invoice/editProses', [InvoiceController::class, 'editProses'])->name('invoice.editProses');
     Route::get('/invoice/delete/{id}', [InvoiceController::class, 'delete'])->name('invoice.delete');
+    Route::get('/invoice/detail/{kelasId}', [InvoiceController::class, 'detailKelas'])->name('invoice.detail');
+
     //Aktivasi
     Route::get('/aktivasi', [AktivasiController::class, 'view'])->name('aktivasi');
     Route::get('/aktivasi/add', [AktivasiController::class, 'add'])->name('aktivasi.add');
