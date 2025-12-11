@@ -177,45 +177,61 @@ class InvoiceController extends Controller
 
         return view('backend.invoice.invoice', $data);
     }
-    public function detailKelas($kelasId)
-    {
-        $data['title'] = "Detail Tagihan Per Kelas";
 
-        // Ambil data kelas
-        $data['kelas'] = DB::table('kelas')->where('id', $kelasId)->first();
-        if (!$data['kelas']) {
-            abort(404);
-        }
+    public function detailKelas($id)
+{
+    // Ambil data siswa berdasarkan ID
+    $siswa = DB::table('users')->where('id', $id)->first();
 
-        // Ambil semua siswa dalam kelas
-        $data['students'] = DB::table('users as u')
-            ->leftJoin('kelas as k', 'u.kelas_id', '=', 'k.id')
-            ->leftJoin('jurusan as j', 'u.jurusan_id', '=', 'j.id')
-            ->where('u.kelas_id', $kelasId)
-            ->where('u.role', 3)
-            ->where('u.status', '!=', 'Lulus')
-            ->select('u.*', 'k.nama_kelas', 'k.keterangan', 'j.nama_jurusan')
-            ->get();
-
-        // Ambil semua tagihan berdasarkan kelas_id
-        $data['tagihan'] = DB::table('tagihan as t')
-            ->join('users as u', 't.user_id', '=', 'u.id')
-            ->leftJoin('kelas as k', 'u.kelas_id', '=', 'k.id')
-            ->where('u.kelas_id', $kelasId)
-            ->select(
-                't.*',
-                'u.nama_lengkap',
-                'k.nama_kelas',
-                'k.keterangan'
-            )
-            ->orderBy('t.id', 'desc')
-            ->get();
-
-        // Statistik
-        $data['totalTagihan'] = $data['tagihan']->count();
-        $data['totalLunas'] = $data['tagihan']->where('status', 'Lunas')->count();
-        $data['totalBelumLunas'] = $data['tagihan']->where('status', 'Belum Lunas')->count();
-
-        return view('backend.invoice.detail', $data);
+    if (!$siswa) {
+        abort(404);
     }
+
+    // Ambil kelas ID dari siswa
+    $kelasId = $siswa->kelas_id;
+
+    // Ambil data kelas
+    $data['kelas'] = DB::table('kelas')->where('id', $kelasId)->first();
+
+    if (!$data['kelas']) {
+        abort(404);
+    }
+
+    $data['title'] = "Detail Tagihan Kelas - " . $data['kelas']->nama_kelas;
+
+    // Ambil seluruh siswa di kelas tersebut
+    $data['students'] = DB::table('users as u')
+        ->leftJoin('kelas as k', 'u.kelas_id', '=', 'k.id')
+        ->leftJoin('jurusan as j', 'u.jurusan_id', '=', 'j.id')
+        ->where('u.kelas_id', $kelasId)
+        ->where('u.role', 3)
+        ->where('u.status', '!=', 'Lulus')
+        ->select('u.*', 'k.nama_kelas', 'k.keterangan', 'j.nama_jurusan')
+        ->get();
+
+    // Ambil seluruh tagihan berdasarkan kelas_id
+    $data['tagihan'] = DB::table('tagihan as t')
+        ->join('users as u', 't.user_id', '=', 'u.id')
+        ->leftJoin('kelas as k', 'u.kelas_id', '=', 'k.id')
+        ->where('u.kelas_id', $kelasId)
+        ->select(
+            't.*',
+            'u.nama_lengkap',
+            'k.nama_kelas',
+            'k.keterangan'
+        )
+        ->orderBy('t.id', 'desc')
+        ->get();
+
+    // Statistik
+    $data['totalTagihan']     = $data['tagihan']->count();
+    $data['totalLunas']       = $data['tagihan']->where('status', 'Lunas')->count();
+    $data['totalBelumLunas']  = $data['tagihan']->where('status', 'Belum Lunas')->count();
+
+    // untuk header
+    $data['siswa_dipilih'] = $siswa;
+
+    return view('backend.invoice.detail', $data);
+}
+
 }
