@@ -185,7 +185,39 @@ class InvoiceController extends Controller
         $jumlahSiswa = $jumlahSiswa ?? 0;
 
         // ===============================
-        // RINCIAN IURAN (KUANTITAS DIISI OTOMATIS)
+        // HITUNG KUANTITAS GURU OTOMATIS
+        // ===============================
+
+        // Kepala/Guru ASN Sertifikasi → jurusan_id = 5
+        $asnSertifikasi = DB::table('users')
+            ->where('kelas_id', $kelasId)
+            ->where('role', 2)
+            ->where('jurusan_id', 5)
+            ->count();
+
+        // Kepala/Guru ASN Non Sertifikasi → jurusan_id = 8
+        $asnNonSertifikasi = DB::table('users')
+            ->where('kelas_id', $kelasId)
+            ->where('role', 2)
+            ->where('jurusan_id', 8)
+            ->count();
+
+        // Kepala/Guru Yayasan Sertifikasi / Inpassing → jurusan_id = 2 OR 3
+        $yayasanSertifikasi = DB::table('users')
+            ->where('kelas_id', $kelasId)
+            ->where('role', 2)
+            ->whereIn('jurusan_id', [2,3])
+            ->count();
+
+        // Kepala/Guru Yayasan Non Sertifikasi → jurusan_id = 1,4,6,7
+        $yayasanNonSertifikasi = DB::table('users')
+            ->where('kelas_id', $kelasId)
+            ->where('role', 2)
+            ->whereIn('jurusan_id', [1,4,6,7])
+            ->count();
+
+        // ===============================
+        // RINCIAN IURAN (TERUPDATE KODENYA)
         // ===============================
         $data['rincianIuran'] = [
             [
@@ -201,7 +233,7 @@ class InvoiceController extends Controller
                 'satuan' => 'Orang',
                 'nominal' => 20000,
                 'bulan' => $bulanText,
-                'kuantitas' => 0,
+                'kuantitas' => $asnSertifikasi,
                 'frekuensi' => 6,
             ],
             [
@@ -209,7 +241,7 @@ class InvoiceController extends Controller
                 'satuan' => 'Orang',
                 'nominal' => 15000,
                 'bulan' => $bulanText,
-                'kuantitas' => 0,
+                'kuantitas' => $asnNonSertifikasi,
                 'frekuensi' => 6,
             ],
             [
@@ -217,15 +249,15 @@ class InvoiceController extends Controller
                 'satuan' => 'Orang',
                 'nominal' => 10000,
                 'bulan' => $bulanText,
-                'kuantitas' => 0,
+                'kuantitas' => $yayasanSertifikasi,
                 'frekuensi' => 6,
             ],
             [
-                'uraian' => 'Kepala/Guru Yayasan Non-Sertifikasi',
+                'uraian' => 'Kepala/Guru Yayasan Non-Sertifikasi (GTY/GTT/PTY/PTT)',
                 'satuan' => 'Orang',
                 'nominal' => 2000,
                 'bulan' => $bulanText,
-                'kuantitas' => 0,
+                'kuantitas' => $yayasanNonSertifikasi,
                 'frekuensi' => 6,
             ],
         ];
