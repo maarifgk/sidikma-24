@@ -64,7 +64,7 @@
                 </label>
 
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover table-sm">
+                    <table id="datatable" class="table table-striped table-hover table-sm">
                         <thead class="table-primary text-center">
                             <tr>
                                 <th width="50">No</th>
