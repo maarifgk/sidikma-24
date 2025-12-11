@@ -11,6 +11,9 @@ class Payment extends Model
 
     protected $table = 'payment';
 
+    // Disable timestamps jika table payment tidak memiliki updated_at
+    public $timestamps = false;
+
     protected $fillable = [
         'user_id',
         'tagihan_id',
@@ -21,11 +24,11 @@ class Payment extends Model
         'pdf_url',
         'metode_pembayaran',
         'status',
+        'created_at',
     ];
 
     protected $dates = [
         'created_at',
-        'updated_at',
     ];
 
     /**

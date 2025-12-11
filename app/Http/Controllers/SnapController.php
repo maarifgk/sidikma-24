@@ -130,7 +130,8 @@ class SnapController extends Controller
             $order_id = 'ORDER-' . auth()->id() . '-' . $request->tagihan_id . '-' . time();
 
             // Simpan ke database terlebih dahulu dengan status pending
-            $payment = Payment::create([
+            // Gunakan DB::table() daripada Payment::create() untuk menghindari updated_at
+            DB::table('payment')->insert([
                 'user_id' => $request->user_id,
                 'tagihan_id' => $request->tagihan_id,
                 'kelas_id' => $request->kelas_id,
@@ -138,6 +139,7 @@ class SnapController extends Controller
                 'order_id' => $order_id,
                 'metode_pembayaran' => 'Online',
                 'status' => 'Pending',
+                'created_at' => now(),
             ]);
 
             // Data pembeli
@@ -266,44 +268,59 @@ class SnapController extends Controller
 
             $payment_status = $status_mapping[$transaction] ?? 'Pending';
 
-            // Update status pembayaran di tabel `payment`
-            $payment = Payment::where('order_id', $order_id)->first();
+            // Update status pembayaran di tabel `payment` menggunakan DB::table()
+            $payment = DB::table('payment')->where('order_id', $order_id)->first();
 
             if ($payment) {
                 // Jika status transaksi adalah capture/settlement dan fraud status bukan fraud
                 if (in_array($transaction, ['capture', 'settlement'])) {
                     if ($fraud === 'accept' || $fraud === null) {
-                        $payment->status = 'Lunas';
-                        $payment->metode_pembayaran = $type;
-                        $payment->save();
+                        DB::table('payment')
+                            ->where('order_id', $order_id)
+                            ->update([
+                                'status' => 'Lunas',
+                                'metode_pembayaran' => $type,
+                            ]);
 
                         Log::info('Payment marked as LUNAS', ['order_id' => $order_id]);
                     } else if ($fraud === 'challenge') {
                         // Jika fraud status challenge, tetap pending
-                        $payment->status = 'Pending';
-                        $payment->metode_pembayaran = $type;
-                        $payment->save();
+                        DB::table('payment')
+                            ->where('order_id', $order_id)
+                            ->update([
+                                'status' => 'Pending',
+                                'metode_pembayaran' => $type,
+                            ]);
 
                         Log::warning('Payment in challenge status', ['order_id' => $order_id]);
                     } else if ($fraud === 'deny') {
                         // Jika fraud status deny, mark as failed
-                        $payment->status = 'Failed';
-                        $payment->metode_pembayaran = $type;
-                        $payment->save();
+                        DB::table('payment')
+                            ->where('order_id', $order_id)
+                            ->update([
+                                'status' => 'Failed',
+                                'metode_pembayaran' => $type,
+                            ]);
 
                         Log::error('Payment marked as FAILED due to fraud', ['order_id' => $order_id]);
                     }
                 } else if ($transaction === 'pending') {
-                    $payment->status = 'Pending';
-                    $payment->metode_pembayaran = $type;
-                    $payment->save();
+                    DB::table('payment')
+                        ->where('order_id', $order_id)
+                        ->update([
+                            'status' => 'Pending',
+                            'metode_pembayaran' => $type,
+                        ]);
 
                     Log::info('Payment still pending', ['order_id' => $order_id]);
                 } else {
                     // Untuk status lain (deny, cancel, expire) mark as failed
-                    $payment->status = 'Failed';
-                    $payment->metode_pembayaran = $type;
-                    $payment->save();
+                    DB::table('payment')
+                        ->where('order_id', $order_id)
+                        ->update([
+                            'status' => 'Failed',
+                            'metode_pembayaran' => $type,
+                        ]);
 
                     Log::error('Payment marked as FAILED', ['order_id' => $order_id, 'transaction_status' => $transaction]);
                 }
