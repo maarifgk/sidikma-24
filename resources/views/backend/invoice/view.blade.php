@@ -15,7 +15,12 @@
                     </div>
                     <div class="text-end">
                         <span class="badge bg-light text-dark fs-6">
-                            <i class="fas fa-calendar me-1"></i>Tahun Pelajaran {{ $tahunTerpilih ?? '2024/2025' }}
+                            <i class="fas fa-calendar me-1"></i>
+                            @if($tahunTerpilih)
+                                Tahun Ajaran {{ $tahunTerpilih }}
+                            @else
+                                Semua Tahun Ajaran
+                            @endif
                         </span>
                     </div>
                 </div>
@@ -31,8 +36,8 @@
                         <select name="tahun_ajaran" id="tahun_ajaran" class="form-select form-select-sm">
                             <option value="">-- Semua Tahun Ajaran --</option>
                             @foreach($listTahunAjaran ?? [] as $tahun)
-                                <option value="{{ $tahun }}" {{ $tahunTerpilih == $tahun ? 'selected' : '' }}>
-                                    {{ $tahun }}
+                                <option value="{{ $tahun->id }}" {{ request('tahun_ajaran') == $tahun->id ? 'selected' : '' }}>
+                                    {{ $tahun->tahun }}
                                 </option>
                             @endforeach
                         </select>
@@ -41,7 +46,7 @@
                         <button type="submit" class="btn btn-sm btn-primary">
                             <i class="fas fa-search me-1"></i>Cari
                         </button>
-                        @if($tahunTerpilih)
+                        @if(request('tahun_ajaran'))
                             <a href="{{ route('invoice') }}" class="btn btn-sm btn-outline-secondary">
                                 <i class="fas fa-times me-1"></i>Reset
                             </a>

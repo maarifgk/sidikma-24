@@ -10,34 +10,44 @@ class InvoiceController extends Controller
 {
     public function view(Request $request)
     {
-        $tahunAjaran = $request->tahun_ajaran;
+        $tahunId = $request->tahun_ajaran;
 
-        $data['title'] = "Invoice Iuran LP. Ma'arif NU PCNU Gunungkidul";
+        $data['title'] = "Invoice Pembayaran LP. Ma'arif NU PCNU Gunungkidul";
 
         // ambil data kelas
         $data['kelas'] = DB::select("SELECT * FROM kelas");
 
-        // daftar tahun ajaran (dropdown)
-        // $data['listTahunAjaran'] = DB::table('users')
-        //     ->select('tahun_ajaran')
-        //     ->distinct()
-        //     ->whereNotNull('tahun_ajaran')
-        //     ->orderBy('tahun_ajaran', 'desc')
-        //     ->pluck('tahun_ajaran');
+        // daftar tahun ajaran dari database tahun_ajaran (berdasarkan data di tagihan)
+        $data['listTahunAjaran'] = DB::table('tahun_ajaran as ta')
+            ->whereIn('ta.id', DB::table('tagihan')->distinct()->pluck('thajaran_id'))
+            ->orderBy('ta.tahun', 'desc')
+            ->get();
 
-        // data siswa sesuai tahun pelajaran
-        $data['datasekolah'] = DB::table('users as u')
+        // data siswa sesuai dengan tahun ajaran yang dipilih
+        $query = DB::table('users as u')
             ->leftJoin('kelas as k', 'u.kelas_id', '=', 'k.id')
             ->leftJoin('jurusan as j', 'u.jurusan_id', '=', 'j.id')
+            ->leftJoin('tagihan as tag', 'u.id', '=', 'tag.user_id')
             ->where('u.role', 3)
-            ->where('u.status', '!=', 'Lulus')
-            ->when($tahunAjaran, function ($query) use ($tahunAjaran) {
-                $query->where('u.tahun_ajaran', $tahunAjaran);
-            })
+            ->where('u.status', '!=', 'Lulus');
+
+        // filter berdasarkan tahun ajaran jika dipilih
+        if ($tahunId) {
+            $query->where('tag.thajaran_id', $tahunId);
+        }
+
+        $data['datasekolah'] = $query
+            ->distinct()
             ->select('u.*', 'k.nama_kelas', 'j.nama_jurusan')
             ->get();
 
-        $data['tahunTerpilih'] = $tahunAjaran;
+        // ambil nama tahun yang dipilih untuk ditampilkan di header
+        if ($tahunId) {
+            $tahunAjaran = DB::table('tahun_ajaran')->where('id', $tahunId)->first();
+            $data['tahunTerpilih'] = $tahunAjaran ? $tahunAjaran->tahun : null;
+        } else {
+            $data['tahunTerpilih'] = null;
+        }
 
         return view('backend.invoice.view', $data);
     }
