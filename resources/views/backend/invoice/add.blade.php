@@ -129,7 +129,7 @@
                     @else
                         <li>Pembayaran iuran dilakukan per semester.</li>
                         <li>Invoice ini sah tanpa tanda tangan.</li>
-                        <li>Pembayaran dapat dilakukan melalui transfer bank atau tunai.</li>
+                        <li>Pembayaran dapat dilakukan melalui QRIS yang tersedia di aplikasi</li>
                     @endif
                 </ul>
             </div>
@@ -143,7 +143,7 @@
                             Gunungkidul, {{ now()->format('d M Y') }}
                         </p>
                         <p class="fw-bold mb-0">
-                            Bendahara LP. Ma'arif NU
+                            Bendahara LP. Ma'arif PCNU Gunungkidul
                         </p>
                     </div>
                 </div>
