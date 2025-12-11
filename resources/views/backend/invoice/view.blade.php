@@ -5,7 +5,7 @@
     <div class="col-xl-12">
         <div class="card shadow-sm border-0">
             {{-- HEADER --}}
-            <div class="card-header bg-gradient bg-info text-white border-0 py-3">
+            <div class="card-header bg-gradient text-white border-0 py-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h4 class="mb-0 fw-bold">
@@ -14,7 +14,7 @@
                         <small class="text-white-50">LP. Ma'arif NU PCNU Gunungkidul</small>
                     </div>
                     <div class="text-end">
-                        <span class="badge bg-light text-info fs-6">
+                        <span class="badge bg-light fs-6">
                             <i class="fas fa-calendar me-1"></i>Tahun Pelajaran {{ $tahunTerpilih ?? '2024/2025' }}
                         </span>
                     </div>
