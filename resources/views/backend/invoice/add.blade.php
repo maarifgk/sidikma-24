@@ -26,7 +26,7 @@
             <div class="card-body bg-light">
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="card border-0 bg-transparent">
+                        <div class="card border-0">
                             <div class="card-body p-0">
                                 <h5 class="card-title text-primary mb-3">Informasi Madrasah</h5>
                                 <table class="table table-borderless table-sm">
