@@ -132,7 +132,7 @@
                                     <td class="text-muted small">{{ $siswa->keterangan ?? '-' }}</td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a href="{{ route('invoice.add', $siswa->id) }}"
+                                            <a href="{{ route('invoice.detail', $siswa->id) }}"
                                                class="btn btn-outline-primary"
                                                title="Lihat Detail Invoice Siswa">
                                                 <i class="fas fa-file-alt me-1"></i>Detail
