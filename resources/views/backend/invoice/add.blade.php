@@ -140,7 +140,12 @@
                     <div class="col-md-6"></div>
                     <div class="col-md-6">
                         <p class="mb-5">
-                            Gunungkidul, {{ now()->format('d M Y') }}
+                            Gunungkidul,
+                            @if($paymentDate)
+                                        {{ \Carbon\Carbon::parse($paymentDate)->format('d M Y - H:i') }} WIB
+                                    @else
+                                        <span class="text-danger">Belum Dibayar</span>
+                                    @endif
                         </p>
                         <p class="fw-bold mb-0">
                             Bendahara LP. Ma'arif PCNU Gunungkidul
