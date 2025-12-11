@@ -81,7 +81,7 @@
                                 <tr class="text-center">
                                     <td>{{ $no++ }}</td>
                                     <td class="text-start fw-semibold">{{ $t->nama_lengkap }}</td>
-                                    <td>{{ $t->thajaran_id }}</td>
+                                    <td>{{ $t->tahun_ajaran }}</td>
                                     <td>Rp {{ number_format($t->nilai, 0, ',', '.') }}</td>
                                     <td>
                                         @if($t->status == 'Lunas')
