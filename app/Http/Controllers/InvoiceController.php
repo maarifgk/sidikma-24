@@ -18,12 +18,12 @@ class InvoiceController extends Controller
         $data['kelas'] = DB::select("SELECT * FROM kelas");
 
         // daftar tahun ajaran (dropdown)
-        $data['listTahunAjaran'] = DB::table('users')
-            ->select('tahun_ajaran')
-            ->distinct()
-            ->whereNotNull('tahun_ajaran')
-            ->orderBy('tahun_ajaran', 'desc')
-            ->pluck('tahun_ajaran');
+        // $data['listTahunAjaran'] = DB::table('users')
+        //     ->select('tahun_ajaran')
+        //     ->distinct()
+        //     ->whereNotNull('tahun_ajaran')
+        //     ->orderBy('tahun_ajaran', 'desc')
+        //     ->pluck('tahun_ajaran');
 
         // data siswa sesuai tahun pelajaran
         $data['datasekolah'] = DB::table('users as u')
