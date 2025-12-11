@@ -136,7 +136,14 @@
                             </thead>
 
                             <tbody>
+                                @php $totalIuran = 0; @endphp
+
                                 @foreach($rincianIuran as $idx => $row)
+                                    @php
+                                        $jumlah = $row['nominal'] * $row['kuantitas'] * $row['frekuensi'];
+                                        $totalIuran += $jumlah;
+                                    @endphp
+
                                     <tr>
                                         <td class="text-center">{{ $idx + 1 }}</td>
                                         <td>{{ $row['uraian'] }}</td>
@@ -147,18 +154,24 @@
                                         </td>
 
                                         <td class="text-center">{{ $row['bulan'] }}</td>
-
                                         <td class="text-center">{{ $row['kuantitas'] }}</td>
-
                                         <td class="text-center">{{ $row['frekuensi'] }}</td>
 
-                                        {{-- Perhitungan jumlah --}}
-                                        <td class="text-end">
-                                            Rp {{ number_format(($row['nominal'] * $row['kuantitas'] * $row['frekuensi']), 0, ',', '.') }}
+                                        <td class="text-end fw-bold">
+                                            Rp {{ number_format($jumlah, 0, ',', '.') }}
                                         </td>
                                     </tr>
                                 @endforeach
                             </tbody>
+
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="7" class="text-end fw-bold">TOTAL IURAN</th>
+                                    <th class="text-end text-success fs-5 fw-bold">
+                                        Rp {{ number_format($totalIuran, 0, ',', '.') }}
+                                    </th>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
