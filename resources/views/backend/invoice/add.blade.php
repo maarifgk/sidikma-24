@@ -23,45 +23,56 @@
             </div>
 
             {{-- INFO INVOICE --}}
-            <div class="card-body border-bottom">
+            <div class="card-body bg-light">
                 <div class="row">
                     <div class="col-md-6">
-                        <table class="table table-borderless table-sm">
-                            <tr>
-                                <td width="140">Nama Madrasah</td>
-                                <td>:</td>
-                                <td><b>MI Ma'arif Wonosari</b></td>
-                            </tr>
-                            <tr>
-                                <td>Alamat</td>
-                                <td>:</td>
-                                <td>Gunungkidul</td>
-                            </tr>
-                        </table>
+                        <div class="card border-0 bg-transparent">
+                            <div class="card-body p-0">
+                                <h5 class="card-title text-primary mb-3">Informasi Madrasah</h5>
+                                <table class="table table-borderless table-sm">
+                                    <tr>
+                                        <td width="140" class="fw-semibold">Nama Madrasah</td>
+                                        <td>:</td>
+                                        <td><strong>MI Ma'arif Wonosari</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-semibold">Alamat</td>
+                                        <td>:</td>
+                                        <td>Gunungkidul</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="col-md-6">
-                        <table class="table table-borderless table-sm">
-                            <tr>
-                                <td width="140">No Invoice</td>
-                                <td>:</td>
-                                <td>INV-2024-001</td>
-                            </tr>
-                            <tr>
-                                <td>Tanggal</td>
-                                <td>:</td>
-                                <td>{{ now()->format('d M Y') }}</td>
-                            </tr>
-                        </table>
+                        <div class="card border-0 bg-transparent">
+                            <div class="card-body p-0">
+                                <h5 class="card-title text-primary mb-3">Informasi Invoice</h5>
+                                <table class="table table-borderless table-sm">
+                                    <tr>
+                                        <td width="140" class="fw-semibold">No Invoice</td>
+                                        <td>:</td>
+                                        <td><span class="badge bg-secondary">INV-2024-001</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-semibold">Tanggal</td>
+                                        <td>:</td>
+                                        <td>{{ now()->format('d M Y') }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {{-- TABEL RINCIAN --}}
             <div class="card-body">
+                <h5 class="card-title text-primary mb-3">Rincian Pembayaran</h5>
                 <div class="table-responsive">
-                    <table class="table table-bordered align-middle">
-                        <thead class="table-light">
+                    <table class="table table-striped table-hover table-bordered align-middle">
+                        <thead class="table-primary">
                             <tr class="text-center">
                                 <th width="50">No</th>
                                 <th>Uraian</th>
@@ -89,10 +100,10 @@
                                 <td class="text-end">Rp 600.000</td>
                             </tr>
                         </tbody>
-                        <tfoot>
+                        <tfoot class="table-light">
                             <tr>
-                                <th colspan="5" class="text-end">Total</th>
-                                <th class="text-end text-primary fs-5">
+                                <th colspan="5" class="text-end fw-bold">Total</th>
+                                <th class="text-end text-success fs-5 fw-bold">
                                     Rp 1.320.000
                                 </th>
                             </tr>
@@ -102,13 +113,14 @@
             </div>
 
             {{-- CATATAN --}}
-            <div class="card-body border-top">
-                <p class="mb-1">
-                    <b>Catatan:</b>
-                </p>
-                <ul class="mb-0">
+            <div class="card-body border-top bg-light">
+                <h6 class="card-title text-primary mb-3">
+                    <i class="fas fa-info-circle me-2"></i>Catatan Penting
+                </h6>
+                <ul class="mb-0 text-muted">
                     <li>Pembayaran iuran dilakukan per semester.</li>
                     <li>Invoice ini sah tanpa tanda tangan.</li>
+                    <li>Pembayaran dapat dilakukan melalui transfer bank atau tunai.</li>
                 </ul>
             </div>
 
@@ -128,13 +140,20 @@
             </div>
 
             {{-- ACTION --}}
-            <div class="card-footer text-end">
-                <a href="{{ url()->previous() }}" class="btn btn-secondary">
-                    Kembali
-                </a>
-                <button class="btn btn-primary">
-                    Cetak Invoice
-                </button>
+            <div class="card-footer bg-light">
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Kembali
+                    </a>
+                    <div>
+                        <button class="btn btn-outline-primary me-2">
+                            <i class="fas fa-eye me-2"></i>Preview
+                        </button>
+                        <button class="btn btn-success">
+                            <i class="fas fa-print me-2"></i>Cetak Invoice
+                        </button>
+                    </div>
+                </div>
             </div>
 
         </div>
