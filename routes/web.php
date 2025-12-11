@@ -43,6 +43,7 @@ use App\Http\Controllers\PDFController;
 use App\Http\Controllers\UploadSKController;
 use App\Http\Controllers\ModulController;
 use App\Http\Controllers\DataSiswaController;
+use App\Http\Controllers\DataTenagaPendidikController;
 
 
 
@@ -353,6 +354,21 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/data-siswa/{id}', [DataSiswaController::class, 'destroy'])->name('data-siswa.destroy');
     Route::get('/data-siswa/{id}/edit', [App\Http\Controllers\DataSiswaController::class, 'edit'])->name('data-siswa.edit');
     Route::put('/data-siswa/{id}', [App\Http\Controllers\DataSiswaController::class, 'update'])->name('data-siswa.update');
+
+    Route::get('/data-tenaga', [DataTenagaPendidikController::class, 'index'])->name('data-tenaga.index');
+    Route::get('/data-tenaga/create', [DataTenagaPendidikController::class, 'create'])->name('data-tenaga.create');
+    Route::post('/data-tenaga/store', [DataTenagaPendidikController::class, 'store'])->name('data-tenaga.store');
+    Route::delete('/data-tenaga/{id}', [DataTenagaPendidikController::class, 'destroy'])->name('data-tenaga.destroy');
+    Route::get('/data-tenaga/{id}/edit', [DataTenagaPendidikController::class, 'edit'])->name('data-tenaga.edit');
+    Route::put('/data-tenaga/{id}', [DataTenagaPendidikController::class, 'update'])->name('data-tenaga.update');
+
+    // data tenaga pendidik
+    Route::get('/data-tenaga', [DataTenagaPendidikController::class, 'index'])->name('data-tenaga.index');
+    Route::get('/data-tenaga/create', [DataTenagaPendidikController::class, 'create'])->name('data-tenaga.create');
+    Route::post('/data-tenaga/store', [DataTenagaPendidikController::class, 'store'])->name('data-tenaga.store');
+    Route::delete('/data-tenaga/{id}', [DataTenagaPendidikController::class, 'destroy'])->name('data-tenaga.destroy');
+    Route::get('/data-tenaga/{id}/edit', [App\Http\Controllers\DataTenagaPendidikController::class, 'edit'])->name('data-tenaga.edit');
+    Route::put('/data-tenaga/{id}', [App\Http\Controllers\DataTenagaPendidikController::class, 'update'])->name('data-tenaga.update');
 
 
 });
