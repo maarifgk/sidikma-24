@@ -67,17 +67,17 @@
                     <i class="fas fa-list me-2"></i>Daftar Siswa & Tagihan
                 </h5>
                 <div class="table-responsive">
-                    <table id="datatable" class="table table-striped table-hover">
+                    <table id="datatable" class="table table-striped table-hover table-sm">
                         <thead class="table-primary">
                             <tr class="text-center">
                                 <th width="50">No</th>
                                 <th>Nama Siswa</th>
-                                <th width="150">Kelas</th>
-                                <th width="150">Jurusan</th>
-                                <th width="150">No Invoice</th>
-                                <th width="120">Status</th>
-                                <th width="150">Total Tagihan</th>
-                                <th width="200" class="text-center">Aksi</th>
+                                <th width="130">Kelas</th>
+                                <th width="130">Jurusan</th>
+                                <th width="130">No Invoice</th>
+                                <th width="100">Status</th>
+                                <th width="140">Total Tagihan</th>
+                                <th width="240" class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,25 +87,25 @@
                                     $studentInvoice = $invoices->where('user_id', $student->id)->first();
                                 @endphp
                                 <tr>
-                                    <td class="text-center">{{ $no++ }}</td>
-                                    <td class="fw-semibold">{{ $student->nama_lengkap }}</td>
-                                    <td>{{ $student->nama_kelas ?? '-' }}</td>
-                                    <td>{{ $student->nama_jurusan ?? '-' }}</td>
-                                    <td>{{ $studentInvoice->invoice_number ?? '-' }}</td>
+                                    <td class="text-center fw-semibold text-secondary">{{ $no++ }}</td>
+                                    <td class="fw-semibold text-dark">{{ $student->nama_lengkap }}</td>
+                                    <td class="text-muted">{{ $student->nama_kelas ?? '-' }}</td>
+                                    <td class="text-muted">{{ $student->nama_jurusan ?? '-' }}</td>
+                                    <td class="text-muted small">{{ $studentInvoice->invoice_number ?? '-' }}</td>
                                     <td class="text-center">
                                         @if($studentInvoice)
                                             @if($studentInvoice->status == 'paid')
                                                 <span class="badge bg-success">Lunas</span>
                                             @elseif($studentInvoice->status == 'sent')
-                                                <span class="badge bg-warning">Dikirim</span>
+                                                <span class="badge bg-info">Dikirim</span>
                                             @else
                                                 <span class="badge bg-secondary">Draft</span>
                                             @endif
                                         @else
-                                            <span class="badge bg-light text-muted">Belum Ada</span>
+                                            <span class="badge bg-light text-muted">-</span>
                                         @endif
                                     </td>
-                                    <td class="text-end fw-bold">
+                                    <td class="text-end fw-bold text-success">
                                         @if($studentInvoice)
                                             Rp {{ number_format($studentInvoice->total_amount, 0, ',', '.') }}
                                         @else
@@ -113,17 +113,29 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        <div class="btn-group" role="group">
+                                        <div class="btn-group btn-group-sm" role="group">
                                             @if($studentInvoice)
-                                                <a href="/invoice/add/{{ $student->id }}" class="btn btn-sm btn-primary">
-                                                    <i class="fas fa-eye me-1"></i>Lihat
+                                                <a href="{{ route('invoice.add', $student->id) }}" 
+                                                   class="btn btn-outline-primary" 
+                                                   title="Lihat Detail Invoice">
+                                                    <i class="fas fa-file-alt me-1"></i>Detail
                                                 </a>
-                                                <button class="btn btn-sm btn-success" onclick="printInvoice({{ $student->id }})">
+                                                <button type="button" 
+                                                        class="btn btn-outline-success" 
+                                                        onclick="printInvoice({{ $student->id }})"
+                                                        title="Cetak Invoice">
                                                     <i class="fas fa-print me-1"></i>Cetak
                                                 </button>
+                                                <a href="{{ route('invoice.edit', $studentInvoice->id) }}" 
+                                                   class="btn btn-outline-warning" 
+                                                   title="Edit Invoice">
+                                                    <i class="fas fa-edit me-1"></i>Edit
+                                                </a>
                                             @else
-                                                <a href="/invoice/add/{{ $student->id }}" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-plus me-1"></i>Buat Invoice
+                                                <a href="{{ route('invoice.add', $student->id) }}" 
+                                                   class="btn btn-primary" 
+                                                   title="Buat Invoice Baru">
+                                                    <i class="fas fa-plus me-1"></i>Buat
                                                 </a>
                                             @endif
                                         </div>
@@ -131,10 +143,10 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                        <tfoot class="table-light">
+                        <tfoot class="table-light fw-bold">
                             <tr>
-                                <th colspan="6" class="text-end fw-bold">Total Tagihan Kelas:</th>
-                                <th class="text-end text-success fs-5 fw-bold">
+                                <th colspan="6" class="text-end">Total Tagihan Kelas:</th>
+                                <th class="text-end text-success fs-6">
                                     Rp {{ number_format($totalAmount, 0, ',', '.') }}
                                 </th>
                                 <th></th>
@@ -145,17 +157,18 @@
             </div>
 
             {{-- FOOTER --}}
-            <div class="card-footer bg-light">
-                <div class="d-flex justify-content-between align-items-center">
+            <div class="card-footer bg-light border-top">
+                <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
                     <small class="text-muted">
-                        Menampilkan {{ count($students) }} siswa dari kelas {{ $kelas->nama_kelas ?? 'N/A' }}
+                        <i class="fas fa-info-circle me-1"></i>
+                        Menampilkan {{ count($students) }} siswa dari kelas <strong>{{ $kelas->nama_kelas ?? 'N/A' }}</strong>
                     </small>
-                    <div>
-                        <a href="{{ route('invoice') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Kembali ke Daftar Invoice
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('invoice') }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Kembali
                         </a>
-                        <button class="btn btn-success" onclick="exportClassBilling()">
-                            <i class="fas fa-download me-2"></i>Export Laporan
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="exportClassBilling()">
+                            <i class="fas fa-download me-1"></i>Export
                         </button>
                     </div>
                 </div>
@@ -166,7 +179,10 @@
 
 <script>
 function printInvoice(studentId) {
-    window.open('/invoice/add/' + studentId, '_blank');
+    const printWindow = window.open('{{ route("invoice.add", "") }}/' + studentId, '_blank');
+    if (printWindow) {
+        printWindow.focus();
+    }
 }
 
 function exportClassBilling() {
