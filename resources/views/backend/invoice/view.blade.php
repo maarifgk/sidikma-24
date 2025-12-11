@@ -118,9 +118,8 @@
                         <thead class="table-primary">
                             <tr class="text-center">
                                 <th width="50">No</th>
-                                <th>Nama Siswa</th>
-                                <th width="130">Kelas</th>
-                                <th width="130">Jurusan</th>
+                                <th>Nama Madrasah/Sekolah</th>
+                                <th width="130">Jenjang</th>
                                 <th width="280" class="text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -131,7 +130,6 @@
                                     <td class="text-center fw-semibold text-secondary">{{ $no++ }}</td>
                                     <td class="fw-semibold text-dark">{{ $siswa->nama_lengkap }}</td>
                                     <td class="text-muted small">{{ $siswa->nama_kelas ?? '-' }}</td>
-                                    <td class="text-muted small">{{ $siswa->nama_jurusan ?? '-' }}</td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
                                             <a href="{{ route('invoice.add', $siswa->id) }}"
