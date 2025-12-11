@@ -129,7 +129,7 @@
                                 <tr>
                                     <td class="text-center fw-semibold text-secondary">{{ $no++ }}</td>
                                     <td class="fw-semibold text-dark">{{ $siswa->nama_lengkap }}</td>
-                                    <td class="text-muted small">{{ $siswa->nama_kelas ?? '-' }}</td>
+                                    <td class="text-muted small">{{ $siswa->keterangan ?? '-' }}</td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
                                             <a href="{{ route('invoice.add', $siswa->id) }}"
@@ -158,7 +158,7 @@
                         </tbody>
                         <tfoot class="table-light fw-bold">
                             <tr class="text-center">
-                                <th colspan="3" class="text-end">Total Siswa:</th>
+                                <th colspan="3" class="text-end">Total Madrasah/sekolah:</th>
                                 <th class="text-center text-primary">{{ $totalSiswa }}</th>
                             </tr>
                         </tfoot>

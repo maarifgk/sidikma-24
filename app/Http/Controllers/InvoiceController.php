@@ -38,7 +38,7 @@ class InvoiceController extends Controller
 
         $data['datasekolah'] = $query
             ->distinct()
-            ->select('u.*', 'k.nama_kelas', 'j.nama_jurusan')
+            ->select('u.*', 'k.nama_kelas', 'k.keterangan', 'j.nama_jurusan')
             ->get();
 
         // ambil nama tahun yang dipilih untuk ditampilkan di header
