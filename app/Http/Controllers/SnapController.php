@@ -119,12 +119,35 @@ class SnapController extends Controller
                 'pembayaran' => 'required|string',
             ]);
 
+            // Get Midtrans credentials dari database
+            $apk = Helper::apk();
+            
+            // Validasi credentials tersedia
+            if (!$apk->serverKey || !$apk->clientKey) {
+                Log::error('Midtrans Credentials Missing', [
+                    'serverKey_exists' => !empty($apk->serverKey),
+                    'clientKey_exists' => !empty($apk->clientKey),
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Konfigurasi Midtrans belum lengkap. Hubungi administrator untuk setup credentials.',
+                ], 500);
+            }
+
             // Set Midtrans Config
-            \Midtrans\Config::$serverKey = Helper::apk()->serverKey;
-            \Midtrans\Config::$clientKey = Helper::apk()->clientKey;
-            \Midtrans\Config::$isProduction = (env('MIDTRANS_IS_PRODUCTION', false) == true);
+            \Midtrans\Config::$serverKey = $apk->serverKey;
+            \Midtrans\Config::$clientKey = $apk->clientKey;
+            \Midtrans\Config::$isProduction = false; // Selalu gunakan Sandbox
             \Midtrans\Config::$isSanitized = true;
             \Midtrans\Config::$is3ds = true;
+
+            // Log configuration untuk debugging
+            Log::info('Midtrans Config Set', [
+                'serverKey_prefix' => substr($apk->serverKey, 0, 20) . '***',
+                'clientKey_prefix' => substr($apk->clientKey, 0, 20) . '***',
+                'isProduction' => false,
+            ]);
 
             // Generate unique order_id menggunakan timestamp + user_id + tagihan_id
             $order_id = 'ORDER-' . auth()->id() . '-' . $request->tagihan_id . '-' . time();
@@ -233,9 +256,18 @@ class SnapController extends Controller
     public function callback(Request $request)
     {
         try {
+            // Get Midtrans credentials dari database
+            $apk = Helper::apk();
+            
+            // Validasi credentials tersedia
+            if (!$apk->serverKey) {
+                Log::error('Midtrans Server Key Missing in Callback');
+                return response()->json(['message' => 'Configuration error'], 500);
+            }
+
             // Konfigurasi Midtrans
-            \Midtrans\Config::$serverKey = Helper::apk()->serverKey;
-            \Midtrans\Config::$isProduction = (env('MIDTRANS_IS_PRODUCTION', false) == true);
+            \Midtrans\Config::$serverKey = $apk->serverKey;
+            \Midtrans\Config::$isProduction = false; // Selalu gunakan Sandbox
             \Midtrans\Config::$isSanitized = true;
             \Midtrans\Config::$is3ds = true;
 

@@ -8,13 +8,32 @@ use Illuminate\Support\Facades\DB;
 
 class Helper
 {
+    /**
+     * Mendapatkan konfigurasi aplikasi dari database
+     *
+     * @return object
+     */
     static public function apk()
     {
         $apk = DB::table('aplikasi')->first();
-        // dd($apk);
+
+        // Jika belum ada data di database, return object kosong
+        if (!$apk) {
+            return (object) [
+                'serverKey' => '',
+                'clientKey' => '',
+                'merchantId' => '',
+                'token_whatsapp' => '',
+                'tlp' => '',
+            ];
+        }
+
         return $apk;
     }
 
+    /**
+     * Log activity transaksi
+     */
     static public function log_transaction($params)
     {
         $data = [
@@ -32,5 +51,5 @@ class Helper
         return true;
     }
 }
-    
+
 
