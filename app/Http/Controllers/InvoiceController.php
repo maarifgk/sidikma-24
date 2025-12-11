@@ -55,6 +55,17 @@ class InvoiceController extends Controller
             ->where('status', '!=', 'Lulus')
             ->count();
 
+        // hitung pembayaran lunas dan belum lunas dari database tagihan sesuai tahun ajaran
+        $tagihanQuery = DB::table('tagihan');
+        
+        // jika ada tahun ajaran yang dipilih, filter berdasarkan tahun tersebut
+        if ($tahunId) {
+            $tagihanQuery->where('thajaran_id', $tahunId);
+        }
+
+        $data['totalLunas'] = (clone $tagihanQuery)->where('status', 'Lunas')->count();
+        $data['totalBelumLunas'] = (clone $tagihanQuery)->where('status', 'Belum Lunas')->count();
+
         return view('backend.invoice.view', $data);
     }
 

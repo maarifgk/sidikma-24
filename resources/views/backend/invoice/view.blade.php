@@ -61,7 +61,7 @@
             @endphp
             <div class="card-body border-bottom bg-white py-3">
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <div class="d-flex align-items-center">
                             <div class="avatar avatar-lg bg-primary rounded me-3">
                                 <i class="fas fa-users text-white fs-5"></i>
@@ -72,10 +72,32 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <div class="d-flex align-items-center">
                             <div class="avatar avatar-lg bg-success rounded me-3">
-                                <i class="fas fa-school text-white fs-5"></i>
+                                <i class="fas fa-check-circle text-white fs-5"></i>
+                            </div>
+                            <div>
+                                <p class="text-muted mb-0 small">Pembayaran Lunas</p>
+                                <h5 class="mb-0 fw-bold text-success">{{ $totalLunas ?? 0 }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-lg bg-warning rounded me-3">
+                                <i class="fas fa-clock text-white fs-5"></i>
+                            </div>
+                            <div>
+                                <p class="text-muted mb-0 small">Belum Lunas</p>
+                                <h5 class="mb-0 fw-bold text-warning">{{ $totalBelumLunas ?? 0 }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-lg bg-info rounded me-3">
+                                <i class="fas fa-building text-white fs-5"></i>
                             </div>
                             <div>
                                 <p class="text-muted mb-0 small">Asal Sekolah/Madrasah</p>
