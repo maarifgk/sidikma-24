@@ -17,7 +17,7 @@ class PembayaranController extends Controller
     public function view()
     {
         $data['title'] = "Pembayaran";
-        $data['getSiswa'] = DB::select("select * from users where role = '2'");
+        $data['getSiswa'] = DB::select("select * from users where role in ('2','3')");
         $data['thajaran'] = DB::select("select * from tahun_ajaran where active = 'ON'");
         $data['kelas'] = DB::select("select * from kelas");
         $data['siswa'] = "";
@@ -115,7 +115,7 @@ class PembayaranController extends Controller
             }
         }
         $data['title'] = "Pembayaran";
-        $data['getSiswa'] = DB::select("select * from users where role = '2'");
+        $data['getSiswa'] = DB::select("select * from users where role in ('2','3')");
         $data['thajaran'] = DB::select("select * from tahun_ajaran where active = 'ON'");
         $data['kelas'] = DB::select("select * from kelas");
         $data['siswa'] = DB::table('users')->join('tagihan', 'users.id', '=', 'tagihan.user_id')->join('kelas', 'kelas.id', '=', 'tagihan.kelas_id')->where('users.nis', $request->nis)->where('users.kelas_id', $request->kelas_id)->first();
