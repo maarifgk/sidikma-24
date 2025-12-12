@@ -17,7 +17,7 @@ class PembayaranController extends Controller
     public function view()
     {
         $data['title'] = "Pembayaran";
-        $data['getSiswa'] = DB::select("select * from users where role in ('2','3')");
+        $data['getSiswa'] = DB::select("select * from users where role in ('2','3') order by role desc, nama_lengkap asc");
         $data['thajaran'] = DB::select("select * from tahun_ajaran where active = 'ON'");
         $data['kelas'] = DB::select("select * from kelas");
         $data['siswa'] = "";
