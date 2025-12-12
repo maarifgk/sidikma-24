@@ -161,8 +161,8 @@ class SnapController extends Controller
         $customer_details = [
             'first_name' => $request->nama_lengkap,
             'last_name' => '',
-            'email' => request()->user()->email ?? 'a@example.com',
-            'phone' => request()->user()->no_tlp ?? '08123456789',
+            'email' => $request->email ?? 'a@example.com',
+            'phone' => $request->no_tlp ?? '08123456789',
             'billing_address' => $billing_address,
             'shipping_address' => $shipping_address,
         ];

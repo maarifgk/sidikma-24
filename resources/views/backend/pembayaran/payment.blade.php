@@ -19,6 +19,8 @@
                             <input type="text" name="user_id" id="user_id" value="{{ $p->user_id }}" hidden>
                             <input type="text" name="kelas_id" id="kelas_id" value="{{ $p->kelas_id }}" hidden>
                             <input type="text" name="nis" id="nis" value="{{ $p->nis }}" hidden>
+                            <input type="text" name="email" id="email" value="{{ $p->email }}" hidden>
+                            <input type="text" name="no_tlp" id="no_tlp" value="{{ $p->no_tlp }}" hidden>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
@@ -94,18 +96,20 @@
                 event.preventDefault();
                 $(this).attr("disabled", "disabled");
                 // console.log($('#nilai').val().replace("Rp.", '').replace(",", '').replace(".", ''));
-                $.ajax({
-                    method: "POST",
-                    url: '/getTokenPayment',
-                    cache: false,
-                    data: {
-                        _token: $('#_token').val(),
-                        nama_lengkap: $('#nama_lengkap').val(),
-                        pembayaran: $('#pembayaran').val(),
-                        tahun: $('#tahun').val(),
-                        total: $('#nilai').val().replace("Rp.", '').replace(",", '').replace(".", ''),
+                    $.ajax({
+                        method: "POST",
+                        url: '/getTokenPayment',
+                        cache: false,
+                        data: {
+                            _token: $('#_token').val(),
+                            nama_lengkap: $('#nama_lengkap').val(),
+                            pembayaran: $('#pembayaran').val(),
+                            tahun: $('#tahun').val(),
+                            total: $('#nilai').val().replace("Rp.", '').replace(",", '').replace(".", ''),
+                            email: $('#email').val(),
+                            no_tlp: $('#no_tlp').val(),
 
-                    },
+                        },
                     success: function(data) {
                         //location = data;
                         console.log('token = ' + data);
