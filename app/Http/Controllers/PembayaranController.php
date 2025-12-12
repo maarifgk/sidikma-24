@@ -17,7 +17,7 @@ class PembayaranController extends Controller
     public function view()
     {
         $data['title'] = "Pembayaran";
-        $data['getSiswa'] = DB::select("select * from users where role = '2'");
+        $data['getSiswa'] = DB::select("select * from users where role in ('2','3') order by role desc, nama_lengkap asc");
         $data['thajaran'] = DB::select("select * from tahun_ajaran where active = 'ON'");
         $data['kelas'] = DB::select("select * from kelas");
         $data['siswa'] = "";
@@ -115,7 +115,7 @@ class PembayaranController extends Controller
             }
         }
         $data['title'] = "Pembayaran";
-        $data['getSiswa'] = DB::select("select * from users where role = '2'");
+        $data['getSiswa'] = DB::select("select * from users where role in ('2','3') order by role desc, nama_lengkap asc");
         $data['thajaran'] = DB::select("select * from tahun_ajaran where active = 'ON'");
         $data['kelas'] = DB::select("select * from kelas");
         $data['siswa'] = DB::table('users')->join('tagihan', 'users.id', '=', 'tagihan.user_id')->join('kelas', 'kelas.id', '=', 'tagihan.kelas_id')->where('users.nis', $request->nis)->where('users.kelas_id', $request->kelas_id)->first();
@@ -325,11 +325,9 @@ class PembayaranController extends Controller
 
         // $query = DB::table('users')->where('kelas_id', $kelas_id)->where('role', 2)->where('status', '!=', 'Lulus')->get();
         if ($kelas_id != "Lulus") {
-            $and = $kelas_id != "Lulus" ? "and kelas_id = '$kelas_id'" : "";
-            $query = DB::select("select * from users where 1=1 and status != 'Lulus' and role = '2' $and");
+            $query = DB::select("select * from users where (role = '2' and status != 'Lulus' and kelas_id = '$kelas_id') or role = '3' order by role desc, nama_lengkap asc");
         } elseif ($kelas_id = "Lulus") {
-            $and2 = $kelas_id = "Lulus" ? "and status = '$kelas_id'" : "";
-            $query = DB::select("select nama_lengkap, status from users where 1=1 and role = '2' $and2");
+            $query = DB::select("select * from users where status = 'Lulus' and role in ('2','3') order by role desc, nama_lengkap asc");
         }
 
         // dd($query);

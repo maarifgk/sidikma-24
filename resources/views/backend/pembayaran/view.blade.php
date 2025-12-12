@@ -354,7 +354,7 @@
                             $("#nis").empty();
                             $("#nis").append('<option>---Pilih Siswa---</option>');
                             $.each(res, function(kode, value) {
-                                $("#nis").append('<option value="' + value.nis + '">' + value
+                                $("#nis").append('<option value="' + value.nis + '">' + value.nis + ' - ' + value
                                     .nama_lengkap +
                                     '</option>');
                             });
