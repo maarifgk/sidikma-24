@@ -329,7 +329,7 @@ if ($hour >= 0 && $hour <= 11) {
     @if (request()->user()->role == 3)
 
     <!-- Welcome Section -->
-    <div class="col-lg-12 mb-3">
+    <div class="col-lg-12 mb-1">
         <div class="card">
             <div class="card-body">
                 <div class="row align-items-center">
@@ -349,7 +349,7 @@ if ($hour >= 0 && $hour <= 11) {
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row g-3 mb-3">
+    <div class="row g-3 mb-1">
         <!-- Total Students -->
         <div class="col-xl-3 col-md-6">
             <div class="card h-100">
@@ -424,7 +424,7 @@ if ($hour >= 0 && $hour <= 11) {
     </div>
 
     <!-- School Information -->
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-1">
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
