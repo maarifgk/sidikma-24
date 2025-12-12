@@ -137,7 +137,7 @@ class SnapController extends Controller
 
         // Optional
         $billing_address = [
-            'first_name' => request()->user()->nama_lengkap,
+            'first_name' => $request->nama_lengkap,
             'last_name' => 'a',
             'address' => 'a',
             'city' => 'a',
@@ -148,21 +148,21 @@ class SnapController extends Controller
 
         // Optional
         $shipping_address = [
-            'first_name' => request()->user()->nama_lengkap,
+            'first_name' => $request->nama_lengkap,
             'last_name' => 'Supriadi',
-            'address' => request()->user()->alamat,
-            'city' => '',
-            'postal_code' => '',
-            'phone' => request()->user()->no_tlp,
+            'address' => 'a',
+            'city' => 'a',
+            'postal_code' => 'a',
+            'phone' => '08123456789',
             'country_code' => 'IDN',
         ];
 
         // Optional
         $customer_details = [
-            'first_name' => request()->user()->nama_lengkap,
+            'first_name' => $request->nama_lengkap,
             'last_name' => '',
-            'email' => request()->user()->email,
-            'phone' => request()->user()->no_tlp,
+            'email' => request()->user()->email ?? 'a@example.com',
+            'phone' => request()->user()->no_tlp ?? '08123456789',
             'billing_address' => $billing_address,
             'shipping_address' => $shipping_address,
         ];
