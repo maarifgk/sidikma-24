@@ -74,7 +74,7 @@
                                 </div>
                                 <div class="col-md-12 text-center">
                                     <br>
-                                    <button type="button" id="pay-button" class="btn btn-primary">Bayar</button>
+                                    <button type="submit" id="pay-button" class="btn btn-primary">Bayar</button>
                                     <a href="/pembayaran/search?&kelas_id={{ $p->kelas_id }}&nis={{ $p->nis }}"
                                         type="button" class="btn btn-success">Kembali</a>
                                 </div>
