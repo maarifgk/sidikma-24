@@ -17,7 +17,7 @@ class PembayaranController extends Controller
     public function view()
     {
         $data['title'] = "Pembayaran";
-        $data['getSiswa'] = DB::select("select * from users where role = '2'");
+        $data['getSiswa'] = DB::select("select * from users where role in ('2','3') order by role desc, nama_lengkap asc");
         $data['thajaran'] = DB::select("select * from tahun_ajaran where active = 'ON'");
         $data['kelas'] = DB::select("select * from kelas");
         $data['siswa'] = "";
@@ -115,7 +115,7 @@ class PembayaranController extends Controller
             }
         }
         $data['title'] = "Pembayaran";
-        $data['getSiswa'] = DB::select("select * from users where role = '2'");
+        $data['getSiswa'] = DB::select("select * from users where role in ('2','3')");
         $data['thajaran'] = DB::select("select * from tahun_ajaran where active = 'ON'");
         $data['kelas'] = DB::select("select * from kelas");
         $data['siswa'] = DB::table('users')->join('tagihan', 'users.id', '=', 'tagihan.user_id')->join('kelas', 'kelas.id', '=', 'tagihan.kelas_id')->where('users.nis', $request->nis)->where('users.kelas_id', $request->kelas_id)->first();
@@ -261,7 +261,7 @@ class PembayaranController extends Controller
     public function payment($id_tagihan)
     {
         $data['title'] = "Payment";
-        $data['payment'] = DB::select("SELECT t.*, u.nama_lengkap, jp.pembayaran, ta.tahun, u.nis, u.email, u.no_tlp FROM tagihan t LEFT JOIN users u on u.id=t.user_id LEFT JOIN jenis_pembayaran jp on jp.id=t.jenis_pembayaran LEFT JOIN tahun_ajaran ta on ta.id=t.thajaran_id WHERE t.id = '$id_tagihan'");
+        $data['payment'] = DB::select("SELECT t.*, u.nama_lengkap, jp.pembayaran, ta.tahun, u.nis FROM tagihan t LEFT JOIN users u on u.id=t.user_id LEFT JOIN jenis_pembayaran jp on jp.id=t.jenis_pembayaran LEFT JOIN tahun_ajaran ta on ta.id=t.thajaran_id WHERE t.id = '$id_tagihan'");
         // dd($data['payment']);
         return view('backend.pembayaran.payment', $data);
     }
@@ -271,26 +271,6 @@ class PembayaranController extends Controller
         // dd($request->all());
         $dataMidtrans = json_decode($request->result_data);
         // dd();
-        $status = 'Lunas';
-        $alertType = 'success';
-        $alertMessage = 'Pembayaran Berhasil';
-
-        if ($request->metode_pembayaran == "Online") {
-            if ($request->result_type == 'success') {
-                $status = 'Lunas';
-                $alertType = 'success';
-                $alertMessage = 'Pembayaran Berhasil';
-            } elseif ($request->result_type == 'pending') {
-                $status = 'Pending';
-                $alertType = 'warning';
-                $alertMessage = 'Segera melakukan pembayaran!!!';
-            } else {
-                $status = 'Failed';
-                $alertType = 'error';
-                $alertMessage = 'Pembayaran Gagal';
-            }
-        }
-
         $data = [
             'user_id' => $request->user_id,
             'tagihan_id' => $request->tagihan_id,
@@ -299,25 +279,16 @@ class PembayaranController extends Controller
             'order_id' => isset($dataMidtrans->order_id) == false ? null : $dataMidtrans->order_id,
             'pdf_url' => isset($dataMidtrans->pdf_url) == false ? null : $dataMidtrans->pdf_url,
             'metode_pembayaran' => $request->metode_pembayaran,
-            'status' => $status,
+            'status' => $request->metode_pembayaran == "Online" ? "Pending" : 'Lunas',
             'created_at' => now(),
         ];
         // dd($data);
         $getusers = DB::table('users')->where('id', $request->user_id)->first();
         Http::get('https://wa.dlhcode.com/send-message?api_key=' . Helper::apk()->token_whatsapp . '&sender=' . Helper::apk()->tlp . '&number=' . $getusers->no_tlp . '&message=Terima kasih, pembayaran dengan jumlah ' . $request->nilai . ' dengan nama siswa ' . $getusers->nama_lengkap . ' dengan nis ' . $getusers->nis . ' Berhasil. Silahkan cek tagihan anda di dashboard siswa');
         DB::table('payment')->insert($data);
-
-        if ($alertType == 'success') {
-            Alert::success('Success', $alertMessage);
-        } elseif ($alertType == 'warning') {
-            Alert::warning('Peringatan', $alertMessage);
-        } else {
-            Alert::error('Error', $alertMessage);
-        }
-
+        $request->metode_pembayaran == "Manual" ? Alert::success('Success', 'Pembayaran Berhasil') : Alert::warning('Peringatan', 'Segera melakukan pembayaran!!!');
         return redirect("/pembayaran/search?&kelas_id=$request->kelas_id&nis=$request->nis");
     }
-
     function siswaByKelas($kelas_id)
     {
 
@@ -325,11 +296,9 @@ class PembayaranController extends Controller
 
         // $query = DB::table('users')->where('kelas_id', $kelas_id)->where('role', 2)->where('status', '!=', 'Lulus')->get();
         if ($kelas_id != "Lulus") {
-            $and = $kelas_id != "Lulus" ? "and kelas_id = '$kelas_id'" : "";
-            $query = DB::select("select * from users where 1=1 and status != 'Lulus' and role = '2' $and");
+            $query = DB::select("select * from users where (role = '2' and status != 'Lulus' and kelas_id = '$kelas_id') or role = '3' order by role desc, nama_lengkap asc");
         } elseif ($kelas_id = "Lulus") {
-            $and2 = $kelas_id = "Lulus" ? "and status = '$kelas_id'" : "";
-            $query = DB::select("select nama_lengkap, status from users where 1=1 and role = '2' $and2");
+            $query = DB::select("select * from users where status = 'Lulus' and role in ('2','3') order by role desc, nama_lengkap asc");
         }
 
         // dd($query);
