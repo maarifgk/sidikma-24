@@ -6,195 +6,96 @@ use Exception;
 use Midtrans\Snap;
 use Midtrans\Config;
 use App\Providers\Helper;
-use App\Veritrans\Veritrans;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 
 class SnapController extends Controller
 {
-    public function token(Request $request)
-    {
-        // Set your Merchant Server Key
-        \Midtrans\Config::$serverKey = Helper::apk()->serverKey;
-        // Set to Development/Sandbox Environment (default). Set to true for Production Environment (accept real transaction).
-        \Midtrans\Config::$isProduction = false;
-        // Set sanitization on (default)
-        \Midtrans\Config::$isSanitized = true;
-        // Set 3DS transaction for credit card to true
-        \Midtrans\Config::$is3ds = true;
-
-
-        // Required
-        // Required
-        // dd(request()->user()->nama_lengkap);
-        $transaction_details = [
-            'order_id' => rand(),
-            'gross_amount' => $request->total, // no decimal allowed for creditcard
-        ];
-
-        // Optional
-        $item1_details = [
-            'id' => rand(000, 999),
-            'price' => $request->total,
-            'quantity' => 1,
-            'name' => 'Pembayaran Spp',
-        ];
-
-        // Optional
-
-        // Optional
-        $item_details = [$item1_details];
-
-        // Optional
-        $billing_address = [
-            'first_name' => request()->user()->nama_lengkap,
-            'last_name' => 'a',
-            'address' => 'a',
-            'city' => 'a',
-            'postal_code' => 'a',
-            'phone' => 'a',
-            'country_code' => 'IDN',
-        ];
-
-        // Optional
-        $shipping_address = [
-            'first_name' => request()->user()->nama_lengkap,
-            'last_name' => 'Supriadi',
-            'address' => 'Manggis 90',
-            'city' => 'Jakarta',
-            'postal_code' => '16601',
-            'phone' => '08113366345',
-            'country_code' => 'IDN',
-        ];
-
-        // Optional
-        $customer_details = [
-            'first_name' => request()->user()->nama_lengkap,
-            'last_name' => '',
-            'email' => request()->user()->email,
-            'phone' => request()->user()->no_ortu,
-            'billing_address' => $billing_address,
-            'shipping_address' => $shipping_address,
-        ];
-
-        // Data yang akan dikirim untuk request redirect_url.
-        $credit_card['secure'] = true;
-        //ser save_card true to enable oneclick or 2click
-        //$credit_card['save_card'] = true;
-
-        $time = time();
-        $custom_expiry = [
-            'start_time' => date('Y-m-d H:i:s O', $time),
-            'unit' => 'minute',
-            'duration' => 1440,
-        ];
-
-        $transaction_data = [
-            'transaction_details' => $transaction_details,
-            'item_details' => $item_details,
-            'customer_details' => $customer_details,
-            'credit_card' => $credit_card,
-            'expiry' => $custom_expiry,
-        ];
-
-        error_log(json_encode($transaction_data));
-        $snapToken = \Midtrans\Snap::getSnapToken($transaction_data);
-        error_log($snapToken);
-        echo $snapToken;
-    }
+    /**
+     * Generate Snap Token untuk pembayaran ONLINE
+     */
     public function payment(Request $request)
     {
         try {
-            // Set your Merchant Server Key
-            \Midtrans\Config::$serverKey = Helper::apk()->serverKey;
-            // Set to Development/Sandbox Environment (default). Set to true for Production Environment (accept real transaction).
-            \Midtrans\Config::$isProduction = false;
-            // Set sanitization on (default)
-            \Midtrans\Config::$isSanitized = true;
-            // Set 3DS transaction for credit card to true
-            \Midtrans\Config::$is3ds = true;
+            // 🔥 Ambil server key & client key dari database
+            $serverKey  = Helper::apk()->serverKey;
+            $clientKey  = Helper::apk()->clientKey;
 
-            // Required
+            // 🔥 Jika kosong → langsung error biar tidak 401
+            if (!$serverKey || !$clientKey) {
+                return response()->json([
+                    'error' => 'ServerKey / ClientKey tidak ditemukan di database'
+                ], 500);
+            }
+
+            // 🔥 Set konfigurasi Midtrans
+            Config::$serverKey     = $serverKey;
+            Config::$isProduction  = true;  // ubah true kalau sudah live
+            Config::$isSanitized   = true;
+            Config::$is3ds         = true;
+
+            // 🔥 Pastikan total adalah numeric
+            $total = preg_replace('/[^\d]/', '', $request->total);
+
+            if (!$total || $total < 1) {
+                return response()->json([
+                    'error' => 'Total pembayaran tidak valid'
+                ], 500);
+            }
+
+            // -------------------------------------------
+            //  DATA TRANSAKSI
+            // -------------------------------------------
             $transaction_details = [
                 'order_id' => uniqid(),
-                'gross_amount' => (int) $request->total, // no decimal allowed for creditcard
+                'gross_amount' => (int) $total,
             ];
 
-            // Optional
-            $item1_details = [
-                'id' => rand(0000, 9999),
-                'price' => (int) $request->total,
+            $item_details = [[
+                'id' => rand(1000, 9999),
+                'price' => (int) $total,
                 'quantity' => 1,
-                'name' => $request->pembayaran,
-            ];
+                'name' => $request->pembayaran ?? 'Pembayaran Sekolah',
+            ]];
 
-            $item_details = [$item1_details];
-
-            // Optional
-            $billing_address = [
-                'first_name' => $request->nama_lengkap,
-                'last_name' => 'a',
-                'address' => 'a',
-                'city' => 'a',
-                'postal_code' => 'a',
-                'phone' => 'a',
-                'country_code' => 'IDN',
-            ];
-
-            // Optional
-            $shipping_address = [
-                'first_name' => $request->nama_lengkap,
-                'last_name' => 'Supriadi',
-                'address' => 'a',
-                'city' => 'a',
-                'postal_code' => 'a',
-                'phone' => '08123456789',
-                'country_code' => 'IDN',
-            ];
-
-            // Optional
             $customer_details = [
                 'first_name' => $request->nama_lengkap,
-                'last_name' => '',
-                'email' => $request->email ?? 'a@example.com',
-                'phone' => $request->no_tlp ?? '08123456789',
-                'billing_address' => $billing_address,
-                'shipping_address' => $shipping_address,
-            ];
-
-            // Data yang akan dikirim untuk request redirect_url.
-            $credit_card['secure'] = true;
-
-            $time = time();
-            $custom_expiry = [
-                'start_time' => date('Y-m-d H:i:s O', $time),
-                'unit' => 'minute',
-                'duration' => 1440,
+                'email'      => $request->email,
+                'phone'      => $request->no_tlp,
             ];
 
             $transaction_data = [
                 'transaction_details' => $transaction_details,
                 'item_details' => $item_details,
                 'customer_details' => $customer_details,
-                'credit_card' => $credit_card,
-                'expiry' => $custom_expiry,
+                'credit_card' => ['secure' => true],
+                'expiry' => [
+                    'start_time' => date('Y-m-d H:i:s O'),
+                    'unit'       => 'minute',
+                    'duration'   => 1440
+                ]
             ];
 
-            error_log(json_encode($transaction_data));
-            $snapToken = \Midtrans\Snap::getSnapToken($transaction_data);
-            error_log($snapToken);
-            echo $snapToken;
-        } catch (\Exception $e) {
-            error_log('Midtrans Error: ' . $e->getMessage());
-            http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            // 🔥 Request token ke Midtrans
+            $snapToken = Snap::getSnapToken($transaction_data);
+
+            return response()->json($snapToken);
+
+        } catch (Exception $e) {
+
+            // 🔥 Logging ke laravel.log
+            \Log::error("MIDTRANS ERROR → " . $e->getMessage());
+
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
-    public function finish(Request $request)
+
+    /**
+     * Untuk fitur lama / jika masih digunakan
+     */
+    public function token(Request $request)
     {
-        $result = json_decode($request->result_data);
-        echo 'RESULT <br><pre>';
-        var_dump($result);
-        echo '</pre>';
+        return $this->payment($request);
     }
 }
