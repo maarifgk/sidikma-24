@@ -325,7 +325,7 @@ class PembayaranController extends Controller
 
         // $query = DB::table('users')->where('kelas_id', $kelas_id)->where('role', 2)->where('status', '!=', 'Lulus')->get();
         if ($kelas_id != "Lulus") {
-            $query = DB::select("select * from users where (role = '2' and status != 'Lulus' and kelas_id = '$kelas_id') or role = '3' order by role desc, nama_lengkap asc");
+            $query = DB::select("select * from users where kelas_id = '$kelas_id' and role in ('2','3') and status != 'Lulus' order by role desc, nama_lengkap asc");
         } elseif ($kelas_id = "Lulus") {
             $query = DB::select("select * from users where status = 'Lulus' and role in ('2','3') order by role desc, nama_lengkap asc");
         }
