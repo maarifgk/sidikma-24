@@ -242,12 +242,12 @@
                                                         @elseif ($u->status_payment == 'Lunas')
                                                             <button onclick="printExcelByIdLainya()"
                                                                 class="btn btn-success" target="_blank">Excel</button>
-                                                                 <a href="/lainyaPdf/{{$u->id}}" 
+                                                                 <a href="/lainyaPdf/{{$u->id}}"
                                                                     class="btn btn-danger">PDF</a>
                                                         @else
                                                             <a href="/pembayaran/payment/{{ $u->id }}"
                                                                 class="btn btn-primary">Bayar</a>
-                                                                 <a href="/lainyaPdf/{{$u->id}}" 
+                                                                 <a href="/lainyaPdf/{{$u->id}}"
                                                                     class="btn btn-danger">PDF</a>
                                                         @endif
 
@@ -283,7 +283,7 @@
                             $("#nis").empty();
                             $("#nis").append('<option>---Pilih Siswa---</option>');
                             $.each(res, function(kode, value) {
-                                $("#nis").append('<option value="' + value.nis + '">' + value
+                                $("#nis").append('<option value="' + value.nis + '">' + value.nis + ' - ' + value
                                     .nama_lengkap +
                                     '</option>');
                             });
