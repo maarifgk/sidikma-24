@@ -330,17 +330,17 @@ if ($hour >= 0 && $hour <= 11) {
 
     <!-- Welcome Section -->
     <div class="col-lg-12 mb-4">
-        <div class="card shadow-lg border-0">
-            <div class="card-body p-4">
+        <div class="card">
+            <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-md-8">
-                        <h2 class="mb-2">{{ $congrat }} <strong>{{ request()->user()->nama_lengkap }}</strong>! 🎓</h2>
-                        <p class="text-muted mb-0">Selamat datang di Dashboard Kepala Madrasah/Sekolah. Kelola institusi pendidikan Anda dengan mudah.</p>
+                        <h4 class="mb-1">{{ $congrat }} <strong>{{ request()->user()->nama_lengkap }}</strong>!</h4>
+                        <p class="text-muted mb-0">Dashboard Kepala Madrasah/Sekolah</p>
                     </div>
                     <div class="col-md-4 text-center">
                         <img src="{{ asset('storage/images/users/' . request()->user()->image) }}"
-                             class="rounded-circle shadow"
-                             style="width: 120px; height: 120px; object-fit: cover;"
+                             class="rounded-circle"
+                             style="width: 80px; height: 80px; object-fit: cover;"
                              alt="Profile Image">
                     </div>
                 </div>
@@ -352,16 +352,16 @@ if ($hour >= 0 && $hour <= 11) {
     <div class="row g-4 mb-4">
         <!-- Total Students -->
         <div class="col-xl-3 col-md-6">
-            <div class="card shadow-lg h-100 border-left-primary">
+            <div class="card h-100">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
                                 Total Siswa</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $total_students ?? 0 }}</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ $total_students ?? 0 }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-users fa-2x text-primary"></i>
+                            <i class="fas fa-users fa-2x"></i>
                         </div>
                     </div>
                 </div>
@@ -370,16 +370,16 @@ if ($hour >= 0 && $hour <= 11) {
 
         <!-- Total Teachers -->
         <div class="col-xl-3 col-md-6">
-            <div class="card shadow-lg h-100 border-left-success">
+            <div class="card h-100">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
                                 Guru & Tenaga Pendidik</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $total_teachers ?? 0 }}</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ $total_teachers ?? 0 }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-chalkboard-teacher fa-2x text-success"></i>
+                            <i class="fas fa-chalkboard-teacher fa-2x"></i>
                         </div>
                     </div>
                 </div>
@@ -388,16 +388,16 @@ if ($hour >= 0 && $hour <= 11) {
 
         <!-- Total Staff -->
         <div class="col-xl-3 col-md-6">
-            <div class="card shadow-lg h-100 border-left-info">
+            <div class="card h-100">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
                                 Total Staff</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $total_staff ?? 0 }}</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ $total_staff ?? 0 }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-user-tie fa-2x text-info"></i>
+                            <i class="fas fa-user-tie fa-2x"></i>
                         </div>
                     </div>
                 </div>
@@ -406,16 +406,16 @@ if ($hour >= 0 && $hour <= 11) {
 
         <!-- Accreditation Status -->
         <div class="col-xl-3 col-md-6">
-            <div class="card shadow-lg h-100 border-left-warning">
+            <div class="card h-100">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
                                 Status Akreditasi</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $profile->akreditasi ?? 'N/A' }}</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ $profile->akreditasi ?? 'N/A' }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-certificate fa-2x text-warning"></i>
+                            <i class="fas fa-certificate fa-2x"></i>
                         </div>
                     </div>
                 </div>
@@ -423,51 +423,50 @@ if ($hour >= 0 && $hour <= 11) {
         </div>
     </div>
 
-    <!-- School Information & Recent Activities -->
-    <div class="row g-4">
-        <!-- School Information -->
-        <div class="col-lg-8">
-            <div class="card shadow-lg h-100">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-school me-2"></i>Informasi Madrasah/Sekolah</h5>
-                    <a href="/admin/edit/{{ $profile->id }}" class="btn btn-light btn-sm">
+    <!-- School Information -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Informasi Madrasah/Sekolah</h5>
+                    <a href="/admin/edit/{{ $profile->id }}" class="btn btn-sm">
                         <i class="fas fa-edit me-1"></i>Edit
                     </a>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <div class="border-start border-primary border-4 ps-3">
+                            <div class="ps-3">
                                 <small class="text-muted">Nama Institusi</small>
                                 <h6 class="mb-0">{{ $profile->nama_lengkap }}</h6>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="border-start border-success border-4 ps-3">
+                            <div class="ps-3">
                                 <small class="text-muted">NPSN</small>
                                 <h6 class="mb-0">{{ $profile->nis }}</h6>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="border-start border-info border-4 ps-3">
+                            <div class="ps-3">
                                 <small class="text-muted">Alamat</small>
                                 <h6 class="mb-0">{{ $profile->alamat }}</h6>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="border-start border-warning border-4 ps-3">
+                            <div class="ps-3">
                                 <small class="text-muted">Tahun Pelajaran</small>
                                 <h6 class="mb-0">{{ $profile->thn_pelajaran }}</h6>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="border-start border-danger border-4 ps-3">
+                            <div class="ps-3">
                                 <small class="text-muted">Email</small>
                                 <h6 class="mb-0">{{ $profile->email }}</h6>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="border-start border-secondary border-4 ps-3">
+                            <div class="ps-3">
                                 <small class="text-muted">Status Tanah</small>
                                 <h6 class="mb-0">{{ $profile->statustanah }}</h6>
                             </div>
@@ -476,51 +475,22 @@ if ($hour >= 0 && $hour <= 11) {
                 </div>
             </div>
         </div>
-
-        <!-- Recent Activities -->
-        <div class="col-lg-4">
-            <div class="card shadow-lg h-100">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Aktivitas Terbaru</h5>
-                </div>
-                <div class="card-body">
-                    @if(isset($recent_activities) && $recent_activities->count() > 0)
-                        @foreach($recent_activities as $activity)
-                            <div class="d-flex align-items-start mb-3">
-                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
-                                    <i class="fas fa-file-alt text-white" style="font-size: 14px;"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <small class="text-muted">{{ \Carbon\Carbon::parse($activity->created_at)->diffForHumans() }}</small>
-                                    <p class="mb-0 small">{{ $activity->s_pengajuan }}</p>
-                                </div>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="text-center py-4">
-                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">Belum ada aktivitas terbaru</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Student Distribution -->
-    <div class="row g-4 mt-2">
+    <div class="row g-4">
         <div class="col-12">
-            <div class="card shadow-lg">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Distribusi Siswa per Kelas</h5>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Distribusi Siswa per Kelas</h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
                         @for($i = 1; $i <= 9; $i++)
                             <div class="col-md-4">
-                                <div class="card border-0 shadow-sm">
+                                <div class="card">
                                     <div class="card-body text-center">
-                                        <h3 class="text-primary">{{ $profile->{'kelas'.$i} ?? 0 }}</h3>
+                                        <h4>{{ $profile->{'kelas'.$i} ?? 0 }}</h4>
                                         <small class="text-muted">Kelas {{ $i }}</small>
                                     </div>
                                 </div>
