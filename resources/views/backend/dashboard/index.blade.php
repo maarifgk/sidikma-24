@@ -329,7 +329,7 @@ if ($hour >= 0 && $hour <= 11) {
     @if (request()->user()->role == 3)
 
     <!-- Welcome Section -->
-    <div class="col-lg-12 mb-1">
+    <div class="col-lg-12 mb-4">
         <div class="card">
             <div class="card-body">
                 <div class="row align-items-center">
@@ -349,9 +349,9 @@ if ($hour >= 0 && $hour <= 11) {
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row g-3 mb-1">
+    <div class="row g-4 mb-4">
         <!-- Total Students -->
-        <div class="col-xl-3 col-md-6">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -369,7 +369,7 @@ if ($hour >= 0 && $hour <= 11) {
         </div>
 
         <!-- Total Teachers -->
-        <div class="col-xl-3 col-md-6">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -387,7 +387,7 @@ if ($hour >= 0 && $hour <= 11) {
         </div>
 
         <!-- Total Staff -->
-        <div class="col-xl-3 col-md-6">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -405,7 +405,7 @@ if ($hour >= 0 && $hour <= 11) {
         </div>
 
         <!-- Accreditation Status -->
-        <div class="col-xl-3 col-md-6">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -424,7 +424,7 @@ if ($hour >= 0 && $hour <= 11) {
     </div>
 
     <!-- School Information -->
-    <div class="row g-4 mb-1">
+    <div class="row g-4 mb-4">
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -487,7 +487,7 @@ if ($hour >= 0 && $hour <= 11) {
                 <div class="card-body">
                     <div class="row g-3">
                         @for($i = 1; $i <= 9; $i++)
-                            <div class="col-md-4">
+                            <div class="col-md-4 mb-4">
                                 <div class="card">
                                     <div class="card-body text-center">
                                         <h4>{{ $profile->{'kelas'.$i} ?? 0 }}</h4>
