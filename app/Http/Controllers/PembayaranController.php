@@ -271,6 +271,26 @@ class PembayaranController extends Controller
         // dd($request->all());
         $dataMidtrans = json_decode($request->result_data);
         // dd();
+        $status = 'Lunas';
+        $alertType = 'success';
+        $alertMessage = 'Pembayaran Berhasil';
+
+        if ($request->metode_pembayaran == "Online") {
+            if ($request->result_type == 'success') {
+                $status = 'Lunas';
+                $alertType = 'success';
+                $alertMessage = 'Pembayaran Berhasil';
+            } elseif ($request->result_type == 'pending') {
+                $status = 'Pending';
+                $alertType = 'warning';
+                $alertMessage = 'Segera melakukan pembayaran!!!';
+            } else {
+                $status = 'Failed';
+                $alertType = 'error';
+                $alertMessage = 'Pembayaran Gagal';
+            }
+        }
+
         $data = [
             'user_id' => $request->user_id,
             'tagihan_id' => $request->tagihan_id,
@@ -279,16 +299,25 @@ class PembayaranController extends Controller
             'order_id' => isset($dataMidtrans->order_id) == false ? null : $dataMidtrans->order_id,
             'pdf_url' => isset($dataMidtrans->pdf_url) == false ? null : $dataMidtrans->pdf_url,
             'metode_pembayaran' => $request->metode_pembayaran,
-            'status' => $request->metode_pembayaran == "Online" ? "Pending" : 'Lunas',
+            'status' => $status,
             'created_at' => now(),
         ];
         // dd($data);
         $getusers = DB::table('users')->where('id', $request->user_id)->first();
         Http::get('https://wa.dlhcode.com/send-message?api_key=' . Helper::apk()->token_whatsapp . '&sender=' . Helper::apk()->tlp . '&number=' . $getusers->no_tlp . '&message=Terima kasih, pembayaran dengan jumlah ' . $request->nilai . ' dengan nama siswa ' . $getusers->nama_lengkap . ' dengan nis ' . $getusers->nis . ' Berhasil. Silahkan cek tagihan anda di dashboard siswa');
         DB::table('payment')->insert($data);
-        $request->metode_pembayaran == "Manual" ? Alert::success('Success', 'Pembayaran Berhasil') : Alert::warning('Peringatan', 'Segera melakukan pembayaran!!!');
+
+        if ($alertType == 'success') {
+            Alert::success('Success', $alertMessage);
+        } elseif ($alertType == 'warning') {
+            Alert::warning('Peringatan', $alertMessage);
+        } else {
+            Alert::error('Error', $alertMessage);
+        }
+
         return redirect("/pembayaran/search?&kelas_id=$request->kelas_id&nis=$request->nis");
     }
+
     function siswaByKelas($kelas_id)
     {
 
