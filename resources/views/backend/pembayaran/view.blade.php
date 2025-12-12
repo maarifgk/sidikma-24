@@ -349,20 +349,18 @@
                         $("#loading-image").show();
 
                     },
-                    success: function(res) {
-                        if (res) {
-                            $("#nis").empty();
-                            $("#nis").append('<option>---Pilih Siswa---</option>');
-                            $.each(res, function(kode, value) {
-                                $("#nis").append('<option value="' + value.nis + '">' + value.nis + ' - ' + value
-                                    .nama_lengkap +
-                                    '</option>');
-                            });
-                        } else {
-                            $("#nis").empty();
+                        success: function(res) {
+                            if (res) {
+                                $("#nis").empty();
+                                $("#nis").append('<option>---Pilih Siswa---</option>');
+                                $.each(res, function(kode, value) {
+                                    $("#nis").append('<option value="' + value.nis + '">' + value.nama_lengkap + '</option>');
+                                });
+                            } else {
+                                $("#nis").empty();
+                            }
+                            $("#loading-image").hide();
                         }
-                        $("#loading-image").hide();
-                    }
                 });
             } else {
                 $("#nis").empty();
