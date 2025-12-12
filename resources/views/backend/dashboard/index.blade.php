@@ -202,9 +202,9 @@
     {{-- ========================================================= --}}
     {{-- ROLE 1 & 4 — PENGURUS / ADMIN --}}
     {{-- ========================================================= --}}
-    @if (in_array(auth()->user()->role, [1,4]))
+    {{-- @if (in_array(auth()->user()->role, [1,4]))
         @include('backend.dashboard.admin-section')
-    @endif
+    @endif --}}
 
 </div>
 @endsection
