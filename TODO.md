@@ -1,7 +1,11 @@
-# TODO: Update Add Invoice View for Professional Appearance
+# TODO: Enhance Dashboard for Role 3 (School Principals)
 
-- [x] Add professional header with logo and improved styling
-- [x] Enhance invoice info section with better layout and typography
-- [x] Improve table design with Bootstrap classes (striped, hover, borders)
-- [x] Polish notes and signature sections
-- [x] Update footer actions for better UX
+## Tasks
+- [x] Analyze current role 3 dashboard section in index.blade.php
+- [x] Add additional data queries for role 3 in DashboardController.php
+- [x] Design professional layout with cards, icons, and metrics
+- [x] Add statistics cards for school data (students per grade, total teachers, etc.)
+- [x] Include recent activities or notifications section
+- [x] Improve visual design with colors, shadows, and responsive layout
+- [x] Ensure data is properly displayed from $profile and other variables
+- [x] Test the updated dashboard for role 3 users

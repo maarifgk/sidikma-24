@@ -19,14 +19,14 @@ if ($hour >= 0 && $hour <= 11) {
 } elseif ($hour >= 19 && $hour <= 23) {
     $congrat = 'Selamat Malam ';
 }
-    
+
 ?>
 <div class="row g-4 align-items-stretch">
     <div class="col-lg-12 col-md-6">
         <div class="card h-100 text-center p-1 d-flex flex-column">
-            <img src="{{ asset('storage/images/logo/header1.png') }}" 
-                 alt="Header Logo" 
-                 class="img-fluid" 
+            <img src="{{ asset('storage/images/logo/header1.png') }}"
+                 alt="Header Logo"
+                 class="img-fluid"
                  style="height: 85px; object-fit: cover; width: 100%;">
         </div>
     </div>
@@ -132,7 +132,7 @@ if ($hour >= 0 && $hour <= 11) {
 <!-- Four Cards -->
 <div class="col-xl-12">
     <div class="row g-4"> <!-- Menambah gutter spacing untuk jarak antar elemen -->
-        
+
         <!-- Earnings (Monthly) Card Example -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
@@ -287,7 +287,7 @@ if ($hour >= 0 && $hour <= 11) {
                     @elseif ($tp->ketugasan == 22)
                     Mengajar Ke NU an
                     @endif
-                </td>      
+                </td>
                 <td width="auto">
                     <!-- Rumus Memanggil dengan nomor ID -->
                     @if ($tp->jurusan_id == 1)
@@ -327,114 +327,217 @@ if ($hour >= 0 && $hour <= 11) {
   @endif
     <!-- ROLE 3 -->
     @if (request()->user()->role == 3)
-    
-    <div class="col-md-12 col-lg-15 mb-4">
-        <div class="card">
-            <div class="d-flex align-items-end row">
-               <div class="user-profile-header-banner" style="margin-bottom: 0%;">
-                <img src="{{ asset('storage/images/users/' . request()->user()->image) }}" 
-                class="card-img-top rounded-top" 
-                style="width: 100%; height: 250px; object-fit: cover;" 
-                alt="Banner Image">
-                </div>
-                <!-- Data Madrasah/Sekolah -->
-                <div class="collapse show" id="informasisiswa">
-                    <div class="card-body">
-                        <!-- header -->
-                        <a href="" class="d-block bg-info border border-info card-header py-3"
-                            data-toggle="collapse" role="button" aria-expanded="true"
-                            aria-controls="collapseCardExample">
-                            <h5 class="m-0 font-weight-bold text-white">Data Madrasah/Sekolah</h5>
-                        </a>
-                        <!--/ header -->
-                        <table class="table table-striped">
-                            <tbody>   
-                                <tr>
-                                    <td width='300'>Nama Madrasah/Sekolah</td>
-                                    <td>: {{ $profile->nama_lengkap }}</td>
-                                    <td width='300'>Tahun Pelajaran</td>
-                                    <td>: {{ $profile->thn_pelajaran }}</td>
-                                </tr>
-                                <tr>
-                                    <td>NPSN</td>
-                                    <td>: {{ $profile->nis }}</td>
-                                    <td>Siswa Kelas 1 (Jenjang MI)</td>
-                                    <td>: {{ $profile->kelas1 }} Siswa</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Alamat</td>
-                                    <td>: {{ $profile->alamat }}</span></td>
-                                    <td>Siswa Kelas 2 (Jenjang MI)</td>
-                                    <td>: {{ $profile->kelas2 }} Siswa</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Email</td>
-                                    <td>: {{ $profile->email }}</td>
-                                    <td>Siswa Kelas 3 (Jenjang MI)</td>
-                                    <td>: {{ $profile->kelas3 }} Siswa</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Status Akreditasi</td>
-                                    <td>: {{ $profile->akreditasi }}</td>
-                                    <td>Siswa Kelas 4 (Jenjang MI)</td>
-                                    <td>: {{ $profile->kelas4 }} Siswa</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Masa Akreditasi</td>
-                                    <td>: {{ $profile->masaakreditasi }}</td>
-                                    <td>Siswa Kelas 5 (Jenjang MI)</td>
-                                    <td>: {{ $profile->kelas5 }} Siswa</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Status Tanah</td>
-                                    <td>: {{ $profile->statustanah }}</td>
-                                    <td>Siswa Kelas 6 (Jenjang MI)</td>
-                                    <td>: {{ $profile->kelas6 }} Siswa</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Luas Tanah</td>
-                                    <td>: {{ $profile->luastanah }}</td>
-                                    <td>Siswa Kelas 7 (Jenjang MTs/SMP)</td>
-                                    <td>: {{ $profile->kelas7 }} Siswa</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Kepemilikan Sertifikat</td>
-                                    <td>: {{ $profile->sertifikat }}</td>
-                                    <td>Siswa Kelas 8 (Jenjang MTs/SMP)</td>
-                                    <td>: {{ $profile->kelas8 }} Siswa</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Atas Nama Sertifikat</td>
-                                    <td>: {{ $profile->atasnama }}</td>
-                                    <td>Siswa Kelas 9 (Jenjang MTs/SMP)</td>
-                                    <td>: {{ $profile->kelas9 }} Siswa</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Kepemilikan BHPNU</td>
-                                    <td>: {{ $profile->phbnu }}</td>
-                                    <td>Jumlah Siswa</td>
-                                    <td>: {{ $profile->jumlahsiswa }} Siswa</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        @if (request()->user()->role == 3)        
-                        <li class="nav-item"><a class="nav-link" href="/admin/edit/{{ $profile->id }}"><i
-                                    class='bx bx-edit me-1'></i>
-                                Edit</a></li>
-                        @endif
+
+    <!-- Welcome Section -->
+    <div class="col-lg-12 mb-4">
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="mb-2">{{ $congrat }} <strong>{{ request()->user()->nama_lengkap }}</strong>! 🎓</h2>
+                        <p class="text-muted mb-0">Selamat datang di Dashboard Kepala Madrasah/Sekolah. Kelola institusi pendidikan Anda dengan mudah.</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <img src="{{ asset('storage/images/users/' . request()->user()->image) }}"
+                             class="rounded-circle shadow"
+                             style="width: 120px; height: 120px; object-fit: cover;"
+                             alt="Profile Image">
                     </div>
                 </div>
-                <!--/ Data Madrasah/Sekolah -->
             </div>
         </div>
     </div>
-    
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <!-- Total Students -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-lg h-100 border-left-primary">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Siswa</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $total_students ?? 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Teachers -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-lg h-100 border-left-success">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Guru & Tenaga Pendidik</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $total_teachers ?? 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chalkboard-teacher fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Staff -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-lg h-100 border-left-info">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total Staff</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $total_staff ?? 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-tie fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accreditation Status -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-lg h-100 border-left-warning">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Status Akreditasi</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $profile->akreditasi ?? 'N/A' }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-certificate fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- School Information & Recent Activities -->
+    <div class="row g-4">
+        <!-- School Information -->
+        <div class="col-lg-8">
+            <div class="card shadow-lg h-100">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-school me-2"></i>Informasi Madrasah/Sekolah</h5>
+                    <a href="/admin/edit/{{ $profile->id }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-edit me-1"></i>Edit
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="border-start border-primary border-4 ps-3">
+                                <small class="text-muted">Nama Institusi</small>
+                                <h6 class="mb-0">{{ $profile->nama_lengkap }}</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border-start border-success border-4 ps-3">
+                                <small class="text-muted">NPSN</small>
+                                <h6 class="mb-0">{{ $profile->nis }}</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border-start border-info border-4 ps-3">
+                                <small class="text-muted">Alamat</small>
+                                <h6 class="mb-0">{{ $profile->alamat }}</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border-start border-warning border-4 ps-3">
+                                <small class="text-muted">Tahun Pelajaran</small>
+                                <h6 class="mb-0">{{ $profile->thn_pelajaran }}</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border-start border-danger border-4 ps-3">
+                                <small class="text-muted">Email</small>
+                                <h6 class="mb-0">{{ $profile->email }}</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border-start border-secondary border-4 ps-3">
+                                <small class="text-muted">Status Tanah</small>
+                                <h6 class="mb-0">{{ $profile->statustanah }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="col-lg-4">
+            <div class="card shadow-lg h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Aktivitas Terbaru</h5>
+                </div>
+                <div class="card-body">
+                    @if(isset($recent_activities) && $recent_activities->count() > 0)
+                        @foreach($recent_activities as $activity)
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
+                                    <i class="fas fa-file-alt text-white" style="font-size: 14px;"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <small class="text-muted">{{ \Carbon\Carbon::parse($activity->created_at)->diffForHumans() }}</small>
+                                    <p class="mb-0 small">{{ $activity->s_pengajuan }}</p>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Belum ada aktivitas terbaru</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Distribution -->
+    <div class="row g-4 mt-2">
+        <div class="col-12">
+            <div class="card shadow-lg">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Distribusi Siswa per Kelas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        @for($i = 1; $i <= 9; $i++)
+                            <div class="col-md-4">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body text-center">
+                                        <h3 class="text-primary">{{ $profile->{'kelas'.$i} ?? 0 }}</h3>
+                                        <small class="text-muted">Kelas {{ $i }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @endif
     <!--/ ROLE 3 -->
-    
+
 @if (in_array(request()->user()->role, [1, 4]))
 <div class="col-xl-12">
-    <div class="row g-4"> <!-- Menambah gutter spacing untuk jarak antar elemen -->       
+    <div class="row g-4"> <!-- Menambah gutter spacing untuk jarak antar elemen -->
         <div class="col-lg-2 col-md-6">
             <div class="card shadow-lg h-100 text-center p-0 d-flex flex-column">
                 <div class="card-body d-flex flex-column justify-content-center align-items-center">
@@ -453,7 +556,7 @@ if ($hour >= 0 && $hour <= 11) {
                     </p>
                 </div>
             </div>
-        </div>             
+        </div>
         <div class="col-lg-5 col-md-6">
             <div class="card shadow-lg h-100 text-center p-3 d-flex flex-column">
                 <div class="card-body px-4 py-3">
@@ -461,11 +564,11 @@ if ($hour >= 0 && $hour <= 11) {
                     <canvas id="pendapatanChart" style="max-height: 280px;"></canvas>
                 </div>
             </div>
-        </div>               
+        </div>
         <script>
             const labels = {!! json_encode($grafikPendapatan->pluck('bulan')) !!};
             const data = {!! json_encode($grafikPendapatan->pluck('total')) !!};
-        </script>        
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
             const ctx = document.getElementById('pendapatanChart').getContext('2d');
@@ -581,7 +684,7 @@ if ($hour >= 0 && $hour <= 11) {
                                     76 => 'SMP Pembangunan Semin',
                                 ];
                             @endphp
-                
+
                             @foreach ($paymentLatest as $pl)
                                 <tr>
                                     <td width="auto">{{ $no++ }}</td>
@@ -593,18 +696,18 @@ if ($hour >= 0 && $hour <= 11) {
                         </tbody>
                     </table>
                 </div>
-            </div>            
+            </div>
         </div>
     </div>
 </div>
 <div class="col-xl-12">
-    <div class="row g-4"> <!-- Menambah gutter spacing untuk jarak antar elemen -->       
+    <div class="row g-4"> <!-- Menambah gutter spacing untuk jarak antar elemen -->
         <div class="col-lg-3 col-md-6">
             <div class="card shadow-lg h-100 text-center p-0 d-flex flex-column">
                 <!-- Header -->
                 <div class="card-header text-white text-center px-3 py-2" style="background-color: #007F3E; font-weight: normal;">
                     Total Pengguna Aplikasi
-                </div>                                      
+                </div>
                 <!-- Body -->
                 <div class="card-body p-0">
                     <table class="table mb-0 text-start">
@@ -636,7 +739,7 @@ if ($hour >= 0 && $hour <= 11) {
                 <!-- Header -->
                 <div class="card-header text-white text-center px-3 py-2" style="background-color: #007F3E; font-weight: normal;">
                     Total Tenaga Pendidik Aktif
-                </div>                                      
+                </div>
                 <!-- Body -->
                 <div class="card-body p-0">
                     <table class="table mb-0 text-start">
@@ -699,7 +802,7 @@ if ($hour >= 0 && $hour <= 11) {
                         <canvas id="pns"></canvas>
                     </div>
                 </div>
-            </div>            
+            </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
@@ -767,13 +870,13 @@ if ($hour >= 0 && $hour <= 11) {
 
 <!-- Four Cards -->
 <div class="col-xl-12">
-    <div class="row g-4"> <!-- Menambah gutter spacing untuk jarak antar elemen -->       
+    <div class="row g-4"> <!-- Menambah gutter spacing untuk jarak antar elemen -->
         <div class="col-lg-3 col-md-6">
             <div class="card shadow-lg h-100 text-center p-0 d-flex flex-column">
                 <!-- Header -->
                 <div class="card-header text-white text-center px-3 py-2" style="background-color: #0a48b3; font-weight: normal;">
                     Usulan SK Baru
-                </div>                                      
+                </div>
                 <!-- Body -->
                 <div class="table-responsive">
                     <table class="table">
@@ -850,7 +953,7 @@ if ($hour >= 0 && $hour <= 11) {
                                     76 => 'SMP Pembangunan Semin',
                                 ];
                             @endphp
-                
+
                             @foreach ($usulan as $u)
                                 <tr>
                                     <td class="text-start">{{ $asalSekolah[$u->kelas] ?? 'Tidak Diketahui' }}</td>
@@ -861,13 +964,13 @@ if ($hour >= 0 && $hour <= 11) {
                     </table>
                 </div>
             </div>
-        </div>    
+        </div>
         <div class="col-lg-3 col-md-6">
             <div class="card shadow-lg h-100 text-center p-0 d-flex flex-column">
                 <!-- Header -->
                 <div class="card-header text-white text-center px-3 py-2" style="background-color: #0a48b3; font-weight: normal;">
                     Mutasi Guru/Pegawai
-                </div>                                      
+                </div>
                 <!-- Body -->
                 <div class="table-responsive">
                     <table class="table">
@@ -896,7 +999,7 @@ if ($hour >= 0 && $hour <= 11) {
                 <!-- Header -->
                 <div class="card-header text-white text-center px-3 py-2" style="background-color: #0a48b3; font-weight: normal;">
                         Tenaga Pendidik Non Aktif
-                </div>                                      
+                </div>
                 <!-- Body -->
                 <div class="table-responsive">
                     <table class="table">
@@ -925,7 +1028,7 @@ if ($hour >= 0 && $hour <= 11) {
                 <!-- Header -->
                 <div class="card-header text-white text-center px-3 py-2" style="background-color: #0a48b3; font-weight: normal;">
                     Persuratan
-                </div>                                      
+                </div>
                 <!-- Body -->
                 <div class="table-responsive">
                     <table class="table">
@@ -954,7 +1057,7 @@ if ($hour >= 0 && $hour <= 11) {
                 <!-- Header -->
                 <div class="card-header text-white text-center px-3 py-2" style="background-color: #0a48b3; font-weight: normal;">
                     Pengajuan Proposal
-                </div>                                      
+                </div>
                 <!-- Body -->
                 <div class="table-responsive">
                     <table class="table">

@@ -13,12 +13,12 @@ class DashboardController extends Controller
     public function index()
     {
         $data['rankpayment'] = DB::select(
-            "SELECT u.nama_lengkap, p.user_id, k.nama_kelas, u.alamat,  SUM(p.nilai) as total 
-            FROM payment p 
-            LEFT JOIN users u on u.id=p.user_id 
-            LEFT JOIN kelas k on k.id=u.kelas_id 
-            WHERE p.status = 'Lunas' 
-            GROUP BY p.user_id, u.nama_lengkap, p.user_id, u.kelas_id, u.alamat 
+            "SELECT u.nama_lengkap, p.user_id, k.nama_kelas, u.alamat,  SUM(p.nilai) as total
+            FROM payment p
+            LEFT JOIN users u on u.id=p.user_id
+            LEFT JOIN kelas k on k.id=u.kelas_id
+            WHERE p.status = 'Lunas'
+            GROUP BY p.user_id, u.nama_lengkap, p.user_id, u.kelas_id, u.alamat
             ORDER BY total DESC LIMIT 7"
         );
 
@@ -55,16 +55,16 @@ class DashboardController extends Controller
         $data['datamadrasah'] = DB::table('users')->where('role', 3)->where('status', 'ON');
         $data['pengurustotal'] = DB::table('users')->where('role', 4)->where('status', 'ON')->count('role');
 
-        $data['datasekolah'] = DB::select("SELECT u.*, k.nama_kelas, j.nama_jurusan 
-            FROM users u 
-            LEFT JOIN kelas k ON u.kelas_id = k.id 
-            LEFT JOIN jurusan j ON u.jurusan_id = j.id 
+        $data['datasekolah'] = DB::select("SELECT u.*, k.nama_kelas, j.nama_jurusan
+            FROM users u
+            LEFT JOIN kelas k ON u.kelas_id = k.id
+            LEFT JOIN jurusan j ON u.jurusan_id = j.id
             WHERE role = '3' AND u.status != 'Lulus'");
 
-        $data['siswa'] = DB::select("SELECT u.*, k.nama_kelas, j.nama_jurusan 
-            FROM users u 
-            LEFT JOIN kelas k ON u.kelas_id = k.id 
-            LEFT JOIN jurusan j ON u.jurusan_id = j.id 
+        $data['siswa'] = DB::select("SELECT u.*, k.nama_kelas, j.nama_jurusan
+            FROM users u
+            LEFT JOIN kelas k ON u.kelas_id = k.id
+            LEFT JOIN jurusan j ON u.jurusan_id = j.id
             WHERE role = '2' AND u.status != 'Lulus'");
 
         $data['ptt'] = DB::table('users')->where('role', 2)->where('jurusan_id', 7)->count();
@@ -107,7 +107,7 @@ class DashboardController extends Controller
             ->orderByDesc('created_at')
             ->limit(5)
             ->get();
-            
+
             $data['pendapatan2025'] = DB::table('payment')
             ->where('status', 'Lunas')
             ->sum('nilai');
@@ -131,7 +131,15 @@ class DashboardController extends Controller
                 ->limit(5)
                 ->get();
 
-            $data['grafikPendapatan'] = $pendapatanBulanan;
+        $data['grafikPendapatan'] = $pendapatanBulanan;
+
+        // Data tambahan untuk role 3 (Kepala Sekolah)
+        if (request()->user()->role == 3) {
+            $data['total_students'] = ($data['profile']->kelas1 ?? 0) + ($data['profile']->kelas2 ?? 0) + ($data['profile']->kelas3 ?? 0) + ($data['profile']->kelas4 ?? 0) + ($data['profile']->kelas5 ?? 0) + ($data['profile']->kelas6 ?? 0) + ($data['profile']->kelas7 ?? 0) + ($data['profile']->kelas8 ?? 0) + ($data['profile']->kelas9 ?? 0);
+            $data['total_teachers'] = DB::table('users')->where('role', 2)->where('kelas_id', request()->user()->kelas_id)->count();
+            $data['total_staff'] = DB::table('users')->whereIn('role', [2, 4])->where('kelas_id', request()->user()->kelas_id)->count();
+            $data['recent_activities'] = DB::table('usulan')->where('kelas', request()->user()->kelas_id)->orderByDesc('created_at')->limit(5)->get();
+        }
 
         Carbon::setLocale('id');
 
@@ -201,5 +209,5 @@ class DashboardController extends Controller
         ->get();
 
         return view('backend.dashboard.open', $data);
-    } 
+    }
 }
