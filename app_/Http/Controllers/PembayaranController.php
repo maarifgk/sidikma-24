@@ -39,7 +39,7 @@ class PembayaranController extends Controller
                     'Authorization: Basic ' . base64_encode(Helper::apk()->serverKey)
                 );
 
-                // the url of the API you are contacting to 'consume' 
+                // the url of the API you are contacting to 'consume'
                 $url = "https://api.sandbox.midtrans.com/v2/" . $ord->order_id . "/status";
 
                 // Open connection
@@ -119,24 +119,24 @@ class PembayaranController extends Controller
         $data['thajaran'] = DB::select("select * from tahun_ajaran where active = 'ON'");
         $data['kelas'] = DB::select("select * from kelas");
         $data['siswa'] = DB::table('users')->join('tagihan', 'users.id', '=', 'tagihan.user_id')->join('kelas', 'kelas.id', '=', 'tagihan.kelas_id')->where('users.nis', $request->nis)->where('users.kelas_id', $request->kelas_id)->first();
-        $data['pembayaran_bulanan'] = DB::select("SELECT IF(COUNT(p.bulan_id) = 12, 'Lunas', 'Belum Lunas') as status_bayar, 
-        SUM(p.nilai) as total_bayar, t.thajaran_id, u.nis, ta.tahun, k.nama_kelas, jp.pembayaran, t.id 
-        FROM tagihan t  LEFT JOIN payment p on p.tagihan_id=t.id  
-        LEFT JOIN tahun_ajaran ta on ta.id=t.thajaran_id 
-        LEFT JOIN jenis_pembayaran jp on jp.id=t.jenis_pembayaran 
-        LEFT JOIN users u on u.id=t.user_id 
+        $data['pembayaran_bulanan'] = DB::select("SELECT IF(COUNT(p.bulan_id) = 12, 'Lunas', 'Belum Lunas') as status_bayar,
+        SUM(p.nilai) as total_bayar, t.thajaran_id, u.nis, ta.tahun, k.nama_kelas, jp.pembayaran, t.id
+        FROM tagihan t  LEFT JOIN payment p on p.tagihan_id=t.id
+        LEFT JOIN tahun_ajaran ta on ta.id=t.thajaran_id
+        LEFT JOIN jenis_pembayaran jp on jp.id=t.jenis_pembayaran
+        LEFT JOIN users u on u.id=t.user_id
         left join kelas k on k.id=t.kelas_id
-        WHERE u.nis = '$request->nis' 
-        and t.jenis_pembayaran = '1' 
+        WHERE u.nis = '$request->nis'
+        and t.jenis_pembayaran = '1'
         GROUP BY t.thajaran_id, u.nis, ta.tahun, jp.pembayaran, t.id");
         // dd($data['pembayaran_bulanan']);
-        $data['pembayaran_lainya'] = DB::select("select t.*, u.nama_lengkap, k.nama_kelas, ta.tahun, jp.pembayaran, u.nis, p.order_id, 
-        p.pdf_url, p.metode_pembayaran, p.status as status_payment from tagihan t left join users u on t.user_id=u.id 
-        left join tahun_ajaran ta on ta.id=t.thajaran_id 
-        left join jenis_pembayaran jp on jp.id=t.jenis_pembayaran 
-        left join payment p on p.tagihan_id=t.id 
+        $data['pembayaran_lainya'] = DB::select("select t.*, u.nama_lengkap, k.nama_kelas, ta.tahun, jp.pembayaran, u.nis, p.order_id,
+        p.pdf_url, p.metode_pembayaran, p.status as status_payment from tagihan t left join users u on t.user_id=u.id
+        left join tahun_ajaran ta on ta.id=t.thajaran_id
+        left join jenis_pembayaran jp on jp.id=t.jenis_pembayaran
+        left join payment p on p.tagihan_id=t.id
         left join kelas k on k.id=t.kelas_id
-        where u.nis = '$request->nis' 
+        where u.nis = '$request->nis'
         and t.jenis_pembayaran != '1'");
 
 
@@ -168,7 +168,7 @@ class PembayaranController extends Controller
                     'Authorization: Basic ' . base64_encode(Helper::apk()->serverKey)
                 );
 
-                // the url of the API you are contacting to 'consume' 
+                // the url of the API you are contacting to 'consume'
                 $url = "https://api.sandbox.midtrans.com/v2/" . $ord->order_id . "/status";
 
                 // Open connection
@@ -204,8 +204,8 @@ class PembayaranController extends Controller
                 DB::table('payment')->where('order_id', $ord->order_id)->update($data);
             }
         }
-       
-        
+
+
 
 
 
@@ -218,9 +218,9 @@ class PembayaranController extends Controller
         $data['nis'] = $getDataUser[0][0]->nis;
         $data['kelas_id'] = $getDataUser[0][0]->kelas_id;
         $data['tagihan_id'] = $id_tagihan;
-        $data['spp'] = DB::select("select s.*, u.nama_lengkap, ta.tahun, jp.pembayaran, b.nama_bulan from payment s 
-        left join users u on u.id=s.user_id left join bulan b on b.id=s.bulan_id left join tagihan t on t.id=s.tagihan_id 
-        left join tahun_ajaran ta on ta.id=t.thajaran_id left join jenis_pembayaran jp on jp.id=t.jenis_pembayaran 
+        $data['spp'] = DB::select("select s.*, u.nama_lengkap, ta.tahun, jp.pembayaran, b.nama_bulan from payment s
+        left join users u on u.id=s.user_id left join bulan b on b.id=s.bulan_id left join tagihan t on t.id=s.tagihan_id
+        left join tahun_ajaran ta on ta.id=t.thajaran_id left join jenis_pembayaran jp on jp.id=t.jenis_pembayaran
         where t.id = '$id_tagihan' order by bulan_id asc");
         $data['bulan'] = DB::select("SELECT id, nama_bulan FROM bulan WHERE id NOT IN (SELECT bulan_id FROM payment WHERE tagihan_id = '$id_tagihan')");
         $data['getNilai'] = DB::select("select nilai from tagihan where id = '$id_tagihan'")[0]->nilai;
@@ -296,11 +296,9 @@ class PembayaranController extends Controller
 
         // $query = DB::table('users')->where('kelas_id', $kelas_id)->where('role', 2)->where('status', '!=', 'Lulus')->get();
         if ($kelas_id != "Lulus") {
-            $and = $kelas_id != "Lulus" ? "and kelas_id = '$kelas_id'" : "";
-            $query = DB::select("select * from users where 1=1 and status != 'Lulus' and role = '2' $and");
+            $query = DB::select("select * from users where status != 'Lulus' and ((role = '2' and kelas_id = '$kelas_id') or role = '3') order by role desc, nama_lengkap asc");
         } elseif ($kelas_id = "Lulus") {
-            $and2 = $kelas_id = "Lulus" ? "and status = '$kelas_id'" : "";
-            $query = DB::select("select nama_lengkap, status from users where 1=1 and role = '2' $and2");
+            $query = DB::select("select * from users where status = 'Lulus' and role in ('2','3') order by role desc, nama_lengkap asc");
         }
 
         // dd($query);
