@@ -104,93 +104,91 @@ class SnapController extends Controller
     }
     public function payment(Request $request)
     {
-        // Set your Merchant Server Key
-        \Midtrans\Config::$serverKey = Helper::apk()->serverKey;
-        // Set to Development/Sandbox Environment (default). Set to true for Production Environment (accept real transaction).
-        \Midtrans\Config::$isProduction = false;
-        // Set sanitization on (default)
-        \Midtrans\Config::$isSanitized = true;
-        // Set 3DS transaction for credit card to true
-        \Midtrans\Config::$is3ds = true;
+        try {
+            // Set your Merchant Server Key
+            \Midtrans\Config::$serverKey = Helper::apk()->serverKey;
+            // Set to Development/Sandbox Environment (default). Set to true for Production Environment (accept real transaction).
+            \Midtrans\Config::$isProduction = false;
+            // Set sanitization on (default)
+            \Midtrans\Config::$isSanitized = true;
+            // Set 3DS transaction for credit card to true
+            \Midtrans\Config::$is3ds = true;
 
+            // Required
+            $transaction_details = [
+                'order_id' => uniqid(),
+                'gross_amount' => (int) $request->total, // no decimal allowed for creditcard
+            ];
 
-        // Required
-        // Required
-        // dd(request()->user()->nama_lengkap);
-        $transaction_details = [
-            'order_id' => rand(),
-            'gross_amount' => $request->total, // no decimal allowed for creditcard
-        ];
+            // Optional
+            $item1_details = [
+                'id' => rand(0000, 9999),
+                'price' => (int) $request->total,
+                'quantity' => 1,
+                'name' => $request->pembayaran,
+            ];
 
-        // Optional
-        $item1_details = [
-            'id' => rand(0000, 9999),
-            'price' => $request->total,
-            'quantity' => 1,
-            'name' => $request->pembayaran,
-        ];
+            $item_details = [$item1_details];
 
-        // Optional
+            // Optional
+            $billing_address = [
+                'first_name' => $request->nama_lengkap,
+                'last_name' => 'a',
+                'address' => 'a',
+                'city' => 'a',
+                'postal_code' => 'a',
+                'phone' => 'a',
+                'country_code' => 'IDN',
+            ];
 
-        // Optional
-        $item_details = [$item1_details];
+            // Optional
+            $shipping_address = [
+                'first_name' => $request->nama_lengkap,
+                'last_name' => 'Supriadi',
+                'address' => 'a',
+                'city' => 'a',
+                'postal_code' => 'a',
+                'phone' => '08123456789',
+                'country_code' => 'IDN',
+            ];
 
-        // Optional
-        $billing_address = [
-            'first_name' => $request->nama_lengkap,
-            'last_name' => 'a',
-            'address' => 'a',
-            'city' => 'a',
-            'postal_code' => 'a',
-            'phone' => 'a',
-            'country_code' => 'IDN',
-        ];
+            // Optional
+            $customer_details = [
+                'first_name' => $request->nama_lengkap,
+                'last_name' => '',
+                'email' => $request->email ?? 'a@example.com',
+                'phone' => $request->no_tlp ?? '08123456789',
+                'billing_address' => $billing_address,
+                'shipping_address' => $shipping_address,
+            ];
 
-        // Optional
-        $shipping_address = [
-            'first_name' => $request->nama_lengkap,
-            'last_name' => 'Supriadi',
-            'address' => 'a',
-            'city' => 'a',
-            'postal_code' => 'a',
-            'phone' => '08123456789',
-            'country_code' => 'IDN',
-        ];
+            // Data yang akan dikirim untuk request redirect_url.
+            $credit_card['secure'] = true;
 
-        // Optional
-        $customer_details = [
-            'first_name' => $request->nama_lengkap,
-            'last_name' => '',
-            'email' => $request->email ?? 'a@example.com',
-            'phone' => $request->no_tlp ?? '08123456789',
-            'billing_address' => $billing_address,
-            'shipping_address' => $shipping_address,
-        ];
+            $time = time();
+            $custom_expiry = [
+                'start_time' => date('Y-m-d H:i:s O', $time),
+                'unit' => 'minute',
+                'duration' => 1440,
+            ];
 
-        // Data yang akan dikirim untuk request redirect_url.
-        $credit_card['secure'] = true;
-        //ser save_card true to enable oneclick or 2click
-        //$credit_card['save_card'] = true;
+            $transaction_data = [
+                'transaction_details' => $transaction_details,
+                'item_details' => $item_details,
+                'customer_details' => $customer_details,
+                'credit_card' => $credit_card,
+                'expiry' => $custom_expiry,
+            ];
 
-        $time = time();
-        $custom_expiry = [
-            'start_time' => date('Y-m-d H:i:s O', $time),
-            'unit' => 'minute',
-            'duration' => 1440,
-        ];
-
-        $transaction_data = [
-            'transaction_details' => $transaction_details,
-            'item_details' => $item_details,
-            'customer_details' => $customer_details,
-            'credit_card' => $credit_card,
-            'expiry' => $custom_expiry,
-        ];
-
-        error_log(json_encode($transaction_data));
-        $snapToken = \Midtrans\Snap::getSnapToken($transaction_data);
-        error_log($snapToken);
-        echo $snapToken;
+            error_log(json_encode($transaction_data));
+            $snapToken = \Midtrans\Snap::getSnapToken($transaction_data);
+            error_log($snapToken);
+            echo $snapToken;
+        } catch (\Exception $e) {
+            error_log('Midtrans Error: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
     }
     public function finish(Request $request)
     {
