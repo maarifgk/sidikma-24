@@ -1,11 +1,13 @@
-# TODO: Enhance Dashboard for Role 3 (School Principals)
+# TODO: Update and Tidy Blade Files in Usulan Folder
 
 ## Tasks
-- [x] Analyze current role 3 dashboard section in index.blade.php
-- [x] Add additional data queries for role 3 in DashboardController.php
-- [x] Design professional layout with cards, icons, and metrics
-- [x] Add statistics cards for school data (students per grade, total teachers, etc.)
-- [x] Include recent activities or notifications section
-- [x] Improve visual design with colors, shadows, and responsive layout
-- [x] Ensure data is properly displayed from $profile and other variables
-- [x] Test the updated dashboard for role 3 users
+- [x] Edit add.blade.php: Standardize indentation to 4 spaces, capitalize form labels, fix typos (e.g., "ewanugk" to "EWANUGK"), standardize placeholders.
+- [x] Edit edit.blade.php: Standardize indentation to 4 spaces, ensure consistent capitalization of labels, fix any typos.
+- [x] Edit open.blade.php: Restructure card layout (move collapse content to proper card-body), standardize indentation, format if-elseif chains for readability.
+- [x] Edit view.blade.php: Standardize indentation to 4 spaces, format if-elseif chains for readability, ensure consistent spacing.
+- [x] Verify files render correctly and test functionality.
+
+## Progress
+- Started editing files.
+- All Blade files updated successfully.
+- Laravel development server started for testing.
