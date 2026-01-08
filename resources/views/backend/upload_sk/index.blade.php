@@ -8,6 +8,22 @@
                 <h5 class="mb-0" style="font-size: 30px">{{ $title }}</h5>
             </div>
             <div class="card-body">
+                {{-- Pilih Tahun --}}
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="tahun" class="form-label">Pilih Tahun SK</label>
+                        <select class="form-select" id="tahun" required>
+                            <option value="">-- Pilih Tahun --</option>
+                            @php
+                                $currentYear = date('Y');
+                                for ($year = 2025; $year <= $currentYear + 1; $year++) {
+                                    echo "<option value=\"$year\">$year</option>";
+                                }
+                            @endphp
+                        </select>
+                    </div>
+                </div>
+
                 {{-- Pilih Kelas --}}
                 <div class="row mb-3">
                     <div class="col-md-8">
@@ -57,7 +73,13 @@
 <script>
 document.getElementById('btnTampilkan').addEventListener('click', function () {
     const kelasId = document.getElementById('kelas_id').value;
+    const tahun = document.getElementById('tahun').value;
     const tbody = document.getElementById('user-table-body');
+
+    if (!tahun) {
+        alert('Silakan pilih tahun terlebih dahulu.');
+        return;
+    }
 
     if (!kelasId) {
         alert('Silakan pilih kelas terlebih dahulu.');
@@ -66,7 +88,7 @@ document.getElementById('btnTampilkan').addEventListener('click', function () {
 
     tbody.innerHTML = `<tr><td colspan="4" class="text-center">Memuat data...</td></tr>`;
 
-    fetch(`/get-users/${kelasId}`)
+    fetch(`/get-users/${kelasId}?tahun=${tahun}`)
         .then(response => {
             if (!response.ok) throw new Error('Gagal mengambil data.');
             return response.json();
@@ -80,7 +102,8 @@ document.getElementById('btnTampilkan').addEventListener('click', function () {
             }
 
             data.forEach((user, index) => {
-                const isUploaded = user.sk01_2025 && user.sk01_2025 !== '';
+                const skField = `sk01_${tahun}`;
+                const isUploaded = user[skField] && user[skField] !== '';
 
                 tbody.innerHTML += `
                     <tr>
@@ -89,7 +112,7 @@ document.getElementById('btnTampilkan').addEventListener('click', function () {
                         <td>${user.periode ?? '-'}</td> <!-- Tambahkan kolom periode -->
                         <td>
                             <input type="file" class="form-control file-sk" data-user="${user.id}" ${isUploaded ? 'disabled' : ''}>
-                            ${isUploaded ? `<small class="text-light">Sudah Upload: ${user.sk01_2025}</small>` : ''}
+                            ${isUploaded ? `<small class="text-light">Sudah Upload: ${user[skField]}</small>` : ''}
                         </td>
                         <td>
                             ${!isUploaded
@@ -111,8 +134,14 @@ document.getElementById('btnTampilkan').addEventListener('click', function () {
 document.addEventListener('click', function (e) {
     if (e.target.classList.contains('btn-upload')) {
         const userId = e.target.dataset.user;
+        const tahun = document.getElementById('tahun').value;
         const row = e.target.closest('tr');
         const fileInput = row.querySelector('.file-sk');
+
+        if (!tahun) {
+            alert('Silakan pilih tahun terlebih dahulu.');
+            return;
+        }
 
         if (!fileInput.files.length) {
             alert('Silakan pilih file terlebih dahulu.');
@@ -121,6 +150,7 @@ document.addEventListener('click', function (e) {
 
         const formData = new FormData();
         formData.append('user_id', userId);
+        formData.append('tahun', tahun);
         formData.append('file_sk', fileInput.files[0]);
         formData.append('_token', '{{ csrf_token() }}');
 
