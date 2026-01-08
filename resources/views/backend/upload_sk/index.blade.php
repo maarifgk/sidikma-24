@@ -117,7 +117,7 @@ document.getElementById('btnTampilkan').addEventListener('click', function () {
                         <td>
                             ${!isUploaded
                                 ? `<button type="button" class="btn btn-success btn-upload" data-user="${user.id}">Upload</button>`
-                                : `<span class="text-muted">Sudah Diupload</span>`}
+                                : `<button type="button" class="btn btn-warning btn-update" data-user="${user.id}">Update</button>`}
                         </td>
                     </tr>
                 `;
