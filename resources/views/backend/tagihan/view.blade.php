@@ -40,7 +40,7 @@
                             <td width="auto">{{ $a->created_at }}</td>
                             <td>
 
-                                <a href="/siswa/edit/{{ $a->id }}" type="button" class="btn btn-success">Edit</a>
+                                <a href="/tagihan/edit/{{ $a->id }}" type="button" class="btn btn-success">Edit</a>
                                 <button type="button" class="btn btn-danger" data-bs-toggle="modal"
                                     data-bs-target="#delete{{ $a->id }}">Delete</button>
                             </td>

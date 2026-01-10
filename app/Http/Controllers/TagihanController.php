@@ -131,5 +131,58 @@ class TagihanController extends Controller
             ]);
         }
     }
-    
+
+    public function edit($id)
+    {
+        $data['title'] = "Edit Tagihan";
+        $data['tagihan'] = DB::select("
+            SELECT t.*, k.nama_kelas, ta.tahun, jp.pembayaran, u.nama_lengkap
+            FROM tagihan t
+            LEFT JOIN tahun_ajaran ta ON t.thajaran_id = ta.id
+            LEFT JOIN jenis_pembayaran jp ON jp.id = t.jenis_pembayaran
+            LEFT JOIN users u ON u.id = t.user_id
+            LEFT JOIN kelas k ON k.id = t.kelas_id
+            WHERE t.id = ?
+        ", [$id])[0];
+
+        $data['siswa'] = DB::select("select * from users where role = '2' or role = '3'");
+        $data['kelas'] = DB::select("select * from kelas");
+        $data['thajaran'] = DB::select("select * from tahun_ajaran where active = 'ON'");
+        $data['jnpembayaran'] = DB::select("select * from jenis_pembayaran where status = 'ON'");
+
+        return view('backend.tagihan.edit', $data);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $data = [
+            'user_id' => $request->user_id,
+            'thajaran_id' => $request->thajaran_id,
+            'jenis_pembayaran' => $request->jenis_pembayaran,
+            'kelas_id' => $request->kelas_id,
+            'keterangan' => $request->keterangan,
+            'nilai' => str_replace('.', '', str_replace('Rp. ', '', $request->nilai)),
+            'status' => $request->status,
+            'updated_at' => now(),
+        ];
+
+        // Proses upload jika ada file k_iuran_2024
+        if ($request->hasFile('k_iuran_2024')) {
+            $file = $request->file('k_iuran_2024');
+
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $destinationPath = base_path('../public_html/storage/dokumen/k_iuran_2024');
+
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            $file->move($destinationPath, $filename);
+            $data['k_iuran_2024'] = $filename;
+        }
+
+        DB::table('tagihan')->where('id', $id)->update($data);
+        return redirect("tagihan");
+    }
+
 }

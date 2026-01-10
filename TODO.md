@@ -1,2 +1,6 @@
-- [x] Edit app_/Http/Controllers/PembayaranController.php in the siswaByKelas function to include role 3 users, filter kelas_id only for role 2, and order by role desc so role 3 appears first.
-- [x] Test the search functionality to ensure role 3 users appear at the top of the select options. (Code changes applied; testing requires manual verification as browser tool is disabled.)
+- [x] Add edit method in TagihanController.php to retrieve bill data for editing
+- [x] Add update method in TagihanController.php to handle bill updates
+- [x] Create edit.blade.php view for editing bills
+- [x] Update "Edit" button link in view.blade.php to point to edit route
+- [x] Add routes for edit and update in routes/web.php
+- [ ] Test the edit functionality
