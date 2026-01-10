@@ -61,7 +61,7 @@
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary"
                                                     data-bs-dismiss="modal">Close</button>
-                                                <a href="{{ url('/tagihan/delete', $a->id) }} "
+                                                <a href="/tagihan/delete/{{ $a->id }}"
                                                     class="btn btn-primary">Hapus</a>
                                             </div>
                                         </div>
