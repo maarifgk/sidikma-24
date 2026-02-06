@@ -63,7 +63,7 @@
                                 <tr>
                                     <td></td>
                                     <td>e. Surat Pernyataan Siap Behidmad di Ma'arif (file pdf)
-                                        <a href="https://drive.google.com/file/d/13hG9OBTGZhRnpwB1kjk-pRQHT-Eckzcm/view?usp=drive_link" target="_blank"
+                                        <a href="https://docs.google.com/document/d/1WgwKzJDhJWFZJDaZ_-Si-iMoYDf3kSLR/edit?usp=drive_link&ouid=105030289517228020971&rtpof=true&sd=true" target="_blank"
                                             class="btn btn-danger">Download PDF</a>
                                     </td>
                                 </tr>
