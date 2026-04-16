@@ -33,6 +33,10 @@ class AuthController extends Controller
             Session::put('full_name', $session->full_name);
 
             $request->session()->regenerate();
+            // Redirect role 2 users to mobile home
+            if (isset($session->role) && $session->role == 2) {
+                return redirect()->route('mobile');
+            }
             return redirect()->intended('/dashboard');
         }
 

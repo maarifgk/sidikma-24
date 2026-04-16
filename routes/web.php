@@ -75,6 +75,10 @@ Route::post('/resetPassword/action', [AuthController::class, 'resetPasswordActio
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/open/{id}', [DashboardController::class, 'open'])->name('dashboard.open');
+    // Mobile home for role 2 users
+    Route::get('/mobile', function () {
+        return view('backend.mobile.home');
+    })->name('mobile');
     Route::get('logout', [AuthController::class, 'logout'])->name('logout');
     //Update Sipinter
     Route::get('/updatesipinter', [UpdateSipinterController::class, 'view'])->name('updatesipinter');
