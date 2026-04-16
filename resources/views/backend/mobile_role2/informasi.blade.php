@@ -6,7 +6,7 @@
             <div>
                 <div class="eyebrow">Informasi Guru/Pegawai</div>
                 <div class="title">{{ $profile->nama_kelas ?? '-' }}</div>
-                {{-- <p class="subtitle">Data berdasarkan relasi `users.kelas_id`, `jurusan_id`, dan `ketugasan`.</p> --}}
+                <p class="subtitle">Data berdasarkan asal Madrasah.</p>
             </div>
         </div>
     </section>
