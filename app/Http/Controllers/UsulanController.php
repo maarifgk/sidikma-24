@@ -185,4 +185,52 @@ class UsulanController extends Controller
             ]);
         }
     }
+
+    // Show edit form for kelengkapan usulan (role 1)
+    public function editInfo()
+    {
+        if (request()->user()->role != 1) {
+            abort(403);
+        }
+        $data['title'] = 'Edit Kelengkapan Usulan Guru Baru';
+        return view('backend.usulan.edit_info', $data);
+    }
+
+    // Update kelengkapan usulan
+    public function updateInfo(Request $request)
+    {
+        if (request()->user()->role != 1) {
+            abort(403);
+        }
+        try {
+            $id = $request->id ?? 1;
+            $payload = [
+                'label_1' => strip_tags($request->input('label_1')) ?? '',
+                'label_2' => strip_tags($request->input('label_2')) ?? '',
+                'label_3' => strip_tags($request->input('label_3')) ?? '',
+                'label_4' => strip_tags($request->input('label_4')) ?? '',
+                'label_4_a' => strip_tags($request->input('label_4_a')) ?? '',
+                'label_4_b' => strip_tags($request->input('label_4_b')) ?? '',
+                'label_4_c' => strip_tags($request->input('label_4_c')) ?? '',
+                'label_4_d' => strip_tags($request->input('label_4_d')) ?? '',
+                'label_4_e' => strip_tags($request->input('label_4_e')) ?? '',
+            ];
+
+            DB::table('aplikasi')->where('id', $id)->update([
+                'info_usulan' => json_encode($payload),
+            ]);
+
+            $params['activity'] = 'Update Kelengkapan Usulan';
+            $params['detail'] = 'User ' . request()->user()->id . ' updated info_usulan';
+            \App\Providers\Helper::log_transaction($params);
+
+            Alert::success('Sukses', 'Kelengkapan Usulan disimpan');
+            return redirect('/usulan');
+        } catch (Exception $e) {
+            return response([
+                'success' => false,
+                'msg'     => 'Error : ' . $e->getMessage() . ' Line : ' . $e->getLine() . ' File : ' . $e->getFile()
+            ]);
+        }
+    }
 }

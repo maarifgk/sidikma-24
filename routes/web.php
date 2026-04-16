@@ -190,6 +190,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/usulan', [UsulanController::class, 'view'])->name('usulan');
     Route::get('/usulan/open/{id}', [UsulanController::class, 'open'])->name('usulan.open');
     Route::get('/usulan/add', [UsulanController::class, 'add'])->name('usulan.add');
+    Route::get('/usulan/info/edit', [UsulanController::class, 'editInfo'])->name('usulan.info.edit');
+    Route::post('/usulan/info/update', [UsulanController::class, 'updateInfo'])->name('usulan.info.update');
     Route::post('/usulan/proses', [UsulanController::class, 'addsarpras'])->name('usulan.addProses');
     Route::get('/usulan/edit/{id}', [UsulanController::class, 'edit'])->name('usulan.edit');
     Route::post('/usulan/editProses', [UsulanController::class, 'editProses'])->name('usulan.editProses');
