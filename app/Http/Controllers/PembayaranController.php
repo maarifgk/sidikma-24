@@ -373,15 +373,30 @@ class PembayaranController extends Controller
 
         try {
             $id = $request->id ?? 1;
-            // sanitize numeric inputs: remove non-digits
+            // sanitize numeric inputs: remove non-digits and include editable labels
             $payload = [
+                'label_iuran_ibtidaiyah' => strip_tags($request->input('label_iuran_ibtidaiyah')) ?? '',
                 'iuran_ibtidaiyah' => preg_replace('/\D/', '', $request->input('iuran_ibtidaiyah')) ?? '0',
+
+                'label_iuran_tsanawiyah' => strip_tags($request->input('label_iuran_tsanawiyah')) ?? '',
                 'iuran_tsanawiyah' => preg_replace('/\D/', '', $request->input('iuran_tsanawiyah')) ?? '0',
+
+                'label_iuran_guru_asn_sertifikasi' => strip_tags($request->input('label_iuran_guru_asn_sertifikasi')) ?? '',
                 'iuran_guru_asn_sertifikasi' => preg_replace('/\D/', '', $request->input('iuran_guru_asn_sertifikasi')) ?? '0',
+
+                'label_iuran_guru_asn_belum' => strip_tags($request->input('label_iuran_guru_asn_belum')) ?? '',
                 'iuran_guru_asn_belum' => preg_replace('/\D/', '', $request->input('iuran_guru_asn_belum')) ?? '0',
+
+                'label_iuran_guru_yayasan_sertifikasi' => strip_tags($request->input('label_iuran_guru_yayasan_sertifikasi')) ?? '',
                 'iuran_guru_yayasan_sertifikasi' => preg_replace('/\D/', '', $request->input('iuran_guru_yayasan_sertifikasi')) ?? '0',
+
+                'label_iuran_guru_yayasan_belum' => strip_tags($request->input('label_iuran_guru_yayasan_belum')) ?? '',
                 'iuran_guru_yayasan_belum' => preg_replace('/\D/', '', $request->input('iuran_guru_yayasan_belum')) ?? '0',
+
+                'label_sk_penerbitan' => strip_tags($request->input('label_sk_penerbitan')) ?? '',
                 'sk_penerbitan' => preg_replace('/\D/', '', $request->input('sk_penerbitan')) ?? '0',
+
+                'label_sk_perpanjangan' => strip_tags($request->input('label_sk_perpanjangan')) ?? '',
                 'sk_perpanjangan' => preg_replace('/\D/', '', $request->input('sk_perpanjangan')) ?? '0',
             ];
 
