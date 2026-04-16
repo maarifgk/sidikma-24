@@ -74,6 +74,20 @@
                                         </select>
                                     </div>
                                 </div>
+                                @if (request()->user()->role == 3 && in_array($p->jenis_pembayaran, [14,26,19]))
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Cicilan (Installment)</label>
+                                            <select id="installment_term" class="form-control">
+                                                <option value="">-- Pilih Cicilan --</option>
+                                                <option value="3">3 Bulan</option>
+                                                <option value="6">6 Bulan</option>
+                                                <option value="12">12 Bulan</option>
+                                            </select>
+                                            <small class="text-muted">Pilih jumlah bulan cicilan (opsional). Jika kosong, bayar penuh.</small>
+                                        </div>
+                                    </div>
+                                @endif
                                 <div class="col-md-12 text-center">
                                     <br>
                                     <button type="submit" id="pay-button" class="btn btn-primary">Bayar</button>
@@ -96,6 +110,10 @@
                 event.preventDefault();
                 $(this).attr("disabled", "disabled");
                 // console.log($('#nilai').val().replace("Rp.", '').replace(",", '').replace(".", ''));
+                    // determine installment options if present
+                    var installmentTerm = ($('#installment_term').length) ? $('#installment_term').val() : '';
+                    var installmentFlag = installmentTerm ? 1 : 0;
+
                     $.ajax({
                         method: "POST",
                         url: '/getTokenPayment',
@@ -108,6 +126,8 @@
                             total: $('#nilai').val().replace("Rp.", '').replace(",", '').replace(".", ''),
                             email: $('#email').val(),
                             no_tlp: $('#no_tlp').val(),
+                            installment: installmentFlag,
+                            installment_term: installmentTerm
 
                         },
                     success: function(data) {
