@@ -337,6 +337,14 @@
             color: #fff;
         }
 
+        .bottom-nav a span {
+            display: none;
+        }
+
+        .bottom-nav a.active span {
+            display: block;
+        }
+
         .empty-state {
             padding: 20px 16px;
             text-align: center;
