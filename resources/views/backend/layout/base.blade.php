@@ -123,6 +123,8 @@
 
   <div class="layout-overlay layout-menu-toggle"></div>
 
+  @include('backend.layout.mobile_role2')
+
   <!-- Core JS -->
   <script src="{{ asset('assets/vendor/libs/jquery/jquery.js') }}"></script>
   <script src="{{ asset('assets/vendor/libs/popper/popper.js') }}"></script>
