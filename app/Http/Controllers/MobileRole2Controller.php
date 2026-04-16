@@ -143,13 +143,25 @@ class MobileRole2Controller extends Controller
     {
         $this->ensureRoleTwo();
 
+        $profile = $this->profileData();
         $payments = $this->skPaymentQuery()->get();
+
+        // Periksa apakah madrasah (kelas_id) masih memiliki tagihan Iuran belum lunas.
+        $hasUnpaidIuran = false;
+        if (!empty($profile) && isset($profile->kelas_id)) {
+            $hasUnpaidIuran = DB::table('tagihan')
+                ->where('kelas_id', $profile->kelas_id)
+                ->where('jenis_pembayaran', 1) // 1 = Iuran
+                ->where('status', 'Belum Lunas')
+                ->exists();
+        }
 
         $data = [
             'pageTitle' => 'Pembayaran SK Yayasan',
             'activeMenu' => 'pembayaran',
-            'profile' => $this->profileData(),
+            'profile' => $profile,
             'payments' => $payments,
+            'hasUnpaidIuran' => $hasUnpaidIuran,
             'summary' => [
                 'total' => $payments->count(),
                 'lunas' => $payments->where('status_payment', 'Lunas')->count(),

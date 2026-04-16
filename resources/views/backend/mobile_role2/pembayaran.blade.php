@@ -58,7 +58,12 @@
                         @elseif ($payment->status_payment === 'Lunas')
                             <a href="{{ url('/lainyaPdf/' . $payment->id) }}" target="_blank" class="action secondary">PDF</a>
                         @else
-                            <a href="{{ url('/mobile/role-2/pembayaran/payment/' . $payment->id) }}" class="action">Bayar</a>
+                            @if(!empty($hasUnpaidIuran) && $hasUnpaidIuran)
+                                {{-- Tampilkan tombol Bayar dalam keadaan disabled saat masih ada iuran belum lunas --}}
+                                <a href="#" class="action disabled" title="Ada tagihan Iuran madrasah yang belum lunas" onclick="return false;">Bayar</a>
+                            @else
+                                <a href="{{ url('/mobile/role-2/pembayaran/payment/' . $payment->id) }}" class="action">Bayar</a>
+                            @endif
                         @endif
                     </div>
                 </div>
