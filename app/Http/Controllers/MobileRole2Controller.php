@@ -149,11 +149,11 @@ class MobileRole2Controller extends Controller
         // Periksa apakah madrasah (kelas_id) masih memiliki tagihan Iuran belum lunas.
         $hasUnpaidIuran = false;
         if (!empty($profile) && isset($profile->kelas_id)) {
-            $hasUnpaidIuran = DB::table('tagihan')
-                ->where('kelas_id', $profile->kelas_id)
-                ->where('jenis_pembayaran', 1) // 1 = Iuran
-                ->where('status', 'Belum Lunas')
-                ->exists();
+                $hasUnpaidIuran = DB::table('tagihan')
+                    ->where('kelas_id', $profile->kelas_id)
+                    ->whereIn('jenis_pembayaran', [14, 16, 19])
+                    ->where('status', 'Belum Lunas')
+                    ->exists();
         }
 
         $data = [
@@ -192,11 +192,11 @@ class MobileRole2Controller extends Controller
         if (str_contains($pembayaranLabel, 'sk') || str_contains($pembayaranLabel, 'yayasan')) {
             $kelasId = request()->user()->kelas_id;
 
-            $hasUnpaidIuran = DB::table('tagihan')
-                ->where('kelas_id', $kelasId)
-                ->where('jenis_pembayaran', 1) // 1 = Iuran (konvensi di project ini)
-                ->where('status', 'Belum Lunas')
-                ->exists();
+                $hasUnpaidIuran = DB::table('tagihan')
+                    ->where('kelas_id', $kelasId)
+                    ->whereIn('jenis_pembayaran', [14, 16, 19]) // Cek jenis pembayaran 14, 16, 19
+                    ->where('status', 'Belum Lunas')
+                    ->exists();
 
             if ($hasUnpaidIuran) {
                 return redirect()->route('mobile.role2.pembayaran')
