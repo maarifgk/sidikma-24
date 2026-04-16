@@ -48,7 +48,7 @@
                         <div class="item-title">{{ $status->nama_jurusan ?? 'Belum diatur' }}</div>
                         <div class="item-subtitle">Madrasah yang sama</div>
                     </div>
-                    <span>{{ $status->total }} orang</span>
+                    <span class="badge primary">{{ $status->total }} orang</span>
                 </div>
             @empty
                 <div class="empty-state">Belum ada komposisi status kepegawaian.</div>
@@ -69,7 +69,7 @@
                         <div class="item-subtitle">{{ $teammate->ketugasan ?? 'Ketugasan belum diatur' }}</div>
                         <div class="item-meta">{{ $teammate->email ?? '-' }}</div>
                     </div>
-                    <span>{{ $teammate->nama_jurusan ?? '-' }}</span>
+                    <span class="badge primary">{{ $teammate->nama_jurusan ?? '-' }}</span>
                 </div>
             @empty
                 <div class="empty-state">Belum ada data guru/pegawai yang cocok dengan relasi sekolah Anda.</div>
