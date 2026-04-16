@@ -20,80 +20,70 @@
                 </a>
                 <div class="collapse show" id="informasisiswa">
                     <div class="card-body">
-                        <table class="table table-striped">
-                            <tbody>   
-                                <tr>
-                                    <td>1. Dokumen Surat Permohonan Bantuan/Proposal dalam bentuk File PDF</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>2. Jenis Permohonan Bantuan/Proposal</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>3. Nominal yang diajukan</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>4. Nama Bank & Nomor Rekening</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="m-0 font-weight-bold text-danger">NB: Jika terdapat kendala atau error silahkan hubungi admin LP. Ma'arif NU PCNU Gunungkidul</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        @if (!empty(Helper::apk()->info_proposal))
+                            @php $raw = Helper::apk()->info_proposal; $decoded = json_decode($raw, true); @endphp
+                            @if (request()->user()->role == 1)
+                                <div class="mb-2">
+                                    <a href="/proposal/info/edit" class="btn btn-sm btn-warning">Edit</a>
+                                </div>
+                            @endif
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td>1.</td>
+                                        <td>{{ e($decoded['label_1'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2.</td>
+                                        <td>{{ e($decoded['label_2'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3.</td>
+                                        <td>{{ e($decoded['label_3'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4.</td>
+                                        <td>{{ e($decoded['label_4'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="m-0 font-weight-bold text-danger">NB:</td>
+                                        <td>{!! nl2br(e($decoded['nb'] ?? '')) !!}
+                                            @php $link = $decoded['link_proposal'] ?? null; @endphp
+                                            @if (!empty($link))
+                                                <div class="mt-2">
+                                                    <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">Download / Info</a>
+                                                </div>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        @else
+                            @if (request()->user()->role == 1)
+                                <div class="mb-2">
+                                    <a href="/proposal/info/edit" class="btn btn-sm btn-warning">Edit</a>
+                                </div>
+                            @endif
+                            <table class="table table-striped">
+                                <tbody>   
+                                    <tr>
+                                        <td>1. Dokumen Surat Permohonan Bantuan/Proposal dalam bentuk File PDF</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2. Jenis Permohonan Bantuan/Proposal</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3. Nominal yang diajukan</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4. Nama Bank & Nomor Rekening</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="m-0 font-weight-bold text-danger">NB: Jika terdapat kendala atau error silahkan hubungi admin LP. Ma'arif NU PCNU Gunungkidul</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        @endif
                     </div>
                 </div>
             </div>

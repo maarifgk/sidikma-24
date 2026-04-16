@@ -219,6 +219,8 @@ Route::middleware(['auth'])->group(function () {
     //Proposal
     Route::get('/proposal', [ProposalController::class, 'view'])->name('proposal');
     Route::get('/proposal/open/{id}', [ProposalController::class, 'open'])->name('proposal.open');
+    Route::get('/proposal/info/edit', [ProposalController::class, 'editInfo'])->name('proposal.info.edit');
+    Route::post('/proposal/info/update', [ProposalController::class, 'updateInfo'])->name('proposal.info.update');
     Route::post('/proposal/openProses', [ProposalController::class, 'openProses'])->name('proposal.openProses');
     Route::get('/proposal/add', [ProposalController::class, 'add'])->name('proposal.add');
     Route::post('/proposal/proses', [ProposalController::class, 'addsarpras'])->name('proposal.addProses');

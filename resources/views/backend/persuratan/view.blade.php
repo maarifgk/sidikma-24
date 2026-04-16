@@ -65,7 +65,7 @@
                                 </div>
                             @endif
                             <table class="table table-striped">
-                                <tbody>   
+                                <tbody>
                                     <tr>
                                         <td>1.</td>
                                         <td>Surat Pernyataan</td>
@@ -212,7 +212,7 @@
                             @elseif ($t->kelas == 58)
                                 MI YAPPI Wiyoko
                             @elseif ($t->kelas == 60)
-                                MI Maarif Mulo 
+                                MI Maarif Mulo
                             @elseif ($t->kelas == 62)
                                 MI Maarif Wareng
                             @elseif ($t->kelas == 63)
@@ -405,7 +405,7 @@
                             @elseif ($t->kelas == 58)
                                 MI YAPPI Wiyoko
                             @elseif ($t->kelas == 60)
-                                MI Maarif Mulo 
+                                MI Maarif Mulo
                             @elseif ($t->kelas == 62)
                                 MI Maarif Wareng
                             @elseif ($t->kelas == 63)

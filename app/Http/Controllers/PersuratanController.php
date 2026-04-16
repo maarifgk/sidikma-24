@@ -21,7 +21,7 @@ class PersuratanController extends Controller
         $data['perm_persuratan'] = DB::table('persuratan')->where('kelas', request()->user()->kelas_id)->get();
         return view('backend.persuratan.view', $data);
     }
-    
+
     public function add()
     {
         $data['title'] = "Input Data Permohonan Persuratan";
