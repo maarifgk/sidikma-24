@@ -373,20 +373,20 @@ class PembayaranController extends Controller
 
         try {
             $id = $request->id ?? 1;
+            // sanitize numeric inputs: remove non-digits
             $payload = [
-                'iuran_ibtidaiyah' => $request->iuran_ibtidaiyah,
-                'iuran_tsanawiyah' => $request->iuran_tsanawiyah,
-                'iuran_guru_asn_sertifikasi' => $request->iuran_guru_asn_sertifikasi,
-                'iuran_guru_asn_belum' => $request->iuran_guru_asn_belum,
-                'iuran_guru_yayasan_sertifikasi' => $request->iuran_guru_yayasan_sertifikasi,
-                'iuran_guru_yayasan_belum' => $request->iuran_guru_yayasan_belum,
-                'sk_penerbitan' => $request->sk_penerbitan,
-                'sk_perpanjangan' => $request->sk_perpanjangan,
+                'iuran_ibtidaiyah' => preg_replace('/\D/', '', $request->input('iuran_ibtidaiyah')) ?? '0',
+                'iuran_tsanawiyah' => preg_replace('/\D/', '', $request->input('iuran_tsanawiyah')) ?? '0',
+                'iuran_guru_asn_sertifikasi' => preg_replace('/\D/', '', $request->input('iuran_guru_asn_sertifikasi')) ?? '0',
+                'iuran_guru_asn_belum' => preg_replace('/\D/', '', $request->input('iuran_guru_asn_belum')) ?? '0',
+                'iuran_guru_yayasan_sertifikasi' => preg_replace('/\D/', '', $request->input('iuran_guru_yayasan_sertifikasi')) ?? '0',
+                'iuran_guru_yayasan_belum' => preg_replace('/\D/', '', $request->input('iuran_guru_yayasan_belum')) ?? '0',
+                'sk_penerbitan' => preg_replace('/\D/', '', $request->input('sk_penerbitan')) ?? '0',
+                'sk_perpanjangan' => preg_replace('/\D/', '', $request->input('sk_perpanjangan')) ?? '0',
             ];
 
             DB::table('aplikasi')->where('id', $id)->update([
                 'info_pembayaran' => json_encode($payload),
-                'updated_at' => now(),
             ]);
 
             $params['activity'] = "Update Informasi Pembayaran";
