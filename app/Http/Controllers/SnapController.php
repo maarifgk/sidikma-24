@@ -63,20 +63,11 @@ class SnapController extends Controller
                 'phone'      => $request->no_tlp,
             ];
 
-            // Credit card options. If frontend requests installment, enable it.
-            $credit_card = ['secure' => true];
-            if (isset($request->installment) && ($request->installment == '1' || $request->installment === 'true')) {
-                // Enable installment feature on Snap token request. Midtrans will show installment options
-                // based on merchant settings and card/bank capabilities.
-                $credit_card['installment'] = ['required' => true];
-                // Optionally we could pass specific terms here if needed by Midtrans.
-            }
-
             $transaction_data = [
                 'transaction_details' => $transaction_details,
                 'item_details' => $item_details,
                 'customer_details' => $customer_details,
-                'credit_card' => $credit_card,
+                'credit_card' => ['secure' => true],
                 'expiry' => [
                     'start_time' => date('Y-m-d H:i:s O'),
                     'unit'       => 'minute',

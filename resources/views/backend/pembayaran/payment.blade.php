@@ -14,8 +14,6 @@
                             <input type="hidden" name="_token" id="_token" value="{!! csrf_token() !!}">
                             <input type="hidden" name="result_type" id="result-type" value="">
                             <input type="hidden" name="result_data" id="result-data" value="">
-                            <input type="hidden" name="installment" id="installment" value="0">
-                            <input type="hidden" name="installment_term" id="installment_term_field" value="">
 
                             <input type="text" name="tagihan_id" id="tagihan_id" value="{{ $p->id }}" hidden>
                             <input type="text" name="user_id" id="user_id" value="{{ $p->user_id }}" hidden>
@@ -76,25 +74,6 @@
                                         </select>
                                     </div>
                                 </div>
-                                @if (request()->user()->role == 3 && in_array($p->jenis_pembayaran, [14,26,19]))
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Cicilan (Installment)</label>
-                                            <select id="installment_term" class="form-control" {{ isset($p->installment_locked) && $p->installment_locked ? 'disabled' : '' }}>
-                                                <option value="">-- Pilih Cicilan --</option>
-                                                <option value="2">2 Kali</option>
-                                                <option value="3">3 Kali</option>
-                                            </select>
-                                            <small class="text-muted">Pilih 2x atau 3x cicilan. Jika kosong, bayar penuh.</small>
-                                            <div id="installment_info" class="mt-2">
-                                                @if(isset($p->installment_group) && $p->installment_group)
-                                                    <div class="text-info">Cicilan aktif: {{ $p->installment_term }} kali. Sudah dibayar: {{ $p->installments_paid }}.</div>
-                                                @endif
-                                                <div id="installment_amount_preview" class="text-muted"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
                                 <div class="col-md-12 text-center">
                                     <br>
                                     <button type="submit" id="pay-button" class="btn btn-primary">Bayar</button>
@@ -117,14 +96,6 @@
                 event.preventDefault();
                 $(this).attr("disabled", "disabled");
                 // console.log($('#nilai').val().replace("Rp.", '').replace(",", '').replace(".", ''));
-                    // determine installment options if present
-                    var installmentTerm = ($('#installment_term').length) ? $('#installment_term').val() : '';
-                    var installmentFlag = installmentTerm ? 1 : 0;
-
-                    // set hidden form fields so server gets installment info when form is submitted
-                    $('#installment').val(installmentFlag);
-                    $('#installment_term_field').val(installmentTerm);
-
                     $.ajax({
                         method: "POST",
                         url: '/getTokenPayment',
@@ -137,8 +108,6 @@
                             total: $('#nilai').val().replace("Rp.", '').replace(",", '').replace(".", ''),
                             email: $('#email').val(),
                             no_tlp: $('#no_tlp').val(),
-                            installment: installmentFlag,
-                            installment_term: installmentTerm
 
                         },
                     success: function(data) {
@@ -178,41 +147,6 @@
             } else {
                 $("#payment-form").submit();
             }
-        });
-        // preview installment amount when term selected
-        $(document).ready(function() {
-            function formatRupiah(number) {
-                return 'Rp. ' + number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            }
-
-            $('#installment_term').on('change', function() {
-                var term = $(this).val();
-                var raw = $('#nilai').val().replace(/Rp\.\s?/, '').replace(/\./g, '').replace(/,/g, '');
-                var total = parseInt(raw) || 0;
-                if (term && (term == '2' || term == '3')) {
-                    var base = Math.floor(total / parseInt(term));
-                    var last = total - (base * (term - 1));
-                    var preview = '';
-                    preview += 'Per pembayaran: ' + formatRupiah(base) + ' (kecuali pembayaran terakhir: ' + formatRupiah(last) + ')';
-                    $('#installment_amount_preview').text(preview);
-                } else {
-                    $('#installment_amount_preview').text('');
-                }
-            });
-
-            // if installment is locked on server, disable select and fill hidden field
-            @if(isset($payment[0]) && isset($payment[0]->installment_group) && $payment[0]->installment_group)
-                var locked = {{ $payment[0]->installment_locked ?? 0 }};
-                var term = '{{ $payment[0]->installment_term ?? '' }}';
-                if (term) {
-                    $('#installment_term').val(term).trigger('change');
-                }
-                if (locked) {
-                    $('#installment').val(1);
-                    $('#installment_term_field').val(term);
-                    $('#installment_term').prop('disabled', true);
-                }
-            @endif
         });
     </script>
 @endsection
