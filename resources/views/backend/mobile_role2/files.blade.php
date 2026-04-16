@@ -6,7 +6,7 @@
             <div>
                 <div class="eyebrow">File SK Yayasan</div>
                 <div class="title">{{ $profile->nama_kelas ?? '-' }}</div>
-                <p class="subtitle">Menampilkan file SK pribadi dan file SK sekolah yang terhubung ke asal madrasah user login.</p>
+                <p class="subtitle">Menampilkan file SK Yayasan yang terhubung ke asal madrasah user login.</p>
             </div>
         </div>
     </section>
