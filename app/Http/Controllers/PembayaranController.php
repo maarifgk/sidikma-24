@@ -263,6 +263,26 @@ class PembayaranController extends Controller
         $data['title'] = "Payment";
         $data['payment'] = DB::select("SELECT t.*, u.nama_lengkap, jp.pembayaran, ta.tahun, u.nis, u.email, u.no_tlp FROM tagihan t LEFT JOIN users u on u.id=t.user_id LEFT JOIN jenis_pembayaran jp on jp.id=t.jenis_pembayaran LEFT JOIN tahun_ajaran ta on ta.id=t.thajaran_id WHERE t.id = '$id_tagihan'");
         // dd($data['payment']);
+        // Check if there is an existing installment group for this tagihan
+        $existingInst = DB::table('payment')->where('tagihan_id', $id_tagihan)->whereNotNull('installment_group')->first();
+        if ($existingInst) {
+            // attach installment meta to the payment data for view
+            $data['payment'][0]->installment_group = $existingInst->installment_group;
+            $data['payment'][0]->installment_term = $existingInst->installment_term;
+            // determine if first installment already paid (status Lunas)
+            $paidCount = DB::table('payment')
+                ->where('tagihan_id', $id_tagihan)
+                ->where('installment_group', $existingInst->installment_group)
+                ->where('status', 'Lunas')
+                ->count();
+            $data['payment'][0]->installment_locked = $paidCount > 0 ? 1 : 0;
+            $data['payment'][0]->installments_paid = $paidCount;
+        } else {
+            $data['payment'][0]->installment_group = null;
+            $data['payment'][0]->installment_term = null;
+            $data['payment'][0]->installment_locked = 0;
+            $data['payment'][0]->installments_paid = 0;
+        }
         return view('backend.pembayaran.payment', $data);
     }
 
@@ -291,21 +311,89 @@ class PembayaranController extends Controller
             }
         }
 
-        $data = [
+        // handle installment logic: if installment requested, save installment metadata and set nilai accordingly
+        $installmentFlag = $request->installment ?? 0;
+        $installmentTerm = $request->installment_term ?? null;
+
+        $rawNilai = str_replace(',', '', str_replace('Rp. ', '', $request->nilai));
+        $totalNilai = (int) preg_replace('/[^0-9]/', '', $rawNilai);
+
+        $paymentPayload = [
             'user_id' => $request->user_id,
             'tagihan_id' => $request->tagihan_id,
             'kelas_id' => $request->kelas_id,
-            'nilai' => str_replace(',', '', str_replace('Rp. ', '', $request->nilai)),
             'order_id' => isset($dataMidtrans->order_id) == false ? null : $dataMidtrans->order_id,
             'pdf_url' => isset($dataMidtrans->pdf_url) == false ? null : $dataMidtrans->pdf_url,
             'metode_pembayaran' => $request->metode_pembayaran,
             'status' => $status,
             'created_at' => now(),
         ];
+
+        if ($installmentFlag && in_array((int)$installmentTerm, [2,3])) {
+            // enforce only role 3 and jenis_pembayaran allowed (14,26,19)
+            $tagihan = DB::table('tagihan')->where('id', $request->tagihan_id)->first();
+            $allowedJenis = [14,26,19];
+            if (!request()->user() || request()->user()->role != 3 || !in_array((int)$tagihan->jenis_pembayaran, $allowedJenis)) {
+                Alert::error('Error', 'Cicilan hanya boleh untuk user role 3 dan jenis pembayaran tertentu');
+                return redirect("/pembayaran/search?&kelas_id=$request->kelas_id&nis=$request->nis");
+            }
+
+            // check existing installment group
+            $existingGroup = DB::table('payment')->where('tagihan_id', $request->tagihan_id)->whereNotNull('installment_group')->first();
+            if ($existingGroup) {
+                // if first installment already paid, lock to existing group/term
+                $paidCountForGroup = DB::table('payment')
+                    ->where('tagihan_id', $request->tagihan_id)
+                    ->where('installment_group', $existingGroup->installment_group)
+                    ->where('status', 'Lunas')
+                    ->count();
+
+                if ($paidCountForGroup > 0) {
+                    $groupId = $existingGroup->installment_group;
+                    $term = $existingGroup->installment_term;
+                } else {
+                    // allow changing term as long as no installment has been paid yet
+                    // create a new group and migrate any non-lunas pending rows to the new group
+                    $groupId = 'inst_' . uniqid();
+                    $term = (int)$installmentTerm;
+                    // update any pending rows from old group to new one (so they don't conflict)
+                    DB::table('payment')
+                        ->where('tagihan_id', $request->tagihan_id)
+                        ->where('installment_group', $existingGroup->installment_group)
+                        ->where('status', '!=', 'Lunas')
+                        ->update([
+                            'installment_group' => $groupId,
+                            'installment_term' => $term
+                        ]);
+                }
+            } else {
+                $groupId = 'inst_' . uniqid();
+                $term = (int)$installmentTerm;
+            }
+
+            // determine sequence number (how many installments already recorded for this group)
+            $seq = DB::table('payment')->where('tagihan_id', $request->tagihan_id)->where('installment_group', $groupId)->count();
+            $nextSeq = $seq + 1;
+
+            // compute installment amounts: distribute remainder to last installment
+            $base = intdiv($totalNilai, $term);
+            $last = $totalNilai - ($base * ($term - 1));
+            $amount = ($nextSeq < $term) ? $base : $last;
+
+            $paymentPayload['nilai'] = $amount;
+            $paymentPayload['installment_group'] = $groupId;
+            $paymentPayload['installment_term'] = $term;
+            $paymentPayload['installment_sequence'] = $nextSeq;
+        } else {
+            $paymentPayload['nilai'] = $totalNilai;
+            $paymentPayload['installment_group'] = null;
+            $paymentPayload['installment_term'] = null;
+            $paymentPayload['installment_sequence'] = null;
+        }
         // dd($data);
         $getusers = DB::table('users')->where('id', $request->user_id)->first();
         Http::get('https://wa.dlhcode.com/send-message?api_key=' . Helper::apk()->token_whatsapp . '&sender=' . Helper::apk()->tlp . '&number=' . $getusers->no_tlp . '&message=Terima kasih, pembayaran dengan jumlah ' . $request->nilai . ' dengan nama siswa ' . $getusers->nama_lengkap . ' dengan nis ' . $getusers->nis . ' Berhasil. Silahkan cek tagihan anda di dashboard siswa');
-        DB::table('payment')->insert($data);
+    DB::table('payment')->insert($paymentPayload);
 
         if ($alertType == 'success') {
             Alert::success('Success', $alertMessage);
