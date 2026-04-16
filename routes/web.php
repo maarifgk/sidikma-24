@@ -199,6 +199,8 @@ Route::middleware(['auth'])->group(function () {
     //Mutasi Guru & Pegawai
     Route::get('/mutasi', [MutasiController::class, 'view'])->name('mutasi');
     Route::get('/mutasi/add', [MutasiController::class, 'add'])->name('mutasi.add');
+    Route::get('/mutasi/info/edit', [MutasiController::class, 'editInfo'])->name('mutasi.info.edit');
+    Route::post('/mutasi/info/update', [MutasiController::class, 'updateInfo'])->name('mutasi.info.update');
     Route::post('/mutasi/proses', [MutasiController::class, 'addmutasi'])->name('mutasi.addProses');
     Route::get('/mutasi/edit/{id}', [MutasiController::class, 'edit'])->name('mutasi.edit');
     Route::post('/mutasi/editProses', [MutasiController::class, 'editProses'])->name('mutasi.editProses');

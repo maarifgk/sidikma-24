@@ -49,7 +49,7 @@ class UsulanController extends Controller
         $destinationPath = $_SERVER['DOCUMENT_ROOT'] . '/storage/images/users/';
         $foto->move($destinationPath, $filename);
         //$foto->move(public_path('storage/images/users'), $filename);
-        
+
         $file_path = public_path() . '/storage/dokumen/ijazah/' . $request->ijazah;
         File::delete($file_path);
         $ijazah = $request->file('ijazah');
@@ -58,7 +58,7 @@ class UsulanController extends Controller
         $destinationPath = $_SERVER['DOCUMENT_ROOT'] . '/storage/dokumen/ijazah/';
         $ijazah->move($destinationPath, $filename);
         //$ijazah->move(public_path('storage/dokumen/ijazah'), $filename);
-        
+
         $file_path = public_path() . '/storage/dokumen/permohonan/' . $request->permohonan;
         File::delete($file_path);
         $permohonan = $request->file('permohonan');
@@ -67,7 +67,7 @@ class UsulanController extends Controller
         $destinationPath = $_SERVER['DOCUMENT_ROOT'] . '/storage/dokumen/permohonan/';
         $permohonan->move($destinationPath, $filename);
         //$permohonan->move(public_path('storage/dokumen/permohonan'), $filename);
-        
+
         $file_path = public_path() . '/storage/dokumen/pernyataan/' . $request->pernyataan;
         File::delete($file_path);
         $pernyataan = $request->file('pernyataan');

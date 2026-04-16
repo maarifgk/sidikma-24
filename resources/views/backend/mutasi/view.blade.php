@@ -20,18 +20,51 @@
                 </a>
                 <div class="collapse show" id="informasisiswa">
                     <div class="card-body">
-                        <table class="table table-striped">
-                            <tbody>   
-                                <tr>
-                                    <td>1.</td>
-                                    <td>Mendapatkan Surat Permohonan Mutasi dari Madrasah/Sekolah Asal</td>
-                                </tr>
-                                <tr>
-                                    <td>2.</td>
-                                    <td>Mengirimkan kelengkapan administrasi berupa Surat Permohonan Mutasi dari Madrasah/Sekolah Asal (file pdf)</td>
-                                </tr>
-                        </tbody>
-                    </table>
+                        @if (!empty(Helper::apk()->info_mutasi))
+                            @php $raw = Helper::apk()->info_mutasi; $decoded = json_decode($raw, true); @endphp
+                            @if (request()->user()->role == 1)
+                                <div class="mb-2">
+                                    <a href="/mutasi/info/edit" class="btn btn-sm btn-warning">Edit</a>
+                                </div>
+                            @endif
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td>1.</td>
+                                        <td>{{ e($decoded['label_1'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2.</td>
+                                        <td>
+                                            {{ e($decoded['label_2'] ?? '') }}
+                                            @php $link = $decoded['link_mutasi'] ?? null; @endphp
+                                            @if (!empty($link))
+                                                <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">Download PDF</a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        @else
+                            @if (request()->user()->role == 1)
+                                <div class="mb-2">
+                                    <a href="/mutasi/info/edit" class="btn btn-sm btn-warning">Edit</a>
+                                </div>
+                            @endif
+                            <table class="table table-striped">
+                                <tbody>   
+                                    <tr>
+                                        <td>1.</td>
+                                        <td>Mendapatkan Surat Permohonan Mutasi dari Madrasah/Sekolah Asal</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2.</td>
+                                        <td>Mengirimkan kelengkapan administrasi berupa Surat Permohonan Mutasi dari Madrasah/Sekolah Asal (file pdf)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        @endif
+                    </div>
                 </div>
             </div>
             </div>
