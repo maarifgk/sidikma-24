@@ -6,7 +6,7 @@
             <div>
                 <div class="eyebrow">Pembayaran SK Yayasan</div>
                 <div class="title">Tagihan Terkait SK</div>
-                <p class="subtitle">Filter mengikuti tagihan user login dan jenis pembayaran yang mengandung `SK` atau `Yayasan`.</p>
+                {{-- <p class="subtitle">Filter mengikuti tagihan user login dan jenis pembayaran yang mengandung `SK` atau `Yayasan`.</p> --}}
             </div>
         </div>
     </section>
