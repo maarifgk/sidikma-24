@@ -19,7 +19,7 @@
             <div class="card metric">
                 <div class="label">Rekan Satu Lembaga</div>
                 <div class="value">{{ $stats['total_rekan'] }}</div>
-                <div class="hint">Guru dan pegawai role 2</div>
+                <div class="hint">Guru dan pegawai</div>
             </div>
             <div class="card metric">
                 <div class="label">Pembayaran Lunas</div>
