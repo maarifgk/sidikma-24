@@ -45,7 +45,7 @@
         }
 
         .app-shell {
-            max-width: 480px;
+            max-width: 380px;
             min-height: 100vh;
             margin: 0 auto;
             padding: 18px 16px 100px;
@@ -97,7 +97,7 @@
         }
 
         .hero {
-            padding: 10px;
+            padding: 20px;
             margin-bottom: 16px;
             background:
                 linear-gradient(135deg, rgba(10, 72, 179, 0.96), rgba(19, 122, 187, 0.82)),
