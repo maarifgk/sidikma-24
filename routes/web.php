@@ -210,6 +210,8 @@ Route::middleware(['auth'])->group(function () {
     //Persuratan
     Route::get('/persuratan', [PersuratanController::class, 'view'])->name('persuratan');
     Route::get('/persuratan/add', [PersuratanController::class, 'add'])->name('persuratan.add');
+    Route::get('/persuratan/info/edit', [PersuratanController::class, 'editInfo'])->name('persuratan.info.edit');
+    Route::post('/persuratan/info/update', [PersuratanController::class, 'updateInfo'])->name('persuratan.info.update');
     Route::post('/persuratan/proses', [PersuratanController::class, 'addsarpras'])->name('persuratan.addProses');
     Route::get('/persuratan/edit/{id}', [PersuratanController::class, 'edit'])->name('persuratan.edit');
     Route::post('/persuratan/editProses', [PersuratanController::class, 'editProses'])->name('persuratan.editProses');

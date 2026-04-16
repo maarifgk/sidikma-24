@@ -130,4 +130,49 @@ class PersuratanController extends Controller
             ]);
         }
     }
+
+    // Show edit form for kelengkapan persuratan (role 1)
+    public function editInfo()
+    {
+        if (request()->user()->role != 1) {
+            abort(403);
+        }
+        $data['title'] = 'Edit Kelengkapan Persuratan';
+        return view('backend.persuratan.edit_info', $data);
+    }
+
+    // Update kelengkapan persuratan
+    public function updateInfo(Request $request)
+    {
+        if (request()->user()->role != 1) {
+            abort(403);
+        }
+        try {
+            $id = $request->id ?? 1;
+            $payload = [
+                'label_1' => strip_tags($request->input('label_1')) ?? '',
+                'label_2' => strip_tags($request->input('label_2')) ?? '',
+                'label_3' => strip_tags($request->input('label_3')) ?? '',
+                'label_4' => strip_tags($request->input('label_4')) ?? '',
+                'ket'     => strip_tags($request->input('ket')) ?? '',
+                'link_persuratan' => filter_var($request->input('link_persuratan'), FILTER_SANITIZE_URL) ?? '',
+            ];
+
+            DB::table('aplikasi')->where('id', $id)->update([
+                'info_persuratan' => json_encode($payload),
+            ]);
+
+            $params['activity'] = 'Update Kelengkapan Persuratan';
+            $params['detail'] = 'User ' . request()->user()->id . ' updated info_persuratan';
+            \App\Providers\Helper::log_transaction($params);
+
+            Alert::success('Sukses', 'Kelengkapan Persuratan disimpan');
+            return redirect('/persuratan');
+        } catch (Exception $e) {
+            return response([
+                'success' => false,
+                'msg'     => 'Error : ' . $e->getMessage() . ' Line : ' . $e->getLine() . ' File : ' . $e->getFile()
+            ]);
+        }
+    }
 }
