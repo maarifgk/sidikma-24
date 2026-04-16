@@ -243,7 +243,7 @@
             border-radius: 999px;
             font-size: 11px;
             font-weight: 700;
-            white-space: nowrap;
+            /* white-space: nowrap; */
         }
 
         .badge.primary { background: var(--primary-soft); color: var(--primary); }
