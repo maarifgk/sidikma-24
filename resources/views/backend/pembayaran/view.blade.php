@@ -124,8 +124,60 @@
                         <div class="collapse show" id="informasisiswa">
                             <div class="card-body">
                                 @if (!empty(Helper::apk()->info_pembayaran))
-                                    {{-- Render editable HTML from aplikasi.info_pembayaran (saved by role 1 users) --}}
-                                    {!! Helper::apk()->info_pembayaran !!}
+                                    @php
+                                        $raw = Helper::apk()->info_pembayaran;
+                                        $decoded = json_decode($raw, true);
+                                    @endphp
+
+                                    @if (json_last_error() === JSON_ERROR_NONE && is_array($decoded))
+                                        <table class="table table-striped">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="m-0 font-weight-bold text-dark">IURAN</td>
+                                                    <td class="m-0 font-weight-bold text-dark">NOMINAL</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>a. Iuran Siswa Jenjang Madrasah Ibtidaiyah</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['iuran_ibtidaiyah'] ?? 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>b. Iuran Siswa Jenjang Madrasah Tsanawiyah/SMP</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['iuran_tsanawiyah'] ?? 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>c. Iuran Kepala/Guru ASN Madrasah Bersertifikasi</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['iuran_guru_asn_sertifikasi'] ?? 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>d. Iuran Kepala/Guru ASN Madrasah Belum Sertifikasi</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['iuran_guru_asn_belum'] ?? 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>e. Iuran Kepala/Guru Madrasah Yayasan Bersertifikasi/Inpassing</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['iuran_guru_yayasan_sertifikasi'] ?? 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>f. Iuran Kepala/Guru Madrasah Yayasan Belum Bersertifikasi</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['iuran_guru_yayasan_belum'] ?? 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="m-0 font-weight-bold text-dark">SK YAYASAN</td>
+                                                    <td class="m-0 font-weight-bold text-dark">NOMINAL</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>a. Penerbitan SK GTY/GTT/PTY/PTT Baru</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['sk_penerbitan'] ?? 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>b. Perpanjangan SK Yayasan GTY/GTT/PTY/PTT</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['sk_perpanjangan'] ?? 0) }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    @else
+                                        {{-- fallback to raw html for older entries or manual content --}}
+                                        {!! Helper::apk()->info_pembayaran !!}
+                                    @endif
                                 @else
                                     <table class="table table-striped">
                                         <tbody>

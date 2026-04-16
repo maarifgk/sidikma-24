@@ -373,8 +373,19 @@ class PembayaranController extends Controller
 
         try {
             $id = $request->id ?? 1;
+            $payload = [
+                'iuran_ibtidaiyah' => $request->iuran_ibtidaiyah,
+                'iuran_tsanawiyah' => $request->iuran_tsanawiyah,
+                'iuran_guru_asn_sertifikasi' => $request->iuran_guru_asn_sertifikasi,
+                'iuran_guru_asn_belum' => $request->iuran_guru_asn_belum,
+                'iuran_guru_yayasan_sertifikasi' => $request->iuran_guru_yayasan_sertifikasi,
+                'iuran_guru_yayasan_belum' => $request->iuran_guru_yayasan_belum,
+                'sk_penerbitan' => $request->sk_penerbitan,
+                'sk_perpanjangan' => $request->sk_perpanjangan,
+            ];
+
             DB::table('aplikasi')->where('id', $id)->update([
-                'info_pembayaran' => $request->info_pembayaran,
+                'info_pembayaran' => json_encode($payload),
                 'updated_at' => now(),
             ]);
 
