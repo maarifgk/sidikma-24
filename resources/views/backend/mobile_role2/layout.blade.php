@@ -171,7 +171,7 @@
         }
 
         .section-head span {
-            font-size: 12px;
+            font-size: 8px;
             color: var(--muted);
         }
 
