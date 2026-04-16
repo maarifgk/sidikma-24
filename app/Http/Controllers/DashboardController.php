@@ -12,6 +12,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        if ((int) request()->user()->role === 2) {
+            return redirect()->route('mobile.role2.dashboard');
+        }
+
         $data['rankpayment'] = DB::select(
             "SELECT u.nama_lengkap, p.user_id, k.nama_kelas, u.alamat,  SUM(p.nilai) as total
             FROM payment p

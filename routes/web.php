@@ -44,6 +44,7 @@ use App\Http\Controllers\UploadSKController;
 use App\Http\Controllers\ModulController;
 use App\Http\Controllers\DataSiswaController;
 use App\Http\Controllers\DataTenagaPendidikController;
+use App\Http\Controllers\MobileRole2Controller;
 
 
 
@@ -75,6 +76,13 @@ Route::post('/resetPassword/action', [AuthController::class, 'resetPasswordActio
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/open/{id}', [DashboardController::class, 'open'])->name('dashboard.open');
+    Route::prefix('mobile/role-2')->name('mobile.role2.')->group(function () {
+        Route::get('/dashboard', [MobileRole2Controller::class, 'dashboard'])->name('dashboard');
+        Route::get('/informasi', [MobileRole2Controller::class, 'informasi'])->name('informasi');
+        Route::get('/pembayaran', [MobileRole2Controller::class, 'pembayaran'])->name('pembayaran');
+        Route::get('/files', [MobileRole2Controller::class, 'files'])->name('files');
+        Route::get('/profile', [MobileRole2Controller::class, 'profile'])->name('profile');
+    });
     Route::get('logout', [AuthController::class, 'logout'])->name('logout');
     //Update Sipinter
     Route::get('/updatesipinter', [UpdateSipinterController::class, 'view'])->name('updatesipinter');
