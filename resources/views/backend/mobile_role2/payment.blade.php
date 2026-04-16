@@ -65,7 +65,7 @@
                     </div>
 
                     <div style="margin-top:18px; display:flex; gap:10px;">
-                        <button type="button" id="pay-button" class="action" style="flex:1">Bayar</button>
+                        <button type="button" id="pay-button" class="action" style="flex:1" disabled aria-disabled="true">Bayar</button>
                         <a href="{{ route('mobile.role2.pembayaran') }}" class="action secondary" style="flex:1;justify-content:center">Kembali</a>
                     </div>
                 </form>
@@ -76,7 +76,28 @@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ \App\Providers\Helper::apk()->clientKey }}"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script type="text/javascript">
-        document.getElementById('pay-button').addEventListener('click', function (event) {
+        // Disable pay button until a payment method is selected
+        var metodeSelect = document.getElementById('metode_pembayaran');
+        var payButton = document.getElementById('pay-button');
+
+        function updatePayButton() {
+            if (!metodeSelect) return;
+            if (metodeSelect.value && metodeSelect.value !== '') {
+                payButton.removeAttribute('disabled');
+                payButton.setAttribute('aria-disabled', 'false');
+            } else {
+                payButton.setAttribute('disabled', 'disabled');
+                payButton.setAttribute('aria-disabled', 'true');
+            }
+        }
+
+        if (metodeSelect) {
+            metodeSelect.addEventListener('change', updatePayButton);
+            // initialize state
+            updatePayButton();
+        }
+
+        payButton.addEventListener('click', function (event) {
             var metode = document.getElementById('metode_pembayaran').value;
             if (metode === 'Online') {
                 event.preventDefault();
