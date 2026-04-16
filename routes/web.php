@@ -106,6 +106,8 @@ Route::middleware(['auth'])->group(function () {
     //Aktivasi
     Route::get('/aktivasi', [AktivasiController::class, 'view'])->name('aktivasi');
     Route::get('/aktivasi/add', [AktivasiController::class, 'add'])->name('aktivasi.add');
+    Route::get('/aktivasi/info/edit', [AktivasiController::class, 'editInfo'])->name('aktivasi.info.edit');
+    Route::post('/aktivasi/info/update', [AktivasiController::class, 'updateInfo'])->name('aktivasi.info.update');
     Route::post('/aktivasi/proses', [AktivasiController::class, 'addsarpras'])->name('aktivasi.addProses');
     Route::get('/aktivasi/edit/{id}', [AktivasiController::class, 'edit'])->name('aktivasi.edit');
     Route::post('/aktivasi/editProses', [AktivasiController::class, 'editProses'])->name('aktivasi.editProses');

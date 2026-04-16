@@ -9,7 +9,7 @@
                 style="margin-left: 70%;">Ajukan</a>
             @endif
         </div>
-        
+
         <div class="card-body">
             <div class="card shadow mb-4 border-bottom-success" id="infosiswa" value="0">
                 <!-- Card Header - Accordion -->
@@ -52,7 +52,7 @@
                                 </div>
                             @endif
                             <table class="table table-striped">
-                                <tbody>   
+                                <tbody>
                                     <tr>
                                         <td>1.</td>
                                         <td>Mendapatkan Surat Permohonan Mutasi dari Madrasah/Sekolah Asal</td>
@@ -69,7 +69,7 @@
             </div>
             </div>
         </div>
-        
+
         @if (in_array(request()->user()->role, [1, 4,]))
         <div class="container mt-4 ">
             <table id="datatable" class="table table-striped ">

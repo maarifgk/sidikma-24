@@ -23,7 +23,7 @@ class MutasiController extends Controller
         $data['permohonanmutasi'] = DB::table('mutasi')->where('skl_asal', request()->user()->kelas_id)->get();
         return view('backend.mutasi.view', $data);
     }
-    
+
     public function add()
     {
         $data['title'] = "Input Data Mutasi & Pegawai";

@@ -21,7 +21,7 @@ class AktivasiController extends Controller
         $data['perm_aktivasi'] = DB::table('aktivasi')->where('kelas', request()->user()->kelas_id)->get();
         return view('backend.aktivasi.view', $data);
     }
-    
+
     public function add()
     {
         $data['title'] = "Input Data Permohonan Aktivasi";
@@ -67,7 +67,7 @@ class AktivasiController extends Controller
     }
     public function editProses(Request $request)
     {
-        $data = [    
+        $data = [
             'id' => $request->id,
             'nama' => $request->nama,
             'kelas' => $request->kelas,
@@ -87,6 +87,52 @@ class AktivasiController extends Controller
             DB::table('aktivasi')->where('id', $id)->delete();
             Alert::success('Data Berhasil Dihapus!');
             return redirect()->route('aktivasi');
+        } catch (Exception $e) {
+            return response([
+                'success' => false,
+                'msg'     => 'Error : ' . $e->getMessage() . ' Line : ' . $e->getLine() . ' File : ' . $e->getFile()
+            ]);
+        }
+    }
+
+    // Show edit form for kelengkapan aktivasi (role 1)
+    public function editInfo()
+    {
+        if (request()->user()->role != 1) {
+            abort(403);
+        }
+        $data['title'] = 'Edit Kelengkapan Aktivasi';
+        return view('backend.aktivasi.edit_info', $data);
+    }
+
+    // Update kelengkapan aktivasi
+    public function updateInfo(Request $request)
+    {
+        if (request()->user()->role != 1) {
+            abort(403);
+        }
+        try {
+            $id = $request->id ?? 1;
+            $payload = [
+                'label_1' => strip_tags($request->input('label_1')) ?? '',
+                'label_2' => strip_tags($request->input('label_2')) ?? '',
+                'label_3' => strip_tags($request->input('label_3')) ?? '',
+                'label_4' => strip_tags($request->input('label_4')) ?? '',
+                'ket'     => strip_tags($request->input('ket')) ?? '',
+                // optional PDF link for permohonan
+                'link_aktivasi' => filter_var($request->input('link_aktivasi'), FILTER_SANITIZE_URL) ?? '',
+            ];
+
+            DB::table('aplikasi')->where('id', $id)->update([
+                'info_aktivasi' => json_encode($payload),
+            ]);
+
+            $params['activity'] = 'Update Kelengkapan Aktivasi';
+            $params['detail'] = 'User ' . request()->user()->id . ' updated info_aktivasi';
+            \App\Providers\Helper::log_transaction($params);
+
+            Alert::success('Sukses', 'Kelengkapan Aktivasi disimpan');
+            return redirect('/aktivasi');
         } catch (Exception $e) {
             return response([
                 'success' => false,
