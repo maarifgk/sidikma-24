@@ -65,7 +65,7 @@
                                 </div>
                             @endif
                             <table class="table table-striped">
-                                <tbody>   
+                                <tbody>
                                     <tr>
                                         <td>1. Dokumen Surat Permohonan Bantuan/Proposal dalam bentuk File PDF</td>
                                     </tr>
@@ -212,7 +212,7 @@
                             @elseif ($t->kelas_id == 58)
                                 MI YAPPI Wiyoko
                             @elseif ($t->kelas_id == 60)
-                                MI Maarif Mulo 
+                                MI Maarif Mulo
                             @elseif ($t->kelas_id == 62)
                                 MI Maarif Wareng
                             @elseif ($t->kelas_id == 63)
@@ -415,7 +415,7 @@
                             @elseif ($t->kelas_id == 58)
                                 MI YAPPI Wiyoko
                             @elseif ($t->kelas_id == 60)
-                                MI Maarif Mulo 
+                                MI Maarif Mulo
                             @elseif ($t->kelas_id == 62)
                                 MI Maarif Wareng
                             @elseif ($t->kelas_id == 63)
@@ -460,7 +460,7 @@
                                 <a href="/proposal/open/{{ $t->id }}" type="button" class="btn btn-success">Proses</a>
                                 <button type="button" class="btn btn-danger btn-tolak" data-id="{{ $t->id }}">
                                     Tolak
-                                </button>                                
+                                </button>
                                 @endif
                                 @if (request()->user()->role == 1)
                                 <button type="button" class="btn btn-warning" data-bs-toggle="modal"
@@ -504,11 +504,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const buttons = document.querySelectorAll('.btn-tolak');
-    
+
             buttons.forEach(button => {
                 button.addEventListener('click', function () {
                     const proposalId = this.getAttribute('data-id');
-    
+
                     Swal.fire({
                         title: 'Keterangan Tidak Disetujui',
                         input: 'text',
@@ -550,5 +550,5 @@
             });
         });
     </script>
-    
+
 @endsection
