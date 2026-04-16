@@ -91,7 +91,7 @@
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: 24px;
             box-shadow: var(--shadow);
             backdrop-filter: blur(14px);
         }
@@ -117,7 +117,7 @@
             height: 66px;
             border-radius: 20px;
             overflow: hidden;
-            border: 3px solid rgba(255, 255, 255, 0.16);
+            border: 3px solid rgba(255, 255, 255, 0.24);
             background: rgba(255, 255, 255, 0.16);
             flex-shrink: 0;
         }
@@ -143,7 +143,7 @@
         }
 
         .hero .title {
-            font-size: 16px;
+            font-size: 24px;
             font-weight: 800;
             line-height: 1.15;
         }
@@ -307,11 +307,11 @@
             left: 50%;
             bottom: 18px;
             transform: translateX(-50%);
-            width: min(448px, calc(100% - 16px));
+            width: min(448px, calc(100% - 24px));
             background: rgba(255, 255, 255, 0.94);
             border: 1px solid rgba(255, 255, 255, 0.7);
             box-shadow: 0 20px 44px rgba(17, 33, 63, 0.16);
-            border-radius: 16px;
+            border-radius: 24px;
             padding: 10px 8px;
             display: grid;
             grid-template-columns: repeat(5, minmax(0, 1fr));
