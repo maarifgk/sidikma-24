@@ -109,11 +109,16 @@
                     <div class="card shadow mb-4 border-bottom-success" id="infosiswa" value="0">
                         <!-- Card Header - Accordion -->
 
-                        <a href="#informasisiswa" class="d-block card-header py-3"
-                        data-toggle="collapse" role="button" aria-expanded="true" style="background-color: #009991;"
-                        aria-controls="collapseCardExample">
-                        <h6 class="m-0 font-weight-bold text-white">Informasi Pembayaran Iuran LP. Ma'arif NU PCNU Gunungkidul</h6>
-                        </a>
+                        <div class="d-block card-header py-3" style="background-color: #009991;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="#informasisiswa" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample" style="color:inherit; text-decoration:none;">
+                                    <h6 class="m-0 font-weight-bold text-white">Informasi Pembayaran Iuran LP. Ma'arif NU PCNU Gunungkidul</h6>
+                                </a>
+                                @if (request()->user()->role == 1)
+                                    <a href="/pembayaran/info/edit" class="btn btn-warning btn-sm">Edit</a>
+                                @endif
+                            </div>
+                        </div>
 
                         <!-- Card Content - Collapse -->
                         <div class="collapse show" id="informasisiswa">
