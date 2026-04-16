@@ -59,11 +59,22 @@
                                         </tr>
                                         <tr>
                                             <td></td>
-                                            <td>{{ e($decoded['label_4_d'] ?? '') }}</td>
+                                            <td>
+                                                {{ e($decoded['label_4_d'] ?? '') }}
+                                                @php $link_perm = $decoded['link_permohonan'] ?? null; @endphp
+                                                @if (!empty($link_perm))
+                                                    <a href="{{ $link_perm }}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">Download PDF</a>
+                                                @endif
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td></td>
-                                            <td>{!! nl2br(e($decoded['label_4_e'] ?? '')) !!}</td>
+                                            <td>{!! nl2br(e($decoded['label_4_e'] ?? '')) !!}
+                                                @php $link_permya = $decoded['link_pernyataan'] ?? null; @endphp
+                                                @if (!empty($link_permya))
+                                                    <a href="{{ $link_permya }}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">Download PDF</a>
+                                                @endif
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
