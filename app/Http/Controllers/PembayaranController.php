@@ -349,4 +349,46 @@ class PembayaranController extends Controller
             ]);
         }
     }
+
+    /**
+     * Show edit form for Informasi Pembayaran (only for role 1)
+     */
+    public function editInfo()
+    {
+        if (request()->user()->role != 1) {
+            abort(403);
+        }
+        $data['title'] = 'Edit Informasi Pembayaran';
+        return view('backend.pembayaran.edit_info', $data);
+    }
+
+    /**
+     * Update the Informasi Pembayaran content stored in aplikasi table
+     */
+    public function updateInfo(Request $request)
+    {
+        if (request()->user()->role != 1) {
+            abort(403);
+        }
+
+        try {
+            $id = $request->id ?? 1;
+            DB::table('aplikasi')->where('id', $id)->update([
+                'info_pembayaran' => $request->info_pembayaran,
+                'updated_at' => now(),
+            ]);
+
+            $params['activity'] = "Update Informasi Pembayaran";
+            $params['detail'] = "User " . request()->user()->id . " updated pembayaran info";
+            Helper::log_transaction($params);
+
+            Alert::success('Sukses', 'Informasi Pembayaran disimpan');
+            return redirect('/pembayaran');
+        } catch (Exception $e) {
+            return response([
+                'success' => false,
+                'msg'     => 'Error : ' . $e->getMessage() . ' Line : ' . $e->getLine() . ' File : ' . $e->getFile()
+            ]);
+        }
+    }
 }

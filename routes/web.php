@@ -228,6 +228,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/sk_januari', [SkJanuariController::class, 'view'])->name('sk_januari');
     //pembayaran
     Route::get('/pembayaran', [PembayaranController::class, 'view'])->name('pembayaran');
+    Route::get('/pembayaran/info/edit', [PembayaranController::class, 'editInfo'])->name('pembayaran.info.edit');
+    Route::post('/pembayaran/info/update', [PembayaranController::class, 'updateInfo'])->name('pembayaran.info.update');
     Route::get('/pembayaran/search', [PembayaranController::class, 'search'])->name('pembayaran.search');
     Route::get('/pembayaran/spp/{id}', [PembayaranController::class, 'spp'])->name('pembayaran.spp');
     Route::get('/pembayaran/payment/{id}', [PembayaranController::class, 'payment'])->name('pembayaran.payment');

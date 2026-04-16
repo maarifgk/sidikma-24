@@ -118,51 +118,56 @@
                         <!-- Card Content - Collapse -->
                         <div class="collapse show" id="informasisiswa">
                             <div class="card-body">
-                                <table class="table table-striped">
-                                    <tbody>
+                                @if (!empty(Helper::apk()->info_pembayaran))
+                                    {{-- Render editable HTML from aplikasi.info_pembayaran (saved by role 1 users) --}}
+                                    {!! Helper::apk()->info_pembayaran !!}
+                                @else
+                                    <table class="table table-striped">
+                                        <tbody>
 
-                                        <tr>
-                                            <td class="m-0 font-weight-bold text-dark">IURAN</td>
-                                            <td class="m-0 font-weight-bold text-dark">NOMINAL</td>
-                                        </tr>
-                                        <tr>
-                                            <td>a. Iuran Siswa Jenjang Madrasah Ibtidaiyah</td>
-                                            <td width="800px">: Rp.1000</td>
-                                        </tr>
-                                        <tr>
-                                            <td>b. Iuran Siswa Jenjang Madrasah Tsanawiyah/SMP</td>
-                                            <td width="800px">: Rp.1000</td>
-                                        </tr>
-                                        <tr>
-                                            <td>c. Iuran Kepala/Guru ASN Madrasah Bersertifikasi</td>
-                                            <td width="800px">: Rp.20.000</td>
-                                        </tr>
-                                        <tr>
-                                            <td>d. Iuran Kepala/Guru ASN Madrasah Belum Sertifikasi</td>
-                                            <td width="800px">: Rp.15.000</td>
-                                        </tr>
-                                        <tr>
-                                            <td>e. Iuran Kepala/Guru Madrasah Yayasan Bersertifikasi/Inpassing</td>
-                                            <td width="800px">: Rp.10.000</td>
-                                        </tr>
-                                        <tr>
-                                            <td>f. Iuran Kepala/Guru Madrasah Yayasan Belum Bersertifikasi</td>
-                                            <td width="800px">: Rp.2000</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="m-0 font-weight-bold text-dark">SK YAYASAN</td>
-                                            <td class="m-0 font-weight-bold text-dark">NOMINAL</td>
-                                        </tr>
-                                        <tr>
-                                            <td>a. Penerbitan SK GTY/GTT/PTY/PTT Baru</td>
-                                            <td width="800px">: Rp.50.000</td>
-                                        </tr>
-                                        <tr>
-                                            <td>b. Perpanjangan SK Yayasan GTY/GTT/PTY/PTT</td>
-                                            <td width="800px">: Rp.25.000</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                            <tr>
+                                                <td class="m-0 font-weight-bold text-dark">IURAN</td>
+                                                <td class="m-0 font-weight-bold text-dark">NOMINAL</td>
+                                            </tr>
+                                            <tr>
+                                                <td>a. Iuran Siswa Jenjang Madrasah Ibtidaiyah</td>
+                                                <td width="800px">: Rp.1000</td>
+                                            </tr>
+                                            <tr>
+                                                <td>b. Iuran Siswa Jenjang Madrasah Tsanawiyah/SMP</td>
+                                                <td width="800px">: Rp.1000</td>
+                                            </tr>
+                                            <tr>
+                                                <td>c. Iuran Kepala/Guru ASN Madrasah Bersertifikasi</td>
+                                                <td width="800px">: Rp.20.000</td>
+                                            </tr>
+                                            <tr>
+                                                <td>d. Iuran Kepala/Guru ASN Madrasah Belum Sertifikasi</td>
+                                                <td width="800px">: Rp.15.000</td>
+                                            </tr>
+                                            <tr>
+                                                <td>e. Iuran Kepala/Guru Madrasah Yayasan Bersertifikasi/Inpassing</td>
+                                                <td width="800px">: Rp.10.000</td>
+                                            </tr>
+                                            <tr>
+                                                <td>f. Iuran Kepala/Guru Madrasah Yayasan Belum Bersertifikasi</td>
+                                                <td width="800px">: Rp.2000</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="m-0 font-weight-bold text-dark">SK YAYASAN</td>
+                                                <td class="m-0 font-weight-bold text-dark">NOMINAL</td>
+                                            </tr>
+                                            <tr>
+                                                <td>a. Penerbitan SK GTY/GTT/PTY/PTT Baru</td>
+                                                <td width="800px">: Rp.50.000</td>
+                                            </tr>
+                                            <tr>
+                                                <td>b. Perpanjangan SK Yayasan GTY/GTT/PTY/PTT</td>
+                                                <td width="800px">: Rp.25.000</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                @endif
                             </div>
                         </div>
                     </div>

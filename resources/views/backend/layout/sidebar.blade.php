@@ -230,6 +230,12 @@
                     <div style="margin-left: 8px;">Pembayaran</div>
                 </a>
             </li>
+            <li class="menu-item">
+                <a href="/pembayaran/info/edit" class="menu-link ">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <div style="margin-left: 8px;">Edit Info Pembayaran</div>
+                </a>
+            </li>
             <!-- Heading -->
             <li class="menu-header small text-uppercase text-muted">
                 INFORMATION
