@@ -26,6 +26,11 @@
                     <input type="hidden" name="nis" id="nis" value="{{ $p->nis }}">
                     <input type="hidden" name="email" id="email" value="{{ $p->email }}">
                     <input type="hidden" name="no_tlp" id="no_tlp" value="{{ $p->no_tlp }}">
+                    {{-- Hidden fields expected by SnapController/getTokenPayment --}}
+                    <input type="hidden" name="nama_lengkap" id="nama_lengkap" value="{{ $p->nama_lengkap }}">
+                    <input type="hidden" name="pembayaran" id="pembayaran" value="{{ $p->pembayaran }}">
+                    <input type="hidden" name="tahun" id="tahun" value="{{ $p->tahun }}">
+                    <input type="hidden" name="nilai" id="nilai" value="Rp{{ number_format($p->nilai) }}">
 
                     <div class="detail-row">
                         <div class="label">Pembayaran</div>
@@ -80,9 +85,9 @@
                 var tokenData = {
                     _token: document.getElementById('_token').value,
                     nama_lengkap: document.getElementById('nama_lengkap') ? document.getElementById('nama_lengkap').value : '',
-                    pembayaran: document.querySelector('[name="pembayaran"]') ? document.querySelector('[name="pembayaran"]').value : document.querySelector('.value').innerText,
+                    pembayaran: document.getElementById('pembayaran') ? document.getElementById('pembayaran').value : '',
                     tahun: document.getElementById('tahun') ? document.getElementById('tahun').value : '',
-                    total: document.querySelector('.value') ? document.querySelector('.value').innerText.replace(/[^0-9]/g, '') : '',
+                    total: document.getElementById('nilai') ? document.getElementById('nilai').value.replace(/[^0-9]/g, '') : '',
                     email: document.getElementById('email').value,
                     no_tlp: document.getElementById('no_tlp').value
                 };
@@ -117,8 +122,15 @@
                             }
                         });
                     },
-                    error: function () {
-                        alert('Gagal membuat token pembayaran. Silakan coba lagi.');
+                    error: function (jqXHR) {
+                        var msg = 'Gagal membuat token pembayaran. Silakan coba lagi.';
+                        try {
+                            var body = jqXHR.responseJSON || JSON.parse(jqXHR.responseText || '{}');
+                            if (body && body.error) msg = body.error;
+                        } catch (e) {
+                            // ignore parse errors
+                        }
+                        alert(msg);
                         document.getElementById('pay-button').removeAttribute('disabled');
                     }
                 });
