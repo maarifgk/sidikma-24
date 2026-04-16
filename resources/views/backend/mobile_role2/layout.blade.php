@@ -239,10 +239,10 @@
         .badge {
             display: inline-flex;
             align-items: center;
-            /* padding: 6px 10px;
-            border-radius: 999px; */
+            padding: 6px 6px;
+            border-radius: 999px;
             font-size: 11px;
-            /* font-weight: 700; */
+            font-weight: 700;
             white-space: nowrap;
         }
 
