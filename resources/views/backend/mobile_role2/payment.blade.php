@@ -65,7 +65,8 @@
                     </div>
 
                     <div style="margin-top:18px; display:flex; gap:10px;">
-                        <button type="button" id="pay-button" class="action" style="flex:1" disabled aria-disabled="true">Bayar</button>
+                        <!-- Use visual disabled state but keep button focusable so we can show a warning when clicked -->
+                        <button type="button" id="pay-button" class="action disabled" style="flex:1" aria-disabled="true">Bayar</button>
                         <a href="{{ route('mobile.role2.pembayaran') }}" class="action secondary" style="flex:1;justify-content:center">Kembali</a>
                     </div>
                 </form>
@@ -83,11 +84,16 @@
         function updatePayButton() {
             if (!metodeSelect) return;
             if (metodeSelect.value && metodeSelect.value !== '') {
-                payButton.removeAttribute('disabled');
+                // visually enable
+                payButton.classList.remove('disabled');
                 payButton.setAttribute('aria-disabled', 'false');
+                // ensure native disabled attribute removed so button is clickable
+                payButton.removeAttribute('disabled');
             } else {
-                payButton.setAttribute('disabled', 'disabled');
+                // visually disable but keep clickable so we can show a helpful warning
+                payButton.classList.add('disabled');
                 payButton.setAttribute('aria-disabled', 'true');
+                payButton.removeAttribute('disabled');
             }
         }
 
@@ -99,8 +105,15 @@
 
         payButton.addEventListener('click', function (event) {
             var metode = document.getElementById('metode_pembayaran').value;
+            if (!metode || metode === '') {
+                // show clear warning when user attempts to pay without choosing method
+                alert('Silakan pilih metode pembayaran terlebih dahulu.');
+                return;
+            }
+
             if (metode === 'Online') {
                 event.preventDefault();
+                // set native disabled to prevent double-click while processing
                 this.setAttribute('disabled', 'disabled');
 
                 var tokenData = {
