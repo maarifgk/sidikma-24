@@ -60,7 +60,7 @@
                         @else
                             @if(!empty($hasUnpaidIuran) && $hasUnpaidIuran)
                                 {{-- Tampilkan tombol Bayar dalam keadaan disabled saat masih ada iuran belum lunas --}}
-                                <a href="#" class="action disabled" title="Ada tagihan Iuran madrasah yang belum lunas" onclick="return false;">Bayar</a>
+                                <a href="#" class="action disabled" data-message="Pembayaran SK Yayasan tidak dapat dilakukan karena masih ada tagihan Iuran madrasah yang belum lunas. Silakan selesaikan Iuran terlebih dahulu.">Bayar</a>
                             @else
                                 <a href="{{ url('/mobile/role-2/pembayaran/payment/' . $payment->id) }}" class="action">Bayar</a>
                             @endif
@@ -72,4 +72,28 @@
             @endforelse
         </div>
     </section>
+
+    {{-- Tampilkan session error (server-side redirect) --}}
+    @if(session('error'))
+        <script>
+            // Tampilkan alert setelah load jika server-side mengembalikan error
+            document.addEventListener('DOMContentLoaded', function () {
+                alert(@json(session('error')));
+            });
+        </script>
+    @endif
+
+    <script>
+        // Tangkap klik pada tombol Bayar yang disabled dan tampilkan keterangan
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('a.action.disabled').forEach(function (el) {
+                el.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var msg = el.getAttribute('data-message') || 'Terdapat tagihan iuran yang belum lunas.';
+                    // Gunakan alert sederhana agar kompatibel di mobile webview
+                    alert(msg);
+                });
+            });
+        });
+    </script>
 @endsection
