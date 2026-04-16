@@ -378,19 +378,19 @@
     <nav class="bottom-nav">
         <a href="{{ route('mobile.role2.dashboard') }}" class="{{ $activeMenu === 'dashboard' ? 'active' : '' }}">
             <i class="fa-solid fa-house"></i>
-            <span>Dashboard</span>
+            <span style="font-size: 8px">Dashboard</span>
         </a>
         <a href="{{ route('mobile.role2.informasi') }}" class="{{ $activeMenu === 'informasi' ? 'active' : '' }}">
             <i class="fa-solid fa-users"></i>
-            <span>Informasi</span>
+            <span style="font-size: 8px">Informasi</span>
         </a>
         <a href="{{ route('mobile.role2.pembayaran') }}" class="{{ $activeMenu === 'pembayaran' ? 'active' : '' }}">
             <i class="fa-solid fa-wallet"></i>
-            <span>Pembayaran</span>
+            <span style="font-size: 8px">Pembayaran</span>
         </a>
         <a href="{{ route('mobile.role2.files') }}" class="{{ $activeMenu === 'files' ? 'active' : '' }}">
             <i class="fa-solid fa-file-arrow-down"></i>
-            <span>File SK</span>
+            <span style="font-size: 8px">File SK</span>
         </a>
         <a href="{{ route('mobile.role2.profile') }}" class="{{ $activeMenu === 'profile' ? 'active' : '' }}">
             <i class="fa-solid fa-user"></i>
