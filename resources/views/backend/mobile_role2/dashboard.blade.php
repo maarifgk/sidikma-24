@@ -50,8 +50,9 @@
                     <div>
                         <div class="item-title">{{ $teammate->nama_lengkap }}</div>
                         <div class="item-subtitle">{{ $teammate->ketugasan ?? 'Ketugasan belum diatur' }}</div>
+                        <div class="item-subtitle">{{ $teammate->nama_jurusan ?? 'Status Kepegawaian belum diatur' }}</div>
                     </div>
-                    <span class="badge primary">{{ $teammate->nama_jurusan ?? '-' }}</span>
+                    {{-- <span class="badge primary">{{ $teammate->nama_jurusan ?? '-' }}</span> --}}
                 </div>
             @empty
                 <div class="empty-state">Belum ada data guru/pegawai pada madrasah ini.</div>
