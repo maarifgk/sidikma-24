@@ -214,6 +214,9 @@ class UsulanController extends Controller
                 'label_4_c' => strip_tags($request->input('label_4_c')) ?? '',
                 'label_4_d' => strip_tags($request->input('label_4_d')) ?? '',
                 'label_4_e' => strip_tags($request->input('label_4_e')) ?? '',
+                // optional PDF links
+                'link_permohonan' => filter_var($request->input('link_permohonan'), FILTER_SANITIZE_URL) ?? '',
+                'link_pernyataan' => filter_var($request->input('link_pernyataan'), FILTER_SANITIZE_URL) ?? '',
             ];
 
             DB::table('aplikasi')->where('id', $id)->update([

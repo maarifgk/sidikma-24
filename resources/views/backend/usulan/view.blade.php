@@ -101,16 +101,24 @@
                                         </tr>
                                         <tr>
                                             <td></td>
-                                            <td>d. Surat Permohonan dari Madrasah/Sekolah diketahui MWC setempat (file pdf)
-                                                <a href="https://drive.google.com/file/d/1i2JiQ9BWIhLbB1eT7OcXA_SoldDCMRkk/view?usp=sharing" target="_blank"
-                                                    class="btn btn-danger">Download PDF</a>
-                                            </td>
+                                                <td>d. Surat Permohonan dari Madrasah/Sekolah diketahui MWC setempat (file pdf)
+                                                    @php $link_perm = $decoded['link_permohonan'] ?? null; @endphp
+                                                    @if (!empty($link_perm))
+                                                        <a href="{{ $link_perm }}" target="_blank" class="btn btn-danger">Download PDF</a>
+                                                    @else
+                                                        <a href="https://drive.google.com/file/d/1i2JiQ9BWIhLbB1eT7OcXA_SoldDCMRkk/view?usp=sharing" target="_blank" class="btn btn-danger">Download PDF</a>
+                                                    @endif
+                                                </td>
                                         </tr>
                                         <tr>
                                             <td></td>
                                             <td>e. Surat Pernyataan Siap Behidmad di Ma'arif (file pdf)
-                                                <a href="https://docs.google.com/document/d/1WgwKzJDhJWFZJDaZ_-Si-iMoYDf3kSLR/edit?usp=drive_link&ouid=105030289517228020971&rtpof=true&sd=true" target="_blank"
-                                                    class="btn btn-danger">Download PDF</a>
+                                                @php $link_permya = $decoded['link_pernyataan'] ?? null; @endphp
+                                                @if (!empty($link_permya))
+                                                    <a href="{{ $link_permya }}" target="_blank" class="btn btn-danger">Download PDF</a>
+                                                @else
+                                                    <a href="https://docs.google.com/document/d/1WgwKzJDhJWFZJDaZ_-Si-iMoYDf3kSLR/edit?usp=drive_link&ouid=105030289517228020971&rtpof=true&sd=true" target="_blank" class="btn btn-danger">Download PDF</a>
+                                                @endif
                                             </td>
                                         </tr>
                                     </tbody>

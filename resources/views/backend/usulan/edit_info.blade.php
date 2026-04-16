@@ -85,6 +85,17 @@
                             </div>
                         </div>
 
+                        <hr>
+                        <h6>Links PDF (opsional)</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Link Surat Permohonan (PDF)</label>
+                            <input type="url" name="link_permohonan" class="form-control" value="{{ old('link_permohonan', $values['link_permohonan'] ?? '') }}" placeholder="https://...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Link Surat Pernyataan (PDF)</label>
+                            <input type="url" name="link_pernyataan" class="form-control" value="{{ old('link_pernyataan', $values['link_pernyataan'] ?? '') }}" placeholder="https://...">
+                        </div>
+
                         <button type="submit" class="btn btn-primary">Simpan</button>
                     </form>
                 </div>
