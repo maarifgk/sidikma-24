@@ -7,7 +7,7 @@
                 <img src="{{ request()->user()->image ? asset('storage/images/users/' . request()->user()->image) : asset('storage/images/users/users.png') }}" alt="User">
             </div>
             <div>
-                <div class="eyebrow">Dashboard Guru&Pegawai</div>
+                <div class="eyebrow">Dashboard Guru/Pegawai</div>
                 <div class="title">{{ $profile->nama_lengkap }}</div>
                 <p class="subtitle">{{ $profile->nama_kelas ?? '-' }} • {{ $profile->nama_jurusan ?? 'Status belum diatur' }}</p>
             </div>
