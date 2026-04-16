@@ -58,7 +58,7 @@
                         @elseif ($payment->status_payment === 'Lunas')
                             <a href="{{ url('/lainyaPdf/' . $payment->id) }}" target="_blank" class="action secondary">PDF</a>
                         @else
-                            <a href="{{ url('/pembayaran/payment/' . $payment->id) }}" class="action">Bayar</a>
+                            <a href="{{ url('/mobile/role-2/pembayaran/payment/' . $payment->id) }}" class="action">Bayar</a>
                         @endif
                     </div>
                 </div>

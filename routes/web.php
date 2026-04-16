@@ -80,6 +80,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [MobileRole2Controller::class, 'dashboard'])->name('dashboard');
         Route::get('/informasi', [MobileRole2Controller::class, 'informasi'])->name('informasi');
         Route::get('/pembayaran', [MobileRole2Controller::class, 'pembayaran'])->name('pembayaran');
+    Route::get('/pembayaran/payment/{id}', [MobileRole2Controller::class, 'payment'])->name('pembayaran.payment');
         Route::get('/files', [MobileRole2Controller::class, 'files'])->name('files');
         Route::get('/profile', [MobileRole2Controller::class, 'profile'])->name('profile');
     });
