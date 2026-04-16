@@ -394,7 +394,7 @@
         </a>
         <a href="{{ route('mobile.role2.profile') }}" class="{{ $activeMenu === 'profile' ? 'active' : '' }}">
             <i class="fa-solid fa-user"></i>
-            <span>Profile</span>
+            <span style="font-size: 8px">Profile</span>
         </a>
     </nav>
 </body>
