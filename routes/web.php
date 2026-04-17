@@ -355,6 +355,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/batik-maarif/snap', [BatikMaarifController::class, 'createSnapToken'])->name('batik.maarif.snap');
     // Integrasi Midtrans
     Route::post('/batik-maarif/pay', [BatikMaarifController::class, 'pay'])->name('batik.maarif.pay');
+    // Admin: update stok & harga
+    Route::post('/batik-maarif/update-stok', [BatikMaarifController::class, 'updateStok'])->name('batik.maarif.updateStok');
     Route::post('/batik-maarif/notification', [BatikMaarifController::class, 'notificationHandler'])->name('batik.maarif.notification');
 
     // Opsional (redirect setelah bayar)

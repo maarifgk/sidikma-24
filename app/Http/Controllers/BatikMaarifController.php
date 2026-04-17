@@ -128,4 +128,36 @@ class BatikMaarifController extends Controller
         DB::table('batik_maarif')->where('id', $id)->delete();
         return redirect()->back()->with('success', 'Pesanan berhasil dihapus!');
     }
+
+    /**
+     * Admin: update stok and harga for a produk
+     */
+    public function updateStok(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user || $user->role != 1) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $data = $request->only(['produk', 'stok', 'harga']);
+        $validator = \Validator::make($data, [
+            'produk' => 'required|string',
+            'stok' => 'required|integer|min:0',
+            'harga' => 'required|integer|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
+        }
+
+        try {
+            DB::table('stok_batik')->updateOrInsert(
+                ['produk' => $data['produk']],
+                ['stok' => $data['stok'], 'harga' => $data['harga'], 'updated_at' => now()]
+            );
+            return response()->json(['success' => true, 'message' => 'Data stok & harga berhasil diperbarui']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
+        }
+    }
 }
