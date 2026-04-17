@@ -26,7 +26,7 @@
                                         @endphp
                                         {{ $s ? $s->stok : 0 }}
                                 </div>
-                                    <div class="fw-bold text-danger harga-display" data-produk="Batik Siswa MI" data-harga="{{ $hargaVal }}" style="font-size: 18px;">Rp {{ number_format($hargaVal) }}</div>
+                                    <div class="fw-bold text-danger harga-display" data-produk="Batik Siswa MI" data-harga="{{ $hargaVal }}" style="font-size: 18px;">Rp {{ number_format($hargaVal) }} <small class="text-muted">/ meter</small></div>
                                 @if(Auth::user()->role == 1)
                                     <button type="button" class="btn btn-sm btn-secondary mt-2 btn-edit-produk"
                                         data-produk="Batik Siswa MI"
@@ -55,7 +55,7 @@
                                         @endphp
                                         {{ $s ? $s->stok : 0 }}
                                 </div>
-                                    <div class="fw-bold text-danger harga-display" data-produk="Batik Siswa MTs/SMP" data-harga="{{ $hargaVal }}" style="font-size: 18px;">Rp {{ number_format($hargaVal) }}</div>
+                                    <div class="fw-bold text-danger harga-display" data-produk="Batik Siswa MTs/SMP" data-harga="{{ $hargaVal }}" style="font-size: 18px;">Rp {{ number_format($hargaVal) }} <small class="text-muted">/ meter</small></div>
                                 @if(Auth::user()->role == 1)
                                     <button type="button" class="btn btn-sm btn-secondary mt-2 btn-edit-produk"
                                         data-produk="Batik Siswa MTs/SMP"
@@ -156,61 +156,26 @@
                     });
                     </script>
                     @endif
+                    <!-- Merged product: Batik Guru (per meter) -->
                     <div class="col-6 col-md-3">
                         <div class="card shadow-sm h-100">
-                            <img src="{{ asset('storage/images/logo/Seragam Guru & Pegawai.jpg') }}" class="card-img-top product-img" alt="Batik Guru 2 Meter">
+                            <img src="{{ asset('storage/images/logo/Seragam Guru & Pegawai.jpg') }}" class="card-img-top product-img" alt="Batik Guru">
                             <div class="card-body text-center">
-                                <h4 class="card-title mb-1">Batik Guru 2 Meter</h4>
-                                <div class="text-muted stok-display" data-produk="Batik Guru 2 Meter" style="font-size: 14px;">
-                                    Stok: 
-                                        @php
-                                            $s = $stok->firstWhere('produk', 'Batik Guru 2 Meter');
-                                            $hargaVal = $s && isset($s->harga) ? $s->harga : 94000;
-                                        @endphp
-                                        {{ $s ? $s->stok : 0 }}
-                                </div>
-                                    <div class="fw-bold text-danger harga-display" data-produk="Batik Guru 2 Meter" data-harga="{{ $hargaVal }}" style="font-size: 18px;">Rp {{ number_format($hargaVal) }}</div>
+                                <h4 class="card-title mb-1">Batik Guru</h4>
+                                @php
+                                    // prefer a unified stok entry 'Batik Guru', fall back to summing older keys
+                                    $s_unified = $stok->firstWhere('produk', 'Batik Guru');
+                                    $s_2m = $stok->firstWhere('produk', 'Batik Guru 2 Meter');
+                                    $s_25m = $stok->firstWhere('produk', 'Batik Guru 2,5 Meter');
+                                    $stok_guru = $s_unified ? $s_unified->stok : (($s_2m ? $s_2m->stok : 0) + ($s_25m ? $s_25m->stok : 0));
+                                    $hargaVal = $s_unified && isset($s_unified->harga) ? $s_unified->harga : ($s_2m && isset($s_2m->harga) ? $s_2m->harga : 94000);
+                                @endphp
+                                <div class="text-muted stok-display" data-produk="Batik Guru" style="font-size: 14px;">Stok: {{ $stok_guru }}</div>
+                                <div class="fw-bold text-danger harga-display" data-produk="Batik Guru" data-harga="{{ $hargaVal }}" style="font-size: 18px;">Rp {{ number_format($hargaVal) }} <small class="text-muted">/ meter</small></div>
                                 @if(Auth::user()->role == 1)
-                                    <button type="button" class="btn btn-sm btn-secondary mt-2 btn-edit-produk"
-                                        data-produk="Batik Guru 2 Meter"
-                                        data-harga="94000">
-                                        Edit
-                                    </button>
+                                    <button type="button" class="btn btn-sm btn-secondary mt-2 btn-edit-produk" data-produk="Batik Guru" data-harga="{{ $hargaVal }}">Edit</button>
                                 @endif
-                                <button type="button" class="btn btn-primary mt-2 btn-pesan-produk"
-                                    data-produk="Batik Guru 2 Meter"
-                                    data-harga="94000">
-                                    Pesan Sekarang
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="card shadow-sm h-100">
-                            <img src="{{ asset('storage/images/logo/Seragam Guru & Pegawai.jpg') }}" class="card-img-top product-img" alt="Batik Guru 2,5 Meter">
-                            <div class="card-body text-center">
-                                <h4 class="card-title mb-1">Batik Guru 2,5 Meter</h4>
-                                <div class="text-muted stok-display" data-produk="Batik Guru 2,5 Meter" style="font-size: 14px;">
-                                    Stok: 
-                                        @php
-                                            $s = $stok->firstWhere('produk', 'Batik Guru 2,5 Meter');
-                                            $hargaVal = $s && isset($s->harga) ? $s->harga : 112500;
-                                        @endphp
-                                        {{ $s ? $s->stok : 0 }}
-                                </div>
-                                    <div class="fw-bold text-danger harga-display" data-produk="Batik Guru 2,5 Meter" data-harga="{{ $hargaVal }}" style="font-size: 18px;">Rp {{ number_format($hargaVal) }}</div>
-                                @if(Auth::user()->role == 1)
-                                    <button type="button" class="btn btn-sm btn-secondary mt-2 btn-edit-produk"
-                                        data-produk="Batik Guru 2,5 Meter"
-                                        data-harga="112500">
-                                        Edit
-                                    </button>
-                                @endif
-                                <button type="button" class="btn btn-primary mt-2 btn-pesan-produk"
-                                    data-produk="Batik Guru 2,5 Meter"
-                                    data-harga="112500">
-                                    Pesan Sekarang
-                                </button>
+                                <button type="button" class="btn btn-primary mt-2 btn-pesan-produk" data-produk="Batik Guru" data-harga="{{ $hargaVal }}">Pesan Sekarang</button>
                             </div>
                         </div>
                     </div>
@@ -242,7 +207,7 @@
                             title: 'Pesan Produk',
                             html: `
                                 <div class="mb-2"><b>${produk}</b></div>
-                                <div class="mb-2 text-danger fw-bold" style="font-size:18px;">Rp ${harga.toLocaleString()}</div>
+                                <div class="mb-2 text-danger fw-bold" style="font-size:18px;">Rp ${harga.toLocaleString()} <small class="text-muted">/ meter</small></div>
                                 <div class="mb-2">
                                     <label>Masukan Jumlah Pesanan</label>
                                     <input type="number" id="jumlahPesanan" class="form-control" min="1" value="1" style="margin-top:5px;">
@@ -285,8 +250,7 @@
                                         <th class="text-center">Asal Madrasah/Sekolah</th>
                                         <th class="text-center">Tanggal</th>
                                         <th class="text-center">Siswa</th>
-                                        <th class="text-center">Guru 2 M</th>
-                                        <th class="text-center">Guru 2,5 M</th>
+                                        <th class="text-center">Guru (meter)</th>
                                         <th class="text-center">Total Tagihan</th>
                                         <th class="text-center">Status</th>
                                         <th class="text-center">Penerima</th>
@@ -303,8 +267,7 @@
                                             <td>{{ $rp->asal_sekolah }}</td>
                                             <td class="text-center">{{ $rp->created_at }}</td>
                                             <td class="text-center">{{ $rp->siswa }}</td>
-                                            <td class="text-center">{{ $rp->guru_2m }}</td>
-                                            <td class="text-center">{{ $rp->guru_25m }}</td>
+                                            <td class="text-center">{{ ($rp->guru_2m ?? 0) + ($rp->guru_25m ?? 0) }}</td>
                                             <td class="text-center">Rp. {{ number_format($rp->total_tagihan) }}</td>
                                             <td class="text-center">{{ $rp->keterangan }}</td>
                                             <td class="text-center">{{ $rp->penerima }}</td>

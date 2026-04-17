@@ -67,7 +67,11 @@ class BatikMaarifController extends Controller
 
         if ($request->produk == 'Batik Siswa MI' || $request->produk == 'Batik Siswa MTs/SMP') {
             $siswa = $request->jumlah;
+        } elseif ($request->produk == 'Batik Guru' ) {
+            // merged product: treat as guru meters (store in guru_2m column for historic compatibility)
+            $guru_2m = $request->jumlah;
         } elseif ($request->produk == 'Batik Guru 2 Meter') {
+            // legacy: accept old product names too
             $guru_2m = $request->jumlah;
         } elseif ($request->produk == 'Batik Guru 2,5 Meter') {
             $guru_25m = $request->jumlah;
@@ -89,9 +93,19 @@ class BatikMaarifController extends Controller
                 'updated_at'    => now()
             ]);
 
-            // ✅ kurangi stok
+            // ✅ kurangi stok: prefer unified 'Batik Guru' for guru products
+            $stokKey = $request->produk;
+            if ($request->produk == 'Batik Guru' && !DB::table('stok_batik')->where('produk', 'Batik Guru')->exists()) {
+                // if unified key not present, try legacy keys (decrement 2m preferentially)
+                if (DB::table('stok_batik')->where('produk', 'Batik Guru 2 Meter')->exists()) {
+                    $stokKey = 'Batik Guru 2 Meter';
+                } elseif (DB::table('stok_batik')->where('produk', 'Batik Guru 2,5 Meter')->exists()) {
+                    $stokKey = 'Batik Guru 2,5 Meter';
+                }
+            }
+
             DB::table('stok_batik')
-                ->where('produk', $request->produk)
+                ->where('produk', $stokKey)
                 ->decrement('stok', $request->jumlah);
 
             DB::commit();
