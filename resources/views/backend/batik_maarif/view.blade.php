@@ -74,83 +74,85 @@
 
                     @if(Auth::user()->role == 1)
                     <script>
-                    // Edit stok & harga for admin
-                    document.querySelectorAll('.btn-edit-produk').forEach(function(btn) {
-                        btn.addEventListener('click', function() {
-                            const produk = btn.getAttribute('data-produk');
-                            const harga = parseInt(btn.getAttribute('data-harga')) || 0;
-                            // find current stok from stok variable rendered server-side
-                            let stokEl = document.querySelector('.stok-display[data-produk="' + produk + '"]');
-                            let currentStok = 0;
-                            if (stokEl) {
-                                const text = stokEl.textContent || stokEl.innerText;
-                                const m = text.match(/\d+/);
-                                currentStok = m ? parseInt(m[0]) : 0;
-                            }
-
-                            Swal.fire({
-                                title: 'Edit Produk',
-                                html: `
-                                    <label>Produk</label>
-                                    <input id="swal_produk" class="form-control" value="${produk}" readonly style="margin-bottom:8px;">
-                                    <label>Harga per meter (angka)</label>
-                                    <input id="swal_harga" type="number" class="form-control" value="${harga}" min="0" style="margin-bottom:8px;">
-                                    <label>Stok (angka)</label>
-                                    <input id="swal_stok" type="number" class="form-control" value="${currentStok}" min="0">
-                                `,
-                                showCancelButton: true,
-                                confirmButtonText: 'Simpan',
-                                preConfirm: () => {
-                                    const hargaVal = parseInt(document.getElementById('swal_harga').value);
-                                    const stokVal = parseInt(document.getElementById('swal_stok').value);
-                                    if (isNaN(hargaVal) || hargaVal < 0) {
-                                        Swal.showValidationMessage('Harga harus berupa angka >= 0');
-                                        return false;
-                                    }
-                                    if (isNaN(stokVal) || stokVal < 0) {
-                                        Swal.showValidationMessage('Stok harus berupa angka >= 0');
-                                        return false;
-                                    }
-                                    return { harga: hargaVal, stok: stokVal };
+                    // Bind edit buttons after DOM ready so dynamically rendered buttons (like merged Batik Guru) are present
+                    document.addEventListener('DOMContentLoaded', function() {
+                        document.querySelectorAll('.btn-edit-produk').forEach(function(btn) {
+                            btn.addEventListener('click', function() {
+                                const produk = btn.getAttribute('data-produk');
+                                const harga = parseInt(btn.getAttribute('data-harga')) || 0;
+                                // find current stok from stok variable rendered server-side
+                                let stokEl = document.querySelector('.stok-display[data-produk="' + produk + '"]');
+                                let currentStok = 0;
+                                if (stokEl) {
+                                    const text = stokEl.textContent || stokEl.innerText;
+                                    const m = text.match(/\d+/);
+                                    currentStok = m ? parseInt(m[0]) : 0;
                                 }
-                            }).then((res) => {
-                                if (res.isConfirmed && res.value) {
-                                    const body = {
-                                        produk: produk,
-                                        harga: res.value.harga,
-                                        stok: res.value.stok
-                                    };
 
-                                    fetch('/batik-maarif/update-stok', {
-                                        method: 'POST',
-                                        headers: {
-                                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                            'Content-Type': 'application/json',
-                                            'Accept': 'application/json'
-                                        },
-                                        body: JSON.stringify(body)
-                                    }).then(r => r.json()).then(data => {
-                                        if (data.success) {
-                                            // update UI
-                                            document.querySelectorAll('.harga-display[data-produk="' + produk + '"]').forEach(function(el){
-                                                el.textContent = 'Rp ' + Number(body.harga).toLocaleString();
-                                                el.setAttribute('data-harga', body.harga);
-                                            });
-                                            document.querySelectorAll('.stok-display[data-produk="' + produk + '"]').forEach(function(el){
-                                                el.innerHTML = 'Stok: ' + body.stok;
-                                            });
-                                            // update order buttons data-harga too
-                                            document.querySelectorAll('.btn-pesan-produk[data-produk="' + produk + '"]').forEach(function(b){
-                                                b.setAttribute('data-harga', body.harga);
-                                            });
-                                            Swal.fire('Berhasil', data.message, 'success');
-                                        } else {
-                                            Swal.fire('Gagal', data.message || 'Server error', 'error');
+                                Swal.fire({
+                                    title: 'Edit Produk',
+                                    html: `
+                                        <label>Produk</label>
+                                        <input id="swal_produk" class="form-control" value="${produk}" readonly style="margin-bottom:8px;">
+                                        <label>Harga per meter (angka)</label>
+                                        <input id="swal_harga" type="number" class="form-control" value="${harga}" min="0" style="margin-bottom:8px;">
+                                        <label>Stok (angka)</label>
+                                        <input id="swal_stok" type="number" class="form-control" value="${currentStok}" min="0">
+                                    `,
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Simpan',
+                                    preConfirm: () => {
+                                        const hargaVal = parseInt(document.getElementById('swal_harga').value);
+                                        const stokVal = parseInt(document.getElementById('swal_stok').value);
+                                        if (isNaN(hargaVal) || hargaVal < 0) {
+                                            Swal.showValidationMessage('Harga harus berupa angka >= 0');
+                                            return false;
                                         }
-                                    }).catch(err => {
-                                        Swal.fire('Gagal', 'Terjadi kesalahan jaringan', 'error');
-                                    });
-                                }
+                                        if (isNaN(stokVal) || stokVal < 0) {
+                                            Swal.showValidationMessage('Stok harus berupa angka >= 0');
+                                            return false;
+                                        }
+                                        return { harga: hargaVal, stok: stokVal };
+                                    }
+                                }).then((res) => {
+                                    if (res.isConfirmed && res.value) {
+                                        const body = {
+                                            produk: produk,
+                                            harga: res.value.harga,
+                                            stok: res.value.stok
+                                        };
+
+                                        fetch('/batik-maarif/update-stok', {
+                                            method: 'POST',
+                                            headers: {
+                                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                'Content-Type': 'application/json',
+                                                'Accept': 'application/json'
+                                            },
+                                            body: JSON.stringify(body)
+                                        }).then(r => r.json()).then(data => {
+                                            if (data.success) {
+                                                // update UI
+                                                document.querySelectorAll('.harga-display[data-produk="' + produk + '"]').forEach(function(el){
+                                                    el.textContent = 'Rp ' + Number(body.harga).toLocaleString();
+                                                    el.setAttribute('data-harga', body.harga);
+                                                });
+                                                document.querySelectorAll('.stok-display[data-produk="' + produk + '"]').forEach(function(el){
+                                                    el.innerHTML = 'Stok: ' + body.stok;
+                                                });
+                                                // update order buttons data-harga too
+                                                document.querySelectorAll('.btn-pesan-produk[data-produk="' + produk + '"]').forEach(function(b){
+                                                    b.setAttribute('data-harga', body.harga);
+                                                });
+                                                Swal.fire('Berhasil', data.message, 'success');
+                                            } else {
+                                                Swal.fire('Gagal', data.message || 'Server error', 'error');
+                                            }
+                                        }).catch(err => {
+                                            Swal.fire('Gagal', 'Terjadi kesalahan jaringan', 'error');
+                                        });
+                                    }
+                                });
                             });
                         });
                     });
