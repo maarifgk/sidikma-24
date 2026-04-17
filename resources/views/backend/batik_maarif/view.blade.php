@@ -9,7 +9,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0" style="font-size: 40px"><b>{{ $title }}</b></h5>
             </div>
-            
+
             <div class="container-fluid px-4 mt-4">
                 <!-- Daftar Harga Batik Maarif (Marketplace Style) -->
                 <div class="row mb-4 g-3">
@@ -19,7 +19,7 @@
                             <div class="card-body text-center">
                                 <h4 class="card-title mb-1">Batik Siswa MI</h4>
                                 <div class="text-muted stok-display" data-produk="Batik Siswa MI" style="font-size: 14px;">
-                                    Stok: 
+                                    Stok:
                                         @php
                                             $s = $stok->firstWhere('produk', 'Batik Siswa MI');
                                             $hargaVal = $s && isset($s->harga) ? $s->harga : 58500;
@@ -48,7 +48,7 @@
                             <div class="card-body text-center">
                                 <h4 class="card-title mb-1">Batik Siswa MTs/SMP</h4>
                                 <div class="text-muted stok-display" data-produk="Batik Siswa MTs/SMP" style="font-size: 14px;">
-                                    Stok: 
+                                    Stok:
                                         @php
                                             $s = $stok->firstWhere('produk', 'Batik Siswa MTs/SMP');
                                             $hargaVal = $s && isset($s->harga) ? $s->harga : 68250;
@@ -245,7 +245,7 @@
                         <div class="table-responsive">
                             <table id="datatable" class="table table-striped table-bordered">
                                 <thead>
-                                    <tr> 
+                                    <tr>
                                         <th>No</th>
                                         <th class="text-center">Asal Madrasah/Sekolah</th>
                                         <th class="text-center">Tanggal</th>
@@ -271,7 +271,7 @@
                                             <td class="text-center">Rp. {{ number_format($rp->total_tagihan) }}</td>
                                             <td class="text-center">{{ $rp->keterangan }}</td>
                                             <td class="text-center">{{ $rp->penerima }}</td>
-                                            
+
                                             @if(Auth::user()->role == 1)
                                             <td class="text-center">
                                                 {{-- ✅ tombol diterima hanya muncul kalau penerima masih kosong --}}
@@ -283,7 +283,7 @@
                                                 @endif
 
                                                 {{-- tombol delete tetap muncul untuk admin --}}
-                                                <form action="{{ route('batik.maarif.delete', $rp->id) }}" 
+                                                <form action="{{ route('batik.maarif.delete', $rp->id) }}"
                                                     method="POST" style="display:inline;">
                                                     @csrf
                                                     @method('DELETE')
