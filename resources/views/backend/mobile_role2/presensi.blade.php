@@ -32,7 +32,7 @@
     <section class="section">
         <div class="section-head">
             <h3>Presensi Hari Ini</h3>
-            <span>{{ $setting->require_selfie ? 'Selfie wajib' : 'Selfie opsional' }}</span>
+            <span>{{ $setting->require_selfie ? 'Selfie wajib' : 'Area sekolah' }}</span>
         </div>
         <div class="card detail-card">
             <form id="attendanceForm" enctype="multipart/form-data">
@@ -76,10 +76,12 @@
                     @endif
                 </div>
 
-                <div style="margin-top: 14px;">
-                    <label class="label" for="selfie">Foto Selfie</label>
-                    <input type="file" name="selfie" id="selfie" accept="image/*" capture="user" class="mobile-input" {{ $setting->require_selfie ? 'required' : '' }}>
-                </div>
+                @if($setting->require_selfie)
+                    <div style="margin-top: 14px;">
+                        <label class="label" for="selfie">Foto Selfie</label>
+                        <input type="file" name="selfie" id="selfie" accept="image/*" capture="user" class="mobile-input" required>
+                    </div>
+                @endif
             </form>
         </div>
     </section>
@@ -128,7 +130,7 @@
         const form = document.getElementById('attendanceForm');
         const selfie = document.getElementById('selfie');
 
-        if (selfie.hasAttribute('required') && !selfie.files.length) {
+        if (selfie && selfie.hasAttribute('required') && !selfie.files.length) {
             Swal.fire('Gagal', 'Foto selfie wajib diunggah untuk presensi.', 'error');
             return;
         }

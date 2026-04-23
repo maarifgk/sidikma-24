@@ -9,14 +9,49 @@
         </script>
     @endif
 
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1"><b>Pengajuan Izin</b></h4>
-            <small class="text-muted">Setujui atau tolak pengajuan izin guru/pegawai.</small>
+            <small class="text-muted">Role 3 dapat menyetujui atau menolak pengajuan izin guru/pegawai.</small>
         </div>
         <a href="{{ route('presensi.dashboard') }}" class="btn btn-outline-primary">
             <i class="fa-solid fa-chart-line"></i> Dashboard
         </a>
+    </div>
+
+    <div class="row g-4 mb-4">
+        @foreach([
+            'pending' => ['label' => 'Menunggu', 'color' => 'warning'],
+            'approved' => ['label' => 'Disetujui', 'color' => 'success'],
+            'rejected' => ['label' => 'Ditolak', 'color' => 'danger'],
+            'all' => ['label' => 'Total', 'color' => 'primary'],
+        ] as $key => $item)
+            <div class="col-md-3">
+                <a href="{{ route('presensi.permissions', ['status' => $key]) }}" class="text-decoration-none">
+                    <div class="card h-100 {{ $status === $key ? 'border border-' . $item['color'] : '' }}">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">{{ $item['label'] }}</small>
+                                <h4 class="mb-0">{{ $summary[$key] }}</h4>
+                            </div>
+                            <span class="badge bg-label-{{ $item['color'] }} rounded-pill p-2">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        @endforeach
     </div>
 
     <div class="card">
@@ -30,6 +65,9 @@
                         <th>Status</th>
                         <th>Alasan</th>
                         <th>Lampiran</th>
+                        <th>Diajukan</th>
+                        <th>Direview</th>
+                        <th>Catatan Review</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -47,7 +85,11 @@
                             ][$permission->category] ?? $permission->category }}</td>
                             <td>
                                 <span class="badge bg-label-{{ $permission->status === 'approved' ? 'success' : ($permission->status === 'rejected' ? 'danger' : 'warning') }}">
-                                    {{ ucfirst($permission->status) }}
+                                    {{ [
+                                        'pending' => 'Menunggu',
+                                        'approved' => 'Disetujui',
+                                        'rejected' => 'Ditolak',
+                                    ][$permission->status] ?? ucfirst($permission->status) }}
                                 </span>
                             </td>
                             <td>{{ $permission->reason }}</td>
@@ -58,22 +100,78 @@
                                     -
                                 @endif
                             </td>
-                            <td style="min-width: 260px;">
-                                <form action="{{ route('presensi.permissions.update', $permission->id) }}" method="POST" class="d-flex gap-2">
-                                    @csrf
-                                    <input type="text" name="review_notes" class="form-control form-control-sm" placeholder="Catatan">
-                                    <button type="submit" name="status" value="approved" class="btn btn-sm btn-success">Setujui</button>
-                                    <button type="submit" name="status" value="rejected" class="btn btn-sm btn-danger">Tolak</button>
-                                </form>
+                            <td>{{ $permission->created_at->format('d-m-Y H:i') }}</td>
+                            <td>
+                                @if($permission->reviewed_at)
+                                    <div>{{ $permission->reviewed_at->format('d-m-Y H:i') }}</div>
+                                    <small class="text-muted">{{ $permission->reviewer_name ?? '-' }}</small>
+                                @else
+                                    <span class="text-muted">Belum direview</span>
+                                @endif
+                            </td>
+                            <td>{{ $permission->review_notes ?? '-' }}</td>
+                            <td style="min-width: 320px;">
+                                @if($permission->status === 'pending')
+                                    <form action="{{ route('presensi.permissions.update', $permission->id) }}" method="POST" class="permission-review-form">
+                                        @csrf
+                                        <div class="input-group input-group-sm mb-2">
+                                            <input type="text" name="review_notes" class="form-control" placeholder="Catatan opsional">
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" name="status" value="approved" class="btn btn-sm btn-success">
+                                                <i class="fa-solid fa-check"></i> Approve
+                                            </button>
+                                            <button type="submit" name="status" value="rejected" class="btn btn-sm btn-danger">
+                                                <i class="fa-solid fa-xmark"></i> Tolak
+                                            </button>
+                                        </div>
+                                    </form>
+                                @else
+                                    <span class="text-muted">Sudah diproses</span>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center text-muted">Belum ada pengajuan izin.</td>
+                            <td colspan="10" class="text-center text-muted">Belum ada pengajuan izin.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+@endsection
+
+@section('js')
+<script>
+    document.querySelectorAll('.permission-review-form').forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const submitter = event.submitter;
+            const isApproved = submitter && submitter.value === 'approved';
+
+            Swal.fire({
+                icon: isApproved ? 'question' : 'warning',
+                title: isApproved ? 'Approve pengajuan izin?' : 'Tolak pengajuan izin?',
+                text: isApproved
+                    ? 'Izin yang disetujui akan masuk dalam laporan presensi.'
+                    : 'Pengajuan izin akan ditandai sebagai ditolak.',
+                showCancelButton: true,
+                confirmButtonText: isApproved ? 'Ya, approve' : 'Ya, tolak',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: isApproved ? '#11805e' : '#c53d3d',
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    const hiddenStatus = document.createElement('input');
+                    hiddenStatus.type = 'hidden';
+                    hiddenStatus.name = 'status';
+                    hiddenStatus.value = submitter.value;
+                    form.appendChild(hiddenStatus);
+                    form.submit();
+                }
+            });
+        });
+    });
+</script>
 @endsection

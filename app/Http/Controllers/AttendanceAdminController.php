@@ -219,15 +219,31 @@ class AttendanceAdminController extends Controller
     {
         $this->ensureRoleThree();
 
+        $status = request()->input('status', 'pending');
+        if (!in_array($status, ['pending', 'approved', 'rejected', 'all'], true)) {
+            $status = 'pending';
+        }
+
+        $baseQuery = AttendancePermission::where('kelas_id', $this->kelasId());
+
         $permissions = AttendancePermission::query()
-            ->select('attendance_permissions.*', 'users.nama_lengkap')
+            ->select('attendance_permissions.*', 'users.nama_lengkap', 'reviewer.nama_lengkap as reviewer_name')
             ->leftJoin('users', 'users.id', '=', 'attendance_permissions.user_id')
+            ->leftJoin('users as reviewer', 'reviewer.id', '=', 'attendance_permissions.reviewer_id')
             ->where('attendance_permissions.kelas_id', $this->kelasId())
+            ->when($status !== 'all', fn ($query) => $query->where('attendance_permissions.status', $status))
             ->orderByDesc('attendance_permissions.created_at')
             ->get();
 
         return view('backend.presensi.permissions', [
             'permissions' => $permissions,
+            'status' => $status,
+            'summary' => [
+                'pending' => (clone $baseQuery)->where('status', 'pending')->count(),
+                'approved' => (clone $baseQuery)->where('status', 'approved')->count(),
+                'rejected' => (clone $baseQuery)->where('status', 'rejected')->count(),
+                'all' => (clone $baseQuery)->count(),
+            ],
         ]);
     }
 
@@ -248,7 +264,12 @@ class AttendanceAdminController extends Controller
             'reviewed_at' => now(),
         ]);
 
-        return redirect()->route('presensi.permissions')->with('success', 'Status izin berhasil diperbarui.');
+        $message = $request->input('status') === 'approved'
+            ? 'Pengajuan izin berhasil disetujui.'
+            : 'Pengajuan izin berhasil ditolak.';
+
+        return redirect()->route('presensi.permissions', ['status' => $request->input('status')])
+            ->with('success', $message);
     }
 
     protected function reportData(Request $request): array
