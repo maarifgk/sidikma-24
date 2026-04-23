@@ -33,7 +33,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label" for="nuptk">NUPTK/NPK/NIP</label>
+                                    <label class="form-label" for="nuptk">NUPTK/NPK</label>
                                     <input type="text" class="form-control" id="nuptk" name="nuptk"
                                         value="{{ $siswa->nuptk }}" placeholder="Masukan NUPTK/NPK"  required/>
                                 </div>
@@ -161,7 +161,7 @@
                                         value="{{ $siswa->no_ortu }}" placeholder="Masukan Nomor Telepon"  />
                                 </div>
                             </div>--}}
-                            
+
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label" for="image">Foto Profil User (4x3)</label>
@@ -182,7 +182,7 @@
                                     </select>
                                 </div>
                             </div>
-                            
+
                             @if (request()->user()->role == 1)
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -228,7 +228,7 @@
                                     <label class="form-label" for="alamat">Alamat</label>
                                     <textarea type="text" class="form-control" id="alamat" name="alamat" placeholder="Masukan Alamat" >{{ $siswa->alamat }} </textarea>
                                 </div>
-                            
+
                             <div class="col-md-12">
                                 <br>
                                 <button type="submit" class="btn btn-primary">Simpan</button>
