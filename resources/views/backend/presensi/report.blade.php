@@ -3,7 +3,7 @@
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-1"><b>Laporan Presensi</b></h4>
+            <h4 class="mb-1 text-white"><b>Laporan Presensi</b></h4>
             <small class="text-muted">Filter dan export laporan harian, mingguan, bulanan, atau rentang kustom.</small>
         </div>
         <a href="{{ route('presensi.dashboard') }}" class="btn btn-outline-primary">

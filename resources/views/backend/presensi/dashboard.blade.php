@@ -3,7 +3,7 @@
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-1"><b>Dashboard Presensi</b></h4>
+            <h4 class="mb-1 text-white"><b>Dashboard Presensi</b></h4>
             <small class="text-muted">Monitoring kehadiran guru dan pegawai hari ini.</small>
         </div>
         <div>

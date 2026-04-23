@@ -21,7 +21,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-1"><b>Pengajuan Izin</b></h4>
+            <h4 class="mb-1 text-white"><b>Pengajuan Izin</b></h4>
             <small class="text-muted">Role 3 dapat menyetujui atau menolak pengajuan izin guru/pegawai.</small>
         </div>
         <a href="{{ route('presensi.dashboard') }}" class="btn btn-outline-primary">
