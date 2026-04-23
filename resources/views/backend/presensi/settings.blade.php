@@ -103,10 +103,10 @@
                                 <label class="form-label">Toleransi Terlambat</label>
                                 <input type="number" name="late_tolerance_minutes" class="form-control" min="0" max="240" value="{{ old('late_tolerance_minutes', $setting->late_tolerance_minutes) }}" required>
                             </div>
-                            <div class="col-md-6">
+                            {{-- <div class="col-md-6">
                                 <label class="form-label">Maks Akurasi GPS</label>
-                                <input type="number" name="max_gps_accuracy" class="form-control" min="1" max="100" step="0.1" value="{{ old('max_gps_accuracy', $setting->max_gps_accuracy) }}" required>
-                            </div>
+                                <input type="number" name="max_gps_accuracy" class="form-control" min="1" max="100" step="0.1" value="{{ old('max_gps_accuracy', $setting->max_gps_accuracy ?? 2) }}">
+                            </div> --}}
                         </div>
                     </div>
                 </div>

@@ -114,9 +114,13 @@ class AttendanceAdminController extends Controller
             'check_in_time' => 'required|date_format:H:i',
             'check_out_time' => 'required|date_format:H:i',
             'late_tolerance_minutes' => 'required|integer|min:0|max:240',
-            'max_gps_accuracy' => 'required|numeric|min:1|max:100',
+            'max_gps_accuracy' => 'nullable|numeric|min:1|max:100',
             'geofence_polygon' => 'nullable|string',
         ]);
+
+        $maxGpsAccuracy = $request->filled('max_gps_accuracy')
+            ? $request->input('max_gps_accuracy')
+            : 2;
 
         $polygon = null;
         if ($request->filled('geofence_polygon')) {
@@ -141,7 +145,7 @@ class AttendanceAdminController extends Controller
             'check_in_time' => $request->input('check_in_time'),
             'check_out_time' => $request->input('check_out_time'),
             'late_tolerance_minutes' => $request->input('late_tolerance_minutes'),
-            'max_gps_accuracy' => $request->input('max_gps_accuracy'),
+            'max_gps_accuracy' => $maxGpsAccuracy,
             'enable_fake_gps_detection' => $request->boolean('enable_fake_gps_detection'),
             'require_selfie' => $request->boolean('require_selfie'),
         ]);

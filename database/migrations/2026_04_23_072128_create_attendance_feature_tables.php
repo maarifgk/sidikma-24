@@ -18,7 +18,7 @@ return new class extends Migration
             $table->time('check_in_time')->default('07:00:00');
             $table->time('check_out_time')->default('14:00:00');
             $table->unsignedSmallInteger('late_tolerance_minutes')->default(10);
-            $table->decimal('max_gps_accuracy', 6, 2)->default(3.00);
+            $table->decimal('max_gps_accuracy', 6, 2)->default(2.00);
             $table->boolean('enable_fake_gps_detection')->default(true);
             $table->boolean('require_selfie')->default(false);
             $table->timestamps();

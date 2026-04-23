@@ -19,7 +19,7 @@ class AttendanceValidationService
                 'check_in_time' => '07:00:00',
                 'check_out_time' => '14:00:00',
                 'late_tolerance_minutes' => 10,
-                'max_gps_accuracy' => 3,
+                'max_gps_accuracy' => 2,
                 'enable_fake_gps_detection' => true,
                 'require_selfie' => false,
             ]
