@@ -38,12 +38,12 @@
             <div class="card metric">
                 <div class="label">Jam Masuk</div>
                 <div class="value">{{ substr($setting->check_in_time, 0, 5) }}</div>
-                <div class="hint">Toleransi {{ $setting->late_tolerance_minutes }} menit</div>
+                {{-- <div class="hint">Toleransi {{ $setting->late_tolerance_minutes }} menit</div> --}}
             </div>
             <div class="card metric">
                 <div class="label">Jam Pulang</div>
                 <div class="value">{{ substr($setting->check_out_time, 0, 5) }}</div>
-                <div class="hint">Ditolak jika akurasi &lt; {{ number_format($setting->max_gps_accuracy ?: 2, 1) }} m</div>
+                {{-- <div class="hint">Ditolak jika akurasi &lt; {{ number_format($setting->max_gps_accuracy ?: 2, 1) }} m</div> --}}
             </div>
         </div>
     </section>
