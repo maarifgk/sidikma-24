@@ -171,7 +171,7 @@
     const polygonInput = document.getElementById('geofencePolygon');
     const pointList = document.getElementById('pointList');
     const pointCounter = document.getElementById('pointCounter');
-    const defaultCenter = [-7.2575, 112.7521];
+    const defaultCenter = [-7.9656, 110.6036];
     let points = [];
     let markers = [];
     let polygonLayer = null;
@@ -220,7 +220,7 @@
 
     const map = L.map('geofenceMap', {
         center: averageCenter(initialPoints),
-        zoom: initialPoints.length ? 18 : 15,
+        zoom: initialPoints.length ? 18 : 11,
     });
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
