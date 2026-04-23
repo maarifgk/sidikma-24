@@ -34,9 +34,7 @@
             margin: 0;
             font-family: 'Manrope', sans-serif;
             color: var(--text);
-            background:
-                radial-gradient(circle at top left, rgba(10, 72, 179, 0.14), transparent 32%),
-                linear-gradient(180deg, #0a48b3 0, #0a48b3 210px, var(--bg) 210px, var(--bg) 100%);
+            background: var(--bg);
         }
 
         a {
@@ -55,7 +53,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            color: #fff;
+            color: var(--text);
             margin-bottom: 18px;
         }
 
@@ -69,11 +67,12 @@
             width: 46px;
             height: 46px;
             border-radius: 14px;
-            background: rgba(255, 255, 255, 0.16);
+            background: var(--surface-strong);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            box-shadow: 0 8px 22px rgba(17, 33, 63, 0.08);
             backdrop-filter: blur(10px);
         }
 
@@ -85,7 +84,7 @@
 
         .brand small,
         .topbar .user-meta {
-            color: rgba(255, 255, 255, 0.74);
+            color: var(--muted);
         }
 
         .card {
