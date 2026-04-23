@@ -77,7 +77,7 @@ class AttendanceAdminController extends Controller
             ->select('attendances.*', 'users.nama_lengkap')
             ->leftJoin('users', 'users.id', '=', 'attendances.user_id')
             ->where('attendances.kelas_id', $this->kelasId())
-            ->orderByDesc('attendances.checked_at')
+            ->orderByRaw('COALESCE(attendances.check_out_at, attendances.check_in_at, attendances.checked_at) DESC')
             ->limit(8)
             ->get();
 
@@ -170,7 +170,7 @@ class AttendanceAdminController extends Controller
         $attendanceSheet = $spreadsheet->getActiveSheet();
         $attendanceSheet->setTitle('Presensi');
         $attendanceSheet->fromArray([
-            ['Tanggal', 'Nama', 'Jenis', 'Status', 'Jam', 'Latitude', 'Longitude', 'Akurasi', 'Keterangan'],
+            ['Tanggal', 'Nama', 'Status Masuk', 'Jam Masuk', 'Jam Pulang', 'Lokasi Masuk', 'Lokasi Pulang', 'Keterangan'],
         ]);
 
         $row = 2;
@@ -178,13 +178,12 @@ class AttendanceAdminController extends Controller
             $attendanceSheet->fromArray([[
                 Carbon::parse($attendance->attendance_date)->format('d-m-Y'),
                 $attendance->nama_lengkap,
-                ucfirst($attendance->check_type),
                 ucfirst($attendance->status),
-                Carbon::parse($attendance->checked_at)->format('H:i:s'),
-                $attendance->latitude,
-                $attendance->longitude,
-                $attendance->gps_accuracy,
-                $attendance->rejection_reason,
+                $attendance->check_in_time ? $attendance->check_in_time->format('H:i:s') : '-',
+                $attendance->check_out_time ? $attendance->check_out_time->format('H:i:s') : '-',
+                $this->formatAttendanceLocation($attendance, 'check_in'),
+                $this->formatAttendanceLocation($attendance, 'check_out'),
+                $attendance->combined_note,
             ]], null, 'A' . $row);
             $row++;
         }
@@ -294,7 +293,7 @@ class AttendanceAdminController extends Controller
             ->when($userId, fn ($query) => $query->where('attendances.user_id', $userId))
             ->when(in_array($status, ['hadir', 'terlambat', 'ditolak'], true), fn ($query) => $query->where('attendances.status', $status))
             ->when(in_array($status, ['izin', 'cuti'], true), fn ($query) => $query->whereRaw('1 = 0'))
-            ->orderByDesc('attendances.checked_at')
+            ->orderByRaw('COALESCE(attendances.check_out_at, attendances.check_in_at, attendances.checked_at) DESC')
             ->get();
 
         $permissions = AttendancePermission::query()
@@ -344,6 +343,28 @@ class AttendanceAdminController extends Controller
         }
 
         return compact('from', 'to', 'period', 'periodDate');
+    }
+
+    protected function formatAttendanceLocation(Attendance $attendance, string $prefix): string
+    {
+        $latitude = $attendance->{$prefix . '_latitude'};
+        $longitude = $attendance->{$prefix . '_longitude'};
+
+        if ($latitude === null || $longitude === null) {
+            if ($prefix === 'check_in' && $attendance->check_type === 'datang') {
+                $latitude = $attendance->latitude;
+                $longitude = $attendance->longitude;
+            }
+
+            if ($prefix === 'check_out' && $attendance->check_type === 'pulang') {
+                $latitude = $attendance->latitude;
+                $longitude = $attendance->longitude;
+            }
+        }
+
+        return $latitude !== null && $longitude !== null
+            ? $latitude . ', ' . $longitude
+            : '-';
     }
 
     protected function periodLabel(string $period): string

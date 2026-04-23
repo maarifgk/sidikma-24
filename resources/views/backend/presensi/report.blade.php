@@ -91,10 +91,11 @@
                     <tr>
                         <th>Tanggal</th>
                         <th>Nama</th>
-                        <th>Jenis</th>
-                        <th>Status</th>
-                        <th>Jam</th>
-                        <th>GPS</th>
+                        <th>Status Masuk</th>
+                        <th>Jam Masuk</th>
+                        <th>Jam Pulang</th>
+                        <th>Lokasi Masuk</th>
+                        <th>Lokasi Pulang</th>
                         <th>Keterangan</th>
                         <th>Selfie</th>
                     </tr>
@@ -104,26 +105,51 @@
                         <tr>
                             <td>{{ \Carbon\Carbon::parse($attendance->attendance_date)->format('d-m-Y') }}</td>
                             <td>{{ $attendance->nama_lengkap }}</td>
-                            <td>{{ ucfirst($attendance->check_type) }}</td>
                             <td>
                                 <span class="badge bg-label-{{ $attendance->status === 'ditolak' ? 'danger' : ($attendance->status === 'terlambat' ? 'warning' : 'success') }}">
                                     {{ ucfirst($attendance->status) }}
                                 </span>
                             </td>
-                            <td>{{ \Carbon\Carbon::parse($attendance->checked_at)->format('H:i:s') }}</td>
-                            <td>{{ $attendance->latitude }}, {{ $attendance->longitude }}</td>
-                            <td>{{ $attendance->rejection_reason ?? '-' }}</td>
+                            <td>{{ $attendance->check_in_time ? $attendance->check_in_time->format('H:i:s') : '-' }}</td>
+                            <td>{{ $attendance->check_out_time ? $attendance->check_out_time->format('H:i:s') : '-' }}</td>
                             <td>
-                                @if($attendance->selfie_path)
-                                    <a href="{{ asset('storage/' . $attendance->selfie_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat</a>
+                                @if($attendance->check_in_latitude !== null && $attendance->check_in_longitude !== null)
+                                    {{ $attendance->check_in_latitude }}, {{ $attendance->check_in_longitude }}
+                                @elseif($attendance->check_type === 'datang')
+                                    {{ $attendance->latitude }}, {{ $attendance->longitude }}
                                 @else
+                                    -
+                                @endif
+                            </td>
+                            <td>
+                                @if($attendance->check_out_latitude !== null && $attendance->check_out_longitude !== null)
+                                    {{ $attendance->check_out_latitude }}, {{ $attendance->check_out_longitude }}
+                                @elseif($attendance->check_type === 'pulang')
+                                    {{ $attendance->latitude }}, {{ $attendance->longitude }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td>{{ $attendance->combined_note ?? '-' }}</td>
+                            <td>
+                                @php
+                                    $checkInSelfie = $attendance->check_in_selfie_path ?: ($attendance->check_type === 'datang' ? $attendance->selfie_path : null);
+                                    $checkOutSelfie = $attendance->check_out_selfie_path ?: ($attendance->check_type === 'pulang' ? $attendance->selfie_path : null);
+                                @endphp
+                                @if($checkInSelfie)
+                                    <a href="{{ asset('storage/' . $checkInSelfie) }}" target="_blank" class="btn btn-sm btn-outline-primary">Masuk</a>
+                                @endif
+                                @if($checkOutSelfie)
+                                    <a href="{{ asset('storage/' . $checkOutSelfie) }}" target="_blank" class="btn btn-sm btn-outline-primary">Pulang</a>
+                                @endif
+                                @if(!$checkInSelfie && !$checkOutSelfie)
                                     -
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center text-muted">Belum ada data presensi.</td>
+                            <td colspan="9" class="text-center text-muted">Belum ada data presensi.</td>
                         </tr>
                     @endforelse
                 </tbody>

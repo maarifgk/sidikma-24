@@ -40,15 +40,24 @@ class AttendanceController extends Controller
         $setting = $this->validator->settingForKelas(request()->user()->kelas_id);
         abort_if(!$setting->enable_check_in && !$setting->enable_check_out, 403);
 
-        $todayAttendances = Attendance::where('user_id', request()->user()->id)
+        $todayAttendanceRecords = Attendance::where('user_id', request()->user()->id)
             ->whereDate('attendance_date', today())
-            ->where('status', '!=', 'ditolak')
             ->orderBy('checked_at')
-            ->get()
-            ->keyBy('check_type');
+            ->get();
+
+        $todayAttendances = collect();
+        foreach ($todayAttendanceRecords->where('status', '!=', 'ditolak') as $attendance) {
+            if (!$todayAttendances->has('datang') && $attendance->check_in_time) {
+                $todayAttendances->put('datang', (object) ['checked_at' => $attendance->check_in_time]);
+            }
+
+            if (!$todayAttendances->has('pulang') && $attendance->check_out_time) {
+                $todayAttendances->put('pulang', (object) ['checked_at' => $attendance->check_out_time]);
+            }
+        }
 
         $history = Attendance::where('user_id', request()->user()->id)
-            ->orderByDesc('checked_at')
+            ->orderByRaw('COALESCE(check_out_at, check_in_at, checked_at) DESC')
             ->limit(10)
             ->get();
 
@@ -85,11 +94,18 @@ class AttendanceController extends Controller
             ], 422);
         }
 
-        $alreadyAccepted = Attendance::where('user_id', $request->user()->id)
+        $todayRecords = Attendance::where('user_id', $request->user()->id)
             ->whereDate('attendance_date', today())
-            ->where('check_type', $checkType)
+            ->orderBy('checked_at')
+            ->get();
+
+        $alreadyAccepted = $todayRecords
             ->where('status', '!=', 'ditolak')
-            ->exists();
+            ->contains(function (Attendance $attendance) use ($checkType) {
+                return $checkType === 'datang'
+                    ? (bool) $attendance->check_in_time
+                    : (bool) $attendance->check_out_time;
+            });
 
         if ($alreadyAccepted) {
             return response()->json([
@@ -105,7 +121,29 @@ class AttendanceController extends Controller
             $selfiePath = $request->file('selfie')->store('attendance/selfies', 'public');
         }
 
-        Attendance::create([
+        $attendance = $todayRecords->first(fn (Attendance $record) => $record->status !== 'ditolak')
+            ?? $todayRecords->first();
+        $deviceInfo = substr((string) $request->userAgent(), 0, 1000);
+        $prefix = $checkType === 'datang' ? 'check_in' : 'check_out';
+
+        $eventPayload = [
+            $prefix . '_latitude' => $request->input('latitude'),
+            $prefix . '_longitude' => $request->input('longitude'),
+            $prefix . '_gps_accuracy' => $request->input('gps_accuracy'),
+            $prefix . '_is_inside_geofence' => $result['is_inside_geofence'],
+            $prefix . '_is_mock_location' => $result['is_mock_location'],
+            $prefix . '_mock_detection_source' => $result['mock_detection_source'],
+            $prefix . '_selfie_path' => $selfiePath,
+            $prefix . '_rejection_code' => $result['accepted'] ? null : $result['rejection_code'],
+            $prefix . '_rejection_reason' => $result['rejection_reason'],
+            $prefix . '_device_info' => $deviceInfo,
+        ];
+
+        if ($result['accepted']) {
+            $eventPayload[$prefix . '_at'] = $result['checked_at'];
+        }
+
+        $genericPayload = [
             'user_id' => $request->user()->id,
             'kelas_id' => $request->user()->kelas_id,
             'attendance_date' => today()->toDateString(),
@@ -121,8 +159,25 @@ class AttendanceController extends Controller
             'selfie_path' => $selfiePath,
             'rejection_code' => $result['rejection_code'],
             'rejection_reason' => $result['rejection_reason'],
-            'device_info' => substr((string) $request->userAgent(), 0, 1000),
-        ]);
+            'device_info' => $deviceInfo,
+        ];
+
+        if (!$attendance) {
+            Attendance::create(array_merge($genericPayload, $eventPayload));
+        } elseif ($checkType === 'datang') {
+            $attendance->update(array_merge($genericPayload, $eventPayload));
+        } else {
+            $statusPayload = [];
+            if (!$attendance->check_in_time) {
+                $statusPayload = [
+                    'status' => $result['status'],
+                    'rejection_code' => $result['rejection_code'],
+                    'rejection_reason' => $result['rejection_reason'],
+                ];
+            }
+
+            $attendance->update(array_merge($eventPayload, $statusPayload));
+        }
 
         return response()->json([
             'success' => $result['accepted'],

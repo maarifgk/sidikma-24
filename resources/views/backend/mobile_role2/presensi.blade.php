@@ -115,10 +115,14 @@
             @forelse($history as $item)
                 <div class="list-item">
                     <div>
-                        <div class="item-title">{{ ucfirst($item->check_type) }} - {{ ucfirst($item->status) }}</div>
-                        <div class="item-subtitle">{{ $item->checked_at->translatedFormat('d M Y H:i') }}</div>
-                        @if($item->rejection_reason)
-                            <div class="item-subtitle">{{ $item->rejection_reason }}</div>
+                        <div class="item-title">Presensi - {{ ucfirst($item->status) }}</div>
+                        <div class="item-subtitle">
+                            Datang: {{ $item->check_in_time ? $item->check_in_time->format('H:i') : '-' }}
+                            • Pulang: {{ $item->check_out_time ? $item->check_out_time->format('H:i') : '-' }}
+                        </div>
+                        <div class="item-subtitle">{{ $item->attendance_date->translatedFormat('d M Y') }}</div>
+                        @if($item->combined_note)
+                            <div class="item-subtitle">{{ $item->combined_note }}</div>
                         @endif
                     </div>
                     <span class="badge {{ $item->status === 'ditolak' ? 'danger' : ($item->status === 'terlambat' ? 'warning' : 'success') }}">

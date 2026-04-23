@@ -65,7 +65,10 @@
                         <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
                             <div>
                                 <div class="fw-semibold">{{ $activity->nama_lengkap ?? '-' }}</div>
-                                <small class="text-muted">{{ ucfirst($activity->check_type) }} • {{ \Carbon\Carbon::parse($activity->checked_at)->format('H:i') }}</small>
+                                <small class="text-muted">
+                                    Masuk {{ $activity->check_in_time ? $activity->check_in_time->format('H:i') : '-' }}
+                                    • Pulang {{ $activity->check_out_time ? $activity->check_out_time->format('H:i') : '-' }}
+                                </small>
                             </div>
                             <span class="badge bg-label-{{ $activity->status === 'ditolak' ? 'danger' : ($activity->status === 'terlambat' ? 'warning' : 'success') }}">
                                 {{ ucfirst($activity->status) }}
