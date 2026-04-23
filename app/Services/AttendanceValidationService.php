@@ -51,7 +51,7 @@ class AttendanceValidationService
         if ($accuracy <= 0 || $accuracy < $minimumGpsAccuracy) {
             return $this->rejected(
                 'invalid_accuracy',
-                'Akurasi lokasi ' . number_format($accuracy, 1) . ' m di bawah batas minimal ' . number_format($minimumGpsAccuracy, 1) . ' m.'
+                'Akurasi lokasi belum memenuhi batas minimal presensi.'
             );
         }
 

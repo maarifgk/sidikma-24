@@ -116,7 +116,7 @@
                 <div class="list-item">
                     <div>
                         <div class="item-title">{{ ucfirst($item->check_type) }} - {{ ucfirst($item->status) }}</div>
-                        <div class="item-subtitle">{{ $item->checked_at->translatedFormat('d M Y H:i') }} • Akurasi {{ number_format($item->gps_accuracy, 1) }} m</div>
+                        <div class="item-subtitle">{{ $item->checked_at->translatedFormat('d M Y H:i') }}</div>
                         @if($item->rejection_reason)
                             <div class="item-subtitle">{{ $item->rejection_reason }}</div>
                         @endif

@@ -111,7 +111,7 @@
                                 </span>
                             </td>
                             <td>{{ \Carbon\Carbon::parse($attendance->checked_at)->format('H:i:s') }}</td>
-                            <td>{{ $attendance->latitude }}, {{ $attendance->longitude }}<br><small>{{ number_format($attendance->gps_accuracy, 1) }} m</small></td>
+                            <td>{{ $attendance->latitude }}, {{ $attendance->longitude }}</td>
                             <td>{{ $attendance->rejection_reason ?? '-' }}</td>
                             <td>
                                 @if($attendance->selfie_path)
