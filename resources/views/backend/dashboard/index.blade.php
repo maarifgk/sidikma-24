@@ -327,180 +327,259 @@ if ($hour >= 0 && $hour <= 11) {
   @endif
     <!-- ROLE 3 -->
     @if (request()->user()->role == 3)
+        @php
+            $studentTotal = $total_students ?? 0;
+            $classCounts = collect(range(1, 9))->mapWithKeys(fn ($level) => [$level => (int) ($profile->{'kelas' . $level} ?? 0)]);
+            $filledClasses = $classCounts->filter(fn ($count) => $count > 0)->count();
+            $averageStudents = $filledClasses > 0 ? round($studentTotal / $filledClasses) : 0;
+            $profileImage = request()->user()->image
+                ? asset('storage/images/users/' . request()->user()->image)
+                : asset('storage/images/users/users.png');
+            $role3Stats = [
+                ['label' => 'Total Siswa', 'value' => number_format($studentTotal, 0, ',', '.'), 'icon' => 'fa-users', 'tone' => 'primary', 'caption' => $filledClasses . ' kelas terisi'],
+                ['label' => 'Guru/Pegawai', 'value' => number_format($total_teachers ?? 0, 0, ',', '.'), 'icon' => 'fa-chalkboard-user', 'tone' => 'success', 'caption' => 'Tenaga aktif'],
+                ['label' => 'Total Staff', 'value' => number_format($total_staff ?? 0, 0, ',', '.'), 'icon' => 'fa-user-tie', 'tone' => 'info', 'caption' => 'Akun internal'],
+                ['label' => 'Akreditasi', 'value' => $profile->akreditasi ?? '-', 'icon' => 'fa-certificate', 'tone' => 'warning', 'caption' => 'Status lembaga'],
+            ];
+            $schoolInfo = [
+                ['label' => 'Nama Institusi', 'value' => $profile->nama_lengkap ?? '-'],
+                ['label' => 'NPSN', 'value' => $profile->nis ?? '-'],
+                ['label' => 'Tahun Pelajaran', 'value' => $profile->thn_pelajaran ?? '-'],
+                ['label' => 'Email', 'value' => $profile->email ?? '-'],
+                ['label' => 'Status Tanah', 'value' => $profile->statustanah ?? '-'],
+                ['label' => 'Alamat', 'value' => $profile->alamat ?? '-'],
+            ];
+        @endphp
 
-    <!-- Welcome Section -->
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h4 class="mb-1">{{ $congrat }} <strong>{{ request()->user()->nama_lengkap }}</strong>!</h4>
-                        <p class="text-muted mb-0">Dashboard Kepala Madrasah/Sekolah</p>
-                    </div>
-                    <div class="col-md-4 text-center">
-                        <img src="{{ asset('storage/images/users/' . request()->user()->image) }}"
-                             class="rounded-circle"
-                             style="width: 80px; height: 80px; object-fit: cover;"
-                             alt="Profile Image">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        <style>
+            .role3-dashboard .role3-hero {
+                overflow: hidden;
+                border: 0;
+                background: linear-gradient(135deg, #0a48b3 0%, #11805e 100%);
+                color: #fff;
+            }
 
-    <!-- Statistics Cards -->
-    <div class="row g-4">
-        <!-- Total Students -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1">
-                                Total Siswa</div>
-                            <div class="h5 mb-0 font-weight-bold">{{ $total_students ?? 0 }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-users fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            .role3-dashboard .role3-hero .text-muted,
+            .role3-dashboard .role3-hero small {
+                color: rgba(255, 255, 255, .78) !important;
+            }
 
-        <!-- Total Teachers -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1">
-                                Guru & Tenaga Pendidik</div>
-                            <div class="h5 mb-0 font-weight-bold">{{ $total_teachers ?? 0 }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-chalkboard-teacher fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            .role3-dashboard .role3-profile {
+                width: 86px;
+                height: 86px;
+                object-fit: cover;
+                border: 4px solid rgba(255, 255, 255, .55);
+            }
 
-        <!-- Total Staff -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1">
-                                Total Staff</div>
-                            <div class="h5 mb-0 font-weight-bold">{{ $total_staff ?? 0 }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-user-tie fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            .role3-dashboard .quick-action {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                border-radius: 8px;
+                padding: 10px 14px;
+                color: #0a48b3;
+                background: #fff;
+                font-weight: 700;
+                box-shadow: 0 8px 22px rgba(18, 38, 63, .12);
+            }
 
-        <!-- Accreditation Status -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1">
-                                Status Akreditasi</div>
-                            <div class="h5 mb-0 font-weight-bold">{{ $profile->akreditasi ?? 'N/A' }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-certificate fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            .role3-dashboard .metric-card {
+                border: 0;
+                box-shadow: 0 8px 22px rgba(18, 38, 63, .08);
+            }
 
-    <!-- School Information -->
-    <div class="row g-4 mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Informasi Madrasah/Sekolah</h5>
-                    <a href="/admin/edit/{{ $profile->id }}" class="btn btn-sm">
-                        <i class="fas fa-edit me-1"></i>Edit
-                    </a>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="ps-3">
-                                <small class="text-muted">Nama Institusi</small>
-                                <h6 class="mb-0">{{ $profile->nama_lengkap }}</h6>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="ps-3">
-                                <small class="text-muted">NPSN</small>
-                                <h6 class="mb-0">{{ $profile->nis }}</h6>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="ps-3">
-                                <small class="text-muted">Alamat</small>
-                                <h6 class="mb-0">{{ $profile->alamat }}</h6>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="ps-3">
-                                <small class="text-muted">Tahun Pelajaran</small>
-                                <h6 class="mb-0">{{ $profile->thn_pelajaran }}</h6>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="ps-3">
-                                <small class="text-muted">Email</small>
-                                <h6 class="mb-0">{{ $profile->email }}</h6>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="ps-3">
-                                <small class="text-muted">Status Tanah</small>
-                                <h6 class="mb-0">{{ $profile->statustanah }}</h6>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            .role3-dashboard .metric-icon {
+                width: 44px;
+                height: 44px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px;
+                font-size: 18px;
+            }
 
-    <!-- Student Distribution -->
-    <div class="row g-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Distribusi Siswa per Kelas</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        @for($i = 1; $i <= 9; $i++)
-                            <div class="col-md-4 mb-4">
-                                <div class="card">
-                                    <div class="card-body text-center">
-                                        <h4>{{ $profile->{'kelas'.$i} ?? 0 }}</h4>
-                                        <small class="text-muted">Kelas {{ $i }}</small>
+            .role3-dashboard .info-item,
+            .role3-dashboard .class-row,
+            .role3-dashboard .activity-row {
+                border: 1px solid #edf0f5;
+                border-radius: 8px;
+                padding: 14px;
+                background: #fff;
+            }
+
+            .role3-dashboard .class-track {
+                height: 8px;
+                border-radius: 999px;
+                background: #edf0f5;
+                overflow: hidden;
+            }
+
+            .role3-dashboard .class-fill {
+                height: 100%;
+                border-radius: inherit;
+                background: #11805e;
+            }
+        </style>
+
+        <div class="col-12 role3-dashboard">
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="card role3-hero">
+                        <div class="card-body p-4">
+                            <div class="row align-items-center g-4">
+                                <div class="col-lg-8">
+                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                        <img src="{{ $profileImage }}" class="rounded-circle role3-profile" alt="Profile Image">
+                                        <div>
+                                            <small class="fw-semibold text-uppercase">{{ $congrat }}</small>
+                                            <h3 class="mb-1 text-white">{{ request()->user()->nama_lengkap }}</h3>
+                                            <p class="mb-0">{{ $profile->nama_lengkap ?? 'Madrasah/Sekolah' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <span class="badge bg-white text-primary">NPSN {{ $profile->nis ?? '-' }}</span>
+                                        <span class="badge bg-white text-success">{{ $profile->thn_pelajaran ?? 'Tahun pelajaran belum diisi' }}</span>
+                                        <span class="badge bg-white text-warning">Akreditasi {{ $profile->akreditasi ?? '-' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="d-flex flex-wrap justify-content-lg-end gap-2">
+                                        <a href="{{ route('siswa') }}" class="quick-action">
+                                            <i class="fa-solid fa-users"></i> Guru/Pegawai
+                                        </a>
+                                        <a href="{{ route('presensi.dashboard') }}" class="quick-action">
+                                            <i class="fa-solid fa-calendar-check"></i> Presensi
+                                        </a>
+                                        <a href="{{ route('admin.edit', $profile->id) }}" class="quick-action">
+                                            <i class="fa-solid fa-pen-to-square"></i> Profil
+                                        </a>
                                     </div>
                                 </div>
                             </div>
-                        @endfor
+                        </div>
+                    </div>
+                </div>
+
+                @foreach($role3Stats as $stat)
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card metric-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <small class="text-muted text-uppercase fw-semibold">{{ $stat['label'] }}</small>
+                                        <h3 class="mb-1 mt-2">{{ $stat['value'] }}</h3>
+                                        <span class="text-muted">{{ $stat['caption'] }}</span>
+                                    </div>
+                                    <span class="metric-icon bg-label-{{ $stat['tone'] }} text-{{ $stat['tone'] }}">
+                                        <i class="fa-solid {{ $stat['icon'] }}"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+
+                <div class="col-xl-7">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-0">Informasi Madrasah/Sekolah</h5>
+                                <small class="text-muted">Ringkasan identitas lembaga</small>
+                            </div>
+                            <a href="{{ route('admin.edit', $profile->id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fa-solid fa-pen-to-square me-1"></i>Edit
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                @foreach($schoolInfo as $info)
+                                    <div class="{{ $info['label'] === 'Alamat' ? 'col-12' : 'col-md-6' }}">
+                                        <div class="info-item h-100">
+                                            <small class="text-muted">{{ $info['label'] }}</small>
+                                            <div class="fw-semibold mt-1">{{ $info['value'] }}</div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-5">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">Ringkasan Rombel</h5>
+                            <small class="text-muted">Total dan rata-rata siswa per kelas</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <small class="text-muted">Total Siswa</small>
+                                    <h3 class="mb-0">{{ number_format($studentTotal, 0, ',', '.') }}</h3>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted">Rata-rata</small>
+                                    <h3 class="mb-0">{{ $averageStudents }}</h3>
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                @foreach($classCounts as $level => $count)
+                                    @php
+                                        $percentage = $studentTotal > 0 ? min(100, round(($count / $studentTotal) * 100)) : 0;
+                                    @endphp
+                                    <div class="class-row">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="fw-semibold">Kelas {{ $level }}</span>
+                                            <span class="text-muted">{{ $count }} siswa</span>
+                                        </div>
+                                        <div class="class-track">
+                                            <div class="class-fill" style="width: {{ $percentage }}%;"></div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-0">Aktivitas Terbaru</h5>
+                                <small class="text-muted">Usulan terbaru dari lembaga</small>
+                            </div>
+                            <a href="{{ route('usulan') }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fa-solid fa-list me-1"></i>Lihat Semua
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                @forelse($recent_activities ?? [] as $activity)
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="activity-row h-100">
+                                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                                <div>
+                                                    <div class="fw-semibold">{{ $activity->nama ?? $activity->nama_lengkap ?? 'Usulan SK Baru' }}</div>
+                                                    <small class="text-muted">
+                                                        {{ $activity->created_at ? \Carbon\Carbon::parse($activity->created_at)->translatedFormat('d M Y H:i') : '-' }}
+                                                    </small>
+                                                </div>
+                                                <span class="badge bg-label-primary">{{ $activity->s_pengajuan ?? $activity->status ?? 'Baru' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="col-12">
+                                        <div class="text-center text-muted py-4">Belum ada aktivitas terbaru.</div>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
     @endif
     <!--/ ROLE 3 -->
