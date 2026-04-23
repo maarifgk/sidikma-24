@@ -9,7 +9,7 @@
             margin-bottom: 10px;
             padding: 6px 10px;
             border-radius: 999px;
-            background: rgba(10, 72, 179, 0.08);
+            background: #ffffff;
             color: var(--primary);
             font-size: 12px;
             font-weight: 800;
