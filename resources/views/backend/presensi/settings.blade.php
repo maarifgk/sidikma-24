@@ -41,7 +41,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-1"><b>Pengaturan Presensi</b></h4>
+            <h4 class="mb-1" style="color: white"><b>Pengaturan Presensi</b></h4>
             <small class="text-muted">Pengaturan ini hanya berlaku untuk sekolah/madrasah admin login.</small>
         </div>
         <a href="{{ route('presensi.dashboard') }}" class="btn btn-outline-primary">
@@ -103,10 +103,10 @@
                                 <label class="form-label">Toleransi Terlambat</label>
                                 <input type="number" name="late_tolerance_minutes" class="form-control" min="0" max="240" value="{{ old('late_tolerance_minutes', $setting->late_tolerance_minutes) }}" required>
                             </div>
-                            <div class="col-md-6">
+                            {{-- <div class="col-md-6">
                                 <label class="form-label">Maks Akurasi GPS</label>
                                 <input type="number" name="max_gps_accuracy" class="form-control" min="1" max="100" step="0.1" value="{{ old('max_gps_accuracy', $setting->max_gps_accuracy) }}" required>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>
@@ -148,9 +148,8 @@
                                     <div class="list-group-item text-muted">Belum ada titik.</div>
                                 </div>
 
-                                <label class="form-label">Titik Polygon JSON</label>
-                                <textarea name="geofence_polygon" id="geofencePolygon" class="form-control" rows="10" placeholder='[{"lat":-7.123456,"lng":112.123456},{"lat":-7.123400,"lng":112.124000},{"lat":-7.124000,"lng":112.123900}]'>{{ old('geofence_polygon', $setting->geofence_polygon ? json_encode($setting->geofence_polygon, JSON_PRETTY_PRINT) : '') }}</textarea>
-                                <small class="text-muted">JSON diperbarui otomatis dari peta. Minimal 3 titik sebelum disimpan.</small>
+                                <input type="hidden" name="geofence_polygon" id="geofencePolygon" value='{{ old('geofence_polygon', $setting->geofence_polygon ? json_encode($setting->geofence_polygon) : '') }}'>
+                                <small class="text-muted">Minimal 3 titik sebelum disimpan.</small>
                             </div>
                         </div>
                     </div>
