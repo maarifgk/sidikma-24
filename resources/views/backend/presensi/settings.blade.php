@@ -1,6 +1,36 @@
 @extends('backend.layout.base')
 
 @section('content')
+    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/leaflet/leaflet.css') }}">
+    <style>
+        #geofenceMap {
+            width: 100%;
+            height: 520px;
+            border-radius: 10px;
+            border: 1px solid rgba(67, 89, 113, .16);
+            overflow: hidden;
+        }
+
+        .geofence-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .geofence-point-list {
+            max-height: 190px;
+            overflow-y: auto;
+        }
+
+        .geofence-point-list .list-group-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+        }
+    </style>
+
     @if(session('success'))
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -84,13 +114,45 @@
 
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Polygon Geofence Sekolah</h5>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">Polygon Geofence Sekolah</h5>
+                            <small class="text-muted">Klik peta untuk membuat titik batas area sekolah.</small>
+                        </div>
+                        <span class="badge bg-label-primary" id="pointCounter">0 titik</span>
                     </div>
                     <div class="card-body">
-                        <label class="form-label">Titik Polygon JSON</label>
-                        <textarea name="geofence_polygon" class="form-control" rows="8" placeholder='[{"lat":-7.123456,"lng":112.123456},{"lat":-7.123400,"lng":112.124000},{"lat":-7.124000,"lng":112.123900}]'>{{ old('geofence_polygon', $setting->geofence_polygon ? json_encode($setting->geofence_polygon, JSON_PRETTY_PRINT) : '') }}</textarea>
-                        <small class="text-muted">Gunakan minimal 3 titik. Format yang diterima: array object lat/lng atau array [lat,lng].</small>
+                        <div class="row g-4">
+                            <div class="col-lg-8">
+                                <div class="geofence-tools">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="useCurrentLocation">
+                                        <i class="fa-solid fa-location-crosshairs"></i> Lokasi Saya
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="fitPolygon">
+                                        <i class="fa-solid fa-expand"></i> Fokus Polygon
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-warning" id="undoPoint">
+                                        <i class="fa-solid fa-rotate-left"></i> Hapus Titik Terakhir
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" id="resetPolygon">
+                                        <i class="fa-solid fa-trash"></i> Reset Polygon
+                                    </button>
+                                </div>
+
+                                <div id="geofenceMap"></div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label class="form-label">Titik Polygon</label>
+                                <div class="list-group geofence-point-list mb-3" id="pointList">
+                                    <div class="list-group-item text-muted">Belum ada titik.</div>
+                                </div>
+
+                                <label class="form-label">Titik Polygon JSON</label>
+                                <textarea name="geofence_polygon" id="geofencePolygon" class="form-control" rows="10" placeholder='[{"lat":-7.123456,"lng":112.123456},{"lat":-7.123400,"lng":112.124000},{"lat":-7.124000,"lng":112.123900}]'>{{ old('geofence_polygon', $setting->geofence_polygon ? json_encode($setting->geofence_polygon, JSON_PRETTY_PRINT) : '') }}</textarea>
+                                <small class="text-muted">JSON diperbarui otomatis dari peta. Minimal 3 titik sebelum disimpan.</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -102,4 +164,237 @@
             </button>
         </div>
     </form>
+@endsection
+
+@section('js')
+<script src="{{ asset('assets/vendor/libs/leaflet/leaflet.js') }}"></script>
+<script>
+    const polygonInput = document.getElementById('geofencePolygon');
+    const pointList = document.getElementById('pointList');
+    const pointCounter = document.getElementById('pointCounter');
+    const defaultCenter = [-7.2575, 112.7521];
+    let points = [];
+    let markers = [];
+    let polygonLayer = null;
+
+    function parsePolygonInput() {
+        if (!polygonInput.value.trim()) {
+            return [];
+        }
+
+        try {
+            const parsed = JSON.parse(polygonInput.value);
+            if (!Array.isArray(parsed)) {
+                return [];
+            }
+
+            return parsed
+                .map(point => {
+                    if (Array.isArray(point) && point.length >= 2) {
+                        return { lat: Number(point[0]), lng: Number(point[1]) };
+                    }
+
+                    return { lat: Number(point.lat), lng: Number(point.lng) };
+                })
+                .filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function averageCenter(items) {
+        if (!items.length) {
+            return defaultCenter;
+        }
+
+        const total = items.reduce((carry, point) => {
+            carry.lat += point.lat;
+            carry.lng += point.lng;
+            return carry;
+        }, { lat: 0, lng: 0 });
+
+        return [total.lat / items.length, total.lng / items.length];
+    }
+
+    const initialPoints = parsePolygonInput();
+    points = initialPoints;
+
+    const map = L.map('geofenceMap', {
+        center: averageCenter(initialPoints),
+        zoom: initialPoints.length ? 18 : 15,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 22,
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    function updatePolygon() {
+        if (polygonLayer) {
+            map.removeLayer(polygonLayer);
+            polygonLayer = null;
+        }
+
+        if (points.length >= 2) {
+            polygonLayer = L.polygon(points.map(point => [point.lat, point.lng]), {
+                color: '#0a48b3',
+                weight: 3,
+                fillColor: '#0a48b3',
+                fillOpacity: 0.16,
+            }).addTo(map);
+        }
+    }
+
+    function updateInput() {
+        polygonInput.value = JSON.stringify(points.map(point => ({
+            lat: Number(point.lat.toFixed(7)),
+            lng: Number(point.lng.toFixed(7)),
+        })), null, 2);
+    }
+
+    function updatePointList() {
+        pointCounter.textContent = `${points.length} titik`;
+
+        if (!points.length) {
+            pointList.innerHTML = '<div class="list-group-item text-muted">Belum ada titik.</div>';
+            return;
+        }
+
+        pointList.innerHTML = points.map((point, index) => `
+            <div class="list-group-item">
+                <div>
+                    <div class="fw-semibold">Titik ${index + 1}</div>
+                    <small>${point.lat.toFixed(7)}, ${point.lng.toFixed(7)}</small>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger" data-remove-point="${index}">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        `).join('');
+
+        pointList.querySelectorAll('[data-remove-point]').forEach(button => {
+            button.addEventListener('click', function() {
+                removePoint(Number(this.dataset.removePoint));
+            });
+        });
+    }
+
+    function redrawMarkers() {
+        markers.forEach(marker => map.removeLayer(marker));
+        markers = [];
+
+        points.forEach((point, index) => {
+            const marker = L.marker([point.lat, point.lng], {
+                draggable: true,
+                title: `Titik ${index + 1}`,
+            }).addTo(map);
+
+            marker.bindTooltip(`Titik ${index + 1}`, {
+                permanent: false,
+                direction: 'top'
+            });
+
+            marker.on('dragend', function(event) {
+                const latLng = event.target.getLatLng();
+                points[index] = { lat: latLng.lat, lng: latLng.lng };
+                renderPolygonState();
+            });
+
+            markers.push(marker);
+        });
+    }
+
+    function renderPolygonState() {
+        updateInput();
+        updatePointList();
+        updatePolygon();
+        redrawMarkers();
+    }
+
+    function addPoint(latLng) {
+        points.push({ lat: latLng.lat, lng: latLng.lng });
+        renderPolygonState();
+    }
+
+    function removePoint(index) {
+        points.splice(index, 1);
+        renderPolygonState();
+    }
+
+    function fitPolygonBounds() {
+        if (!points.length) {
+            return;
+        }
+
+        const bounds = L.latLngBounds(points.map(point => [point.lat, point.lng]));
+        map.fitBounds(bounds, { padding: [30, 30], maxZoom: 20 });
+    }
+
+    map.on('click', function(event) {
+        addPoint(event.latlng);
+    });
+
+    document.getElementById('undoPoint').addEventListener('click', function() {
+        if (points.length) {
+            points.pop();
+            renderPolygonState();
+        }
+    });
+
+    document.getElementById('resetPolygon').addEventListener('click', function() {
+        points = [];
+        renderPolygonState();
+    });
+
+    document.getElementById('fitPolygon').addEventListener('click', fitPolygonBounds);
+
+    document.getElementById('useCurrentLocation').addEventListener('click', function() {
+        if (!navigator.geolocation) {
+            Swal.fire('Gagal', 'Browser tidak mendukung deteksi lokasi.', 'error');
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(function(position) {
+            map.setView([position.coords.latitude, position.coords.longitude], 19);
+            L.circle([position.coords.latitude, position.coords.longitude], {
+                radius: position.coords.accuracy,
+                color: '#11805e',
+                fillColor: '#11805e',
+                fillOpacity: 0.08,
+            }).addTo(map);
+        }, function(error) {
+            Swal.fire('Gagal', error.message || 'Lokasi tidak dapat diakses.', 'error');
+        }, {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        });
+    });
+
+    polygonInput.addEventListener('change', function() {
+        const parsedPoints = parsePolygonInput();
+        if (parsedPoints.length && parsedPoints.length < 3) {
+            Swal.fire('Gagal', 'Polygon harus memiliki minimal 3 titik.', 'error');
+            return;
+        }
+
+        points = parsedPoints;
+        renderPolygonState();
+        fitPolygonBounds();
+    });
+
+    document.querySelector('form[action="{{ route('presensi.settings.update') }}"]').addEventListener('submit', function(event) {
+        if (points.length > 0 && points.length < 3) {
+            event.preventDefault();
+            Swal.fire('Gagal', 'Polygon harus memiliki minimal 3 titik sebelum disimpan.', 'error');
+        }
+    });
+
+    renderPolygonState();
+    if (points.length) {
+        fitPolygonBounds();
+    }
+
+    setTimeout(() => map.invalidateSize(), 250);
+</script>
 @endsection
