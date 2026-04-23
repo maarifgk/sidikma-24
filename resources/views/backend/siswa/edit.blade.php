@@ -38,6 +38,23 @@
                                         value="{{ $siswa->nuptk }}" placeholder="Masukan NUPTK/NPK"  required/>
                                 </div>
                             </div>
+                            @php
+                                $isPnsJurusan = in_array((int) $siswa->jurusan_id, [5, 8], true);
+                            @endphp
+                            <div class="col-md-6 pns-field" style="{{ $isPnsJurusan ? '' : 'display: none;' }}">
+                                <div class="mb-3">
+                                    <label class="form-label" for="nip">NIP</label>
+                                    <input type="text" class="form-control" id="nip" name="nip"
+                                        value="{{ old('nip', $siswa->nip ?? '') }}" placeholder="Masukan NIP" />
+                                </div>
+                            </div>
+                            <div class="col-md-6 pns-field" style="{{ $isPnsJurusan ? '' : 'display: none;' }}">
+                                <div class="mb-3">
+                                    <label class="form-label" for="pangkat_golongan">Pangkat/Golongan</label>
+                                    <input type="text" class="form-control" id="pangkat_golongan" name="pangkat_golongan"
+                                        value="{{ old('pangkat_golongan', $siswa->pangkat_golongan ?? '') }}" placeholder="Masukan Pangkat/Golongan" />
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label" for="ptt_lulus">Pendidikan Terakhir dan Tahun Lulus</label>
@@ -231,4 +248,26 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('js')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const jurusanSelect = document.getElementById('jurusan_id');
+            const pnsFields = document.querySelectorAll('.pns-field');
+
+            function togglePnsFields() {
+                const shouldShow = ['5', '8'].includes(jurusanSelect.value);
+
+                pnsFields.forEach(function (field) {
+                    field.style.display = shouldShow ? '' : 'none';
+                });
+            }
+
+            if (jurusanSelect) {
+                jurusanSelect.addEventListener('change', togglePnsFields);
+                togglePnsFields();
+            }
+        });
+    </script>
 @endsection

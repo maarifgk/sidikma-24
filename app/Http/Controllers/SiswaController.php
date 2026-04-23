@@ -45,6 +45,7 @@ class SiswaController extends Controller
     }
     public function addSiswa(Request $request)
     {
+        $isPnsJurusan = in_array((int) $request->jurusan_id, [5, 8], true);
         $file_path = public_path() . '/storage/images/users/' . $request->image;
         File::delete($file_path);
         $image = $request->file('image');
@@ -65,6 +66,8 @@ class SiswaController extends Controller
             'email' => $request->email,
             'no_tlp' => $request-> Kosong,
             'nuptk' => $request->nuptk,
+            'nip' => $isPnsJurusan ? $request->nip : null,
+            'pangkat_golongan' => $isPnsJurusan ? $request->pangkat_golongan : null,
             'ptt_lulus' => $request->ptt_lulus,
             'p_studi' => $request->p_studi,
             'kelas_id' => $request->kelas_id,
@@ -113,6 +116,7 @@ class SiswaController extends Controller
     {
         // Ambil data lama user
         $user = DB::table('users')->where('id', $request->id)->first();
+        $isPnsJurusan = in_array((int) $request->jurusan_id, [5, 8], true);
     
         $data = [
             'nis' => $request->nis,
@@ -120,6 +124,8 @@ class SiswaController extends Controller
             'email' => $request->email,
             'no_tlp' => $request->no_tlp,
             'nuptk' => $request->nuptk,
+            'nip' => $isPnsJurusan ? $request->nip : null,
+            'pangkat_golongan' => $isPnsJurusan ? $request->pangkat_golongan : null,
             'ptt_lulus' => $request->ptt_lulus,
             'p_studi' => $request->p_studi,
             'kelas_id' => $request->kelas_id,
