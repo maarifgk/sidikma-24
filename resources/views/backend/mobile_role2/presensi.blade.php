@@ -62,6 +62,7 @@
                 <input type="hidden" name="gps_accuracy" id="gpsAccuracy">
                 <input type="hidden" name="is_mock_location" id="isMockLocation" value="0">
                 <input type="hidden" name="mock_location_detected" id="mockLocationDetected" value="0">
+                <input type="hidden" name="early_checkout_reason" id="earlyCheckoutReason">
 
                 <div class="detail-row">
                     <div>
@@ -163,7 +164,63 @@
         return false;
     }
 
-    function submitAttendance(type) {
+    const configuredCheckOutTime = '{{ substr($setting->check_out_time, 0, 5) }}';
+
+    function isBeforeConfiguredCheckOutTime() {
+        const parts = configuredCheckOutTime.split(':').map(Number);
+        if (parts.length < 2 || parts.some(Number.isNaN)) {
+            return false;
+        }
+
+        const now = new Date();
+        const checkOutTime = new Date(now);
+        checkOutTime.setHours(parts[0], parts[1], 0, 0);
+
+        return now < checkOutTime;
+    }
+
+    async function requestEarlyCheckoutReason() {
+        const result = await Swal.fire({
+            title: 'Alasan Pulang Awal',
+            text: 'Anda melakukan presensi pulang sebelum jam pulang yang ditentukan.',
+            input: 'textarea',
+            inputPlaceholder: 'Tuliskan alasan pulang awal',
+            inputAttributes: {
+                maxlength: 1000,
+                autocapitalize: 'sentences'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Lanjutkan Presensi',
+            cancelButtonText: 'Batal',
+            inputValidator: (value) => {
+                if (!value || !value.trim()) {
+                    return 'Alasan pulang awal wajib diisi.';
+                }
+
+                if (value.trim().length > 1000) {
+                    return 'Alasan maksimal 1000 karakter.';
+                }
+            }
+        });
+
+        return result.isConfirmed ? result.value.trim() : null;
+    }
+
+    async function handleAttendanceClick(type) {
+        let earlyCheckoutReason = '';
+
+        if (type === 'pulang' && isBeforeConfiguredCheckOutTime()) {
+            earlyCheckoutReason = await requestEarlyCheckoutReason();
+
+            if (earlyCheckoutReason === null) {
+                return;
+            }
+        }
+
+        submitAttendance(type, earlyCheckoutReason);
+    }
+
+    function submitAttendance(type, earlyCheckoutReason = '') {
         const form = document.getElementById('attendanceForm');
         const selfie = document.getElementById('selfie');
 
@@ -176,6 +233,8 @@
             Swal.fire('Gagal', 'Perangkat tidak mendukung deteksi lokasi.', 'error');
             return;
         }
+
+        document.getElementById('earlyCheckoutReason').value = earlyCheckoutReason;
 
         Swal.fire({
             title: 'Mengambil lokasi',
@@ -227,7 +286,7 @@
 
     document.querySelectorAll('.attendance-button').forEach(function(button) {
         button.addEventListener('click', function() {
-            submitAttendance(this.dataset.type);
+            handleAttendanceClick(this.dataset.type);
         });
     });
 </script>

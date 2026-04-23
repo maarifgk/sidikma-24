@@ -71,6 +71,7 @@ class AttendanceController extends Controller
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
             'gps_accuracy' => 'required|numeric',
+            'early_checkout_reason' => 'nullable|string|max:1000',
             'selfie' => 'nullable|image|max:4096',
         ]);
 

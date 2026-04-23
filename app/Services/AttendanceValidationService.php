@@ -63,23 +63,45 @@ class AttendanceValidationService
 
         $checkedAt = now();
         $status = 'hadir';
+        $message = 'Presensi berhasil';
+        $rejectionReason = null;
 
         if ($checkType === 'datang') {
             $deadline = Carbon::parse($checkedAt->toDateString() . ' ' . $setting->check_in_time)
                 ->addMinutes((int) $setting->late_tolerance_minutes);
-            $status = $checkedAt->gt($deadline) ? 'terlambat' : 'hadir';
+
+            if ($checkedAt->gt($deadline)) {
+                $status = 'terlambat';
+                $message = 'Presensi berhasil. Anda tercatat terlambat.';
+                $rejectionReason = 'Terlambat';
+            }
+        }
+
+        if ($checkType === 'pulang') {
+            $checkOutTime = Carbon::parse($checkedAt->toDateString() . ' ' . $setting->check_out_time);
+
+            if ($checkedAt->lt($checkOutTime)) {
+                $earlyCheckoutReason = trim((string) $request->input('early_checkout_reason'));
+
+                if ($earlyCheckoutReason === '') {
+                    return $this->rejected('early_checkout_reason_required', 'Alasan pulang awal wajib diisi.');
+                }
+
+                $rejectionReason = 'Pulang awal: ' . $earlyCheckoutReason;
+                $message = 'Presensi pulang awal berhasil dicatat.';
+            }
         }
 
         return [
             'accepted' => true,
             'status' => $status,
-            'message' => 'Presensi berhasil',
+            'message' => $message,
             'checked_at' => $checkedAt,
             'is_inside_geofence' => true,
             'is_mock_location' => false,
             'mock_detection_source' => null,
             'rejection_code' => null,
-            'rejection_reason' => null,
+            'rejection_reason' => $rejectionReason,
         ];
     }
 
