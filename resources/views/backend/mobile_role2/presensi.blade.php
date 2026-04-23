@@ -1,6 +1,21 @@
 @extends('backend.mobile_role2.layout')
 
 @section('content')
+    <style>
+        .running-time {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(10, 72, 179, 0.08);
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 800;
+        }
+    </style>
+
     <section class="hero card">
         <div class="hero-row">
             <div class="avatar">
@@ -15,6 +30,10 @@
     </section>
 
     <section class="section">
+        <div class="running-time">
+            <i class="fa-solid fa-clock"></i>
+            <span id="runningTime">{{ now()->format('H:i:s') }}</span>
+        </div>
         <div class="grid-2">
             <div class="card metric">
                 <div class="label">Jam Masuk</div>
@@ -114,6 +133,24 @@
 
 @section('js')
 <script>
+    function updateRunningTime() {
+        const runningTime = document.getElementById('runningTime');
+        if (!runningTime) {
+            return;
+        }
+
+        const now = new Date();
+        runningTime.textContent = now.toLocaleTimeString('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        }).replace(/\./g, ':');
+    }
+
+    updateRunningTime();
+    setInterval(updateRunningTime, 1000);
+
     function detectMockLocationFlag(position) {
         if (position && position.coords && position.coords.isFromMockProvider) {
             return true;
