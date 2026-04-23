@@ -46,8 +46,13 @@ class AttendanceValidationService
             return $this->rejected('geofence_not_configured', 'Area presensi sekolah belum diatur.');
         }
 
-        if ($accuracy <= 0 || $accuracy > (float) $setting->max_gps_accuracy) {
-            return $this->rejected('invalid_accuracy', 'Akurasi lokasi tidak valid, silakan mendekat ke area sekolah');
+        $minimumGpsAccuracy = $this->minimumGpsAccuracy($setting);
+
+        if ($accuracy <= 0 || $accuracy < $minimumGpsAccuracy) {
+            return $this->rejected(
+                'invalid_accuracy',
+                'Akurasi lokasi ' . number_format($accuracy, 1) . ' m di bawah batas minimal ' . number_format($minimumGpsAccuracy, 1) . ' m.'
+            );
         }
 
         if ($setting->enable_fake_gps_detection && $mockLocation['detected']) {
@@ -168,6 +173,13 @@ class AttendanceValidationService
         }
 
         return ['detected' => false, 'source' => null];
+    }
+
+    protected function minimumGpsAccuracy(AttendanceSetting $setting): float
+    {
+        $configuredAccuracy = (float) $setting->max_gps_accuracy;
+
+        return $configuredAccuracy > 0 ? $configuredAccuracy : 2.0;
     }
 
     protected function rejected(string $code, string $message, array $extra = []): array
