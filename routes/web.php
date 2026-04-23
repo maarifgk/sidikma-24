@@ -45,6 +45,8 @@ use App\Http\Controllers\ModulController;
 use App\Http\Controllers\DataSiswaController;
 use App\Http\Controllers\DataTenagaPendidikController;
 use App\Http\Controllers\MobileRole2Controller;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceAdminController;
 
 
 
@@ -83,6 +85,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pembayaran/payment/{id}', [MobileRole2Controller::class, 'payment'])->name('pembayaran.payment');
         Route::get('/files', [MobileRole2Controller::class, 'files'])->name('files');
         Route::get('/profile', [MobileRole2Controller::class, 'profile'])->name('profile');
+        Route::get('/presensi', [AttendanceController::class, 'index'])->name('presensi');
+        Route::post('/presensi', [AttendanceController::class, 'store'])->name('presensi.store');
+        Route::get('/izin', [AttendanceController::class, 'permission'])->name('izin');
+        Route::post('/izin', [AttendanceController::class, 'storePermission'])->name('izin.store');
+    });
+
+    Route::prefix('presensi')->name('presensi.')->group(function () {
+        Route::get('/dashboard', [AttendanceAdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/settings', [AttendanceAdminController::class, 'settings'])->name('settings');
+        Route::post('/settings', [AttendanceAdminController::class, 'updateSettings'])->name('settings.update');
+        Route::get('/laporan', [AttendanceAdminController::class, 'report'])->name('report');
+        Route::get('/laporan/export', [AttendanceAdminController::class, 'exportReport'])->name('report.export');
+        Route::get('/izin', [AttendanceAdminController::class, 'permissions'])->name('permissions');
+        Route::post('/izin/{id}', [AttendanceAdminController::class, 'updatePermission'])->name('permissions.update');
     });
     Route::get('logout', [AuthController::class, 'logout'])->name('logout');
     //Update Sipinter

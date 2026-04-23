@@ -351,6 +351,21 @@
             color: var(--muted);
             font-size: 13px;
         }
+
+        .mobile-input {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font: inherit;
+            color: var(--text);
+            background: var(--surface-strong);
+        }
+
+        textarea.mobile-input {
+            resize: vertical;
+        }
     </style>
 </head>
 <body>
@@ -375,27 +390,50 @@
         @yield('content')
     </div>
 
-    <nav class="bottom-nav">
-        <a href="{{ route('mobile.role2.dashboard') }}" class="{{ $activeMenu === 'dashboard' ? 'active' : '' }}">
-            <i class="fa-solid fa-house"></i>
-            <span style="font-size: 8px">Dashboard</span>
-        </a>
-        <a href="{{ route('mobile.role2.informasi') }}" class="{{ $activeMenu === 'informasi' ? 'active' : '' }}">
-            <i class="fa-solid fa-users"></i>
-            <span style="font-size: 8px">Informasi</span>
-        </a>
-        <a href="{{ route('mobile.role2.pembayaran') }}" class="{{ $activeMenu === 'pembayaran' ? 'active' : '' }}">
-            <i class="fa-solid fa-wallet"></i>
-            <span style="font-size: 8px">Pembayaran</span>
-        </a>
-        <a href="{{ route('mobile.role2.files') }}" class="{{ $activeMenu === 'files' ? 'active' : '' }}">
-            <i class="fa-solid fa-file-arrow-down"></i>
-            <span style="font-size: 8px">File SK</span>
-        </a>
-        <a href="{{ route('mobile.role2.profile') }}" class="{{ $activeMenu === 'profile' ? 'active' : '' }}">
-            <i class="fa-solid fa-user"></i>
-            <span style="font-size: 8px">Profile</span>
-        </a>
+    @php
+        $attendanceSetting = null;
+        if (\Illuminate\Support\Facades\Schema::hasTable('attendance_settings')) {
+            $attendanceSetting = \Illuminate\Support\Facades\DB::table('attendance_settings')
+                ->where('kelas_id', request()->user()->kelas_id)
+                ->first();
+        }
+
+        $navItems = [
+            ['route' => 'mobile.role2.dashboard', 'key' => 'dashboard', 'icon' => 'fa-house', 'label' => 'Dashboard'],
+            ['route' => 'mobile.role2.informasi', 'key' => 'informasi', 'icon' => 'fa-users', 'label' => 'Informasi'],
+            ['route' => 'mobile.role2.pembayaran', 'key' => 'pembayaran', 'icon' => 'fa-wallet', 'label' => 'Pembayaran'],
+            ['route' => 'mobile.role2.files', 'key' => 'files', 'icon' => 'fa-file-arrow-down', 'label' => 'File SK'],
+            ['route' => 'mobile.role2.profile', 'key' => 'profile', 'icon' => 'fa-user', 'label' => 'Profile'],
+        ];
+
+        if ($attendanceSetting && ($attendanceSetting->enable_check_in || $attendanceSetting->enable_check_out)) {
+            array_splice($navItems, 2, 0, [[
+                'route' => 'mobile.role2.presensi',
+                'key' => 'presensi',
+                'icon' => 'fa-location-crosshairs',
+                'label' => 'Presensi',
+            ]]);
+        }
+
+        if ($attendanceSetting && $attendanceSetting->enable_permission) {
+            array_splice($navItems, 3, 0, [[
+                'route' => 'mobile.role2.izin',
+                'key' => 'izin',
+                'icon' => 'fa-calendar-check',
+                'label' => 'Izin',
+            ]]);
+        }
+    @endphp
+
+    <nav class="bottom-nav" style="grid-template-columns: repeat({{ count($navItems) }}, minmax(0, 1fr));">
+        @foreach($navItems as $item)
+            <a href="{{ route($item['route']) }}" class="{{ $activeMenu === $item['key'] ? 'active' : '' }}">
+                <i class="fa-solid {{ $item['icon'] }}"></i>
+                <span style="font-size: 8px">{{ $item['label'] }}</span>
+            </a>
+        @endforeach
     </nav>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @yield('js')
 </body>
 </html>
