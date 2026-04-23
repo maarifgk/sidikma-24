@@ -161,6 +161,7 @@ class AttendanceAdminController extends Controller
         $this->ensureRoleThree();
 
         $data = $this->reportData($request);
+        $periodLabel = $this->periodLabel($data['filters']['period']);
         $spreadsheet = new Spreadsheet();
         $attendanceSheet = $spreadsheet->getActiveSheet();
         $attendanceSheet->setTitle('Presensi');
@@ -205,7 +206,7 @@ class AttendanceAdminController extends Controller
         }
 
         $writer = new Xlsx($spreadsheet);
-        $fileName = 'laporan-presensi-' . now()->format('Ymd-His') . '.xlsx';
+        $fileName = 'laporan-presensi-' . $periodLabel . '-' . $data['filters']['from'] . '-sd-' . $data['filters']['to'] . '.xlsx';
 
         return response()->streamDownload(function () use ($writer) {
             $writer->save('php://output');
@@ -252,8 +253,11 @@ class AttendanceAdminController extends Controller
 
     protected function reportData(Request $request): array
     {
-        $from = $request->input('from', today()->startOfMonth()->toDateString());
-        $to = $request->input('to', today()->toDateString());
+        $range = $this->resolveReportRange($request);
+        $from = $range['from'];
+        $to = $range['to'];
+        $period = $range['period'];
+        $periodDate = $range['periodDate'];
         $userId = $request->input('user_id');
         $status = $request->input('status');
 
@@ -285,8 +289,46 @@ class AttendanceAdminController extends Controller
             'attendances' => $attendances,
             'permissions' => $permissions,
             'users' => $this->usersQuery()->orderBy('nama_lengkap')->get(),
-            'filters' => compact('from', 'to', 'userId', 'status'),
+            'filters' => compact('from', 'to', 'period', 'periodDate', 'userId', 'status'),
         ];
+    }
+
+    protected function resolveReportRange(Request $request): array
+    {
+        $period = $request->input('period', 'custom');
+        if (!in_array($period, ['harian', 'mingguan', 'bulanan', 'custom'], true)) {
+            $period = 'custom';
+        }
+
+        $periodDate = $request->input('period_date', $request->input('from', today()->toDateString()));
+        $anchorDate = Carbon::parse($periodDate ?: today()->toDateString());
+
+        if ($period === 'harian') {
+            $from = $anchorDate->copy()->toDateString();
+            $to = $anchorDate->copy()->toDateString();
+        } elseif ($period === 'mingguan') {
+            $from = $anchorDate->copy()->startOfWeek(Carbon::MONDAY)->toDateString();
+            $to = $anchorDate->copy()->endOfWeek(Carbon::SUNDAY)->toDateString();
+        } elseif ($period === 'bulanan') {
+            $from = $anchorDate->copy()->startOfMonth()->toDateString();
+            $to = $anchorDate->copy()->endOfMonth()->toDateString();
+        } else {
+            $from = $request->input('from', today()->startOfMonth()->toDateString());
+            $to = $request->input('to', today()->toDateString());
+            $periodDate = $from;
+        }
+
+        return compact('from', 'to', 'period', 'periodDate');
+    }
+
+    protected function periodLabel(string $period): string
+    {
+        return [
+            'harian' => 'harian',
+            'mingguan' => 'mingguan',
+            'bulanan' => 'bulanan',
+            'custom' => 'kustom',
+        ][$period] ?? 'kustom';
     }
 
     protected function permissionLabel(string $category): string

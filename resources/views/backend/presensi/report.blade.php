@@ -4,7 +4,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1"><b>Laporan Presensi</b></h4>
-            <small class="text-muted">Filter laporan harian, mingguan, atau bulanan menggunakan rentang tanggal.</small>
+            <small class="text-muted">Filter dan export laporan harian, mingguan, bulanan, atau rentang kustom.</small>
         </div>
         <a href="{{ route('presensi.dashboard') }}" class="btn btn-outline-primary">
             <i class="fa-solid fa-chart-line"></i> Dashboard
@@ -15,6 +15,18 @@
         <div class="card-body">
             <form method="GET" action="{{ route('presensi.report') }}" class="row g-3 align-items-end">
                 <div class="col-md-2">
+                    <label class="form-label">Jenis Laporan</label>
+                    <select name="period" class="form-select">
+                        @foreach(['harian' => 'Harian', 'mingguan' => 'Mingguan', 'bulanan' => 'Bulanan', 'custom' => 'Kustom'] as $value => $label)
+                            <option value="{{ $value }}" {{ $filters['period'] === $value ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Tanggal Acuan</label>
+                    <input type="date" name="period_date" class="form-control" value="{{ $filters['periodDate'] }}">
+                </div>
+                <div class="col-md-2">
                     <label class="form-label">Dari</label>
                     <input type="date" name="from" class="form-control" value="{{ $filters['from'] }}">
                 </div>
@@ -22,7 +34,7 @@
                     <label class="form-label">Sampai</label>
                     <input type="date" name="to" class="form-control" value="{{ $filters['to'] }}">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label">User</label>
                     <select name="user_id" class="form-select">
                         <option value="">Semua User</option>
@@ -42,15 +54,30 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-12">
                     <button type="submit" class="btn btn-primary">
                         <i class="fa-solid fa-filter"></i> Filter
                     </button>
                     <a href="{{ route('presensi.report.export', request()->query()) }}" class="btn btn-outline-success">
-                        <i class="fa-solid fa-file-excel"></i> Excel
+                        <i class="fa-solid fa-file-excel"></i> Export Sesuai Filter
                     </a>
                 </div>
             </form>
+
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                <span class="badge bg-label-primary">
+                    Periode aktif: {{ \Carbon\Carbon::parse($filters['from'])->format('d-m-Y') }} s/d {{ \Carbon\Carbon::parse($filters['to'])->format('d-m-Y') }}
+                </span>
+                <a href="{{ route('presensi.report.export', array_merge(request()->query(), ['period' => 'harian', 'period_date' => $filters['periodDate']])) }}" class="btn btn-sm btn-outline-success">
+                    <i class="fa-solid fa-calendar-day"></i> Export Harian
+                </a>
+                <a href="{{ route('presensi.report.export', array_merge(request()->query(), ['period' => 'mingguan', 'period_date' => $filters['periodDate']])) }}" class="btn btn-sm btn-outline-success">
+                    <i class="fa-solid fa-calendar-week"></i> Export Mingguan
+                </a>
+                <a href="{{ route('presensi.report.export', array_merge(request()->query(), ['period' => 'bulanan', 'period_date' => $filters['periodDate']])) }}" class="btn btn-sm btn-outline-success">
+                    <i class="fa-solid fa-calendar-days"></i> Export Bulanan
+                </a>
+            </div>
         </div>
     </div>
 
