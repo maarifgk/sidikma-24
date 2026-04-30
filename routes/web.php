@@ -234,6 +234,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/persuratan/delete/{id}', [PersuratanController::class, 'delete'])->name('persuratan.delete');
     //Proposal
     Route::get('/proposal', [ProposalController::class, 'view'])->name('proposal');
+    Route::get('/proposal/file/{id}', [ProposalController::class, 'viewFile'])->name('proposal.file');
+    Route::get('/proposal/file/{id}/approved', [ProposalController::class, 'viewApprovedFile'])->name('proposal.file.approved');
     Route::get('/proposal/open/{id}', [ProposalController::class, 'open'])->name('proposal.open');
     Route::get('/proposal/info/edit', [ProposalController::class, 'editInfo'])->name('proposal.info.edit');
     Route::post('/proposal/info/update', [ProposalController::class, 'updateInfo'])->name('proposal.info.update');

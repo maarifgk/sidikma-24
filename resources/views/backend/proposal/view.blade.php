@@ -240,14 +240,14 @@
                             @endif</td>
                             <td width="auto">{{ $t->jenis_proposal }}</td>
                             <td>
-                                <a href="{{ asset('') }}storage/dokumen/proposal/{{ $t->proposal }}" class="btn btn-primary" view=""><i class="fa-regular fa-file"></i></a>
+                                <a href="{{ route('proposal.file', $t->id) }}" class="btn btn-primary" target="_blank"><i class="fa-regular fa-file"></i></a>
                             </td>
                             <td width="auto">{{ $t->nominal }}</td>
                             <td width="auto">{{ $t->status }}</td>
                             <td width="auto">{{ $t->keterangan_ditolak }}</td>
                             <td width="auto">
                                 @if ($t->approve_proposal)
-                                <a href="{{ asset('') }}storage/dokumen/approve_proposal/{{ $t->approve_proposal }}" class="btn btn-primary" target="_blank"><i class="fa-regular fa-file"></i></a>
+                                <a href="{{ route('proposal.file.approved', $t->id) }}" class="btn btn-primary" target="_blank"><i class="fa-regular fa-file"></i></a>
                                 @endif
                             <td width="auto">{{ $t->nominal_acc }}</td>
                             @if (in_array(request()->user()->role, [1, 4,]))
@@ -443,14 +443,14 @@
                             @endif</td>
                             <td width="auto">{{ $t->jenis_proposal }}</td>
                             <td>
-                                <a href="{{ asset('') }}storage/dokumen/proposal/{{ $t->proposal }}" class="btn btn-primary" view=""><i class="fa-regular fa-file"></i></a>
+                                <a href="{{ route('proposal.file', $t->id) }}" class="btn btn-primary" target="_blank"><i class="fa-regular fa-file"></i></a>
                             </td>
                             <td width="auto">{{ $t->nominal }}</td>
                             <td width="auto">{{ $t->status }}</td>
                             <td width="auto">{{ $t->keterangan_ditolak }}</td>
                             <td width="auto">
                                 @if ($t->approve_proposal)
-                                <a href="{{ asset('') }}storage/dokumen/approve_proposal/{{ $t->approve_proposal }}" class="btn btn-primary" target="_blank"><i class="fa-regular fa-file"></i></a>
+                                <a href="{{ route('proposal.file.approved', $t->id) }}" class="btn btn-primary" target="_blank"><i class="fa-regular fa-file"></i></a>
                                 @endif
                             <td width="auto">{{ $t->nominal_acc }}</td>
                             @if (in_array(request()->user()->role, [1, 4,]))

@@ -93,6 +93,33 @@ class ProposalController extends Controller
         $data['proposal'] = DB::table('proposal')->where('id', $request->id)->first();
         return view('backend.proposal.open', $data);
     }
+
+    public function viewFile($id)
+    {
+        $proposal = DB::table('proposal')->where('id', $id)->first();
+
+        abort_unless($proposal, 404);
+
+        $filePath = $this->resolveDocumentPath('proposal', $proposal->proposal ?? null);
+
+        abort_unless($filePath, 404, 'File proposal tidak ditemukan.');
+
+        return response()->file($filePath);
+    }
+
+    public function viewApprovedFile($id)
+    {
+        $proposal = DB::table('proposal')->where('id', $id)->first();
+
+        abort_unless($proposal, 404);
+
+        $filePath = $this->resolveDocumentPath('approve_proposal', $proposal->approve_proposal ?? null);
+
+        abort_unless($filePath, 404, 'File approval proposal tidak ditemukan.');
+
+        return response()->file($filePath);
+    }
+
     public function openProses(Request $request)
     {
         $file_path = public_path() . '/storage/dokumen/approve_proposal/' . $request->approve_proposal;
@@ -203,5 +230,26 @@ class ProposalController extends Controller
                 'msg'     => 'Error : ' . $e->getMessage() . ' Line : ' . $e->getLine() . ' File : ' . $e->getFile()
             ]);
         }
+    }
+
+    private function resolveDocumentPath(string $folder, ?string $filename): ?string
+    {
+        if (!$filename) {
+            return null;
+        }
+
+        $cleanFilename = basename($filename);
+        $candidates = [
+            public_path("storage/dokumen/{$folder}/{$cleanFilename}"),
+            $_SERVER['DOCUMENT_ROOT'] . "/storage/dokumen/{$folder}/{$cleanFilename}",
+        ];
+
+        foreach ($candidates as $path) {
+            if ($path && File::exists($path)) {
+                return $path;
+            }
+        }
+
+        return null;
     }
 }
