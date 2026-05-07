@@ -378,6 +378,9 @@ class SkTemplateController extends Controller
             $validated['logo_url'] = 'data:' . $logoFile->getMimeType() . ';base64,' . base64_encode(file_get_contents($logoFile->getRealPath()));
         }
 
+        // Nomor SK final selalu mengikuti pengaturan per periode saat generate.
+        $validated['nomor_sk'] = '{{nomor_sk}}';
+
         $builderData = $this->normalizeBuilderData($validated);
 
         return [[
@@ -770,7 +773,7 @@ HTML, [
             '__WHATSAPP_ICON_URL__' => $this->attributeValue($this->placeholderSvgDataUri('', '#16a34a', '#ffffff', 'whatsapp')),
             '__EMAIL_ICON_URL__' => $this->attributeValue($this->placeholderSvgDataUri('', '#0f766e', '#ffffff', 'email')),
             '__DECISION_TITLE__' => $this->formatBuilderText($builderData['decision_title']),
-            '__NOMOR_SK__' => $this->formatBuilderText($builderData['nomor_sk']),
+            '__NOMOR_SK__' => $this->formatBuilderText('{{nomor_sk}}'),
             '__OPENING_LINE__' => $this->formatBuilderText($builderData['opening_line']),
             '__DECISION_TITLE_FONT_SIZE__' => $this->fontSizeValue($builderData['decision_title_font_size'], 13),
             '__DECISION_NUMBER_FONT_SIZE__' => $this->fontSizeValue($builderData['decision_number_font_size'], 12),
