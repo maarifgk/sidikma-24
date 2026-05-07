@@ -834,7 +834,7 @@ body {
 }
 
 .header-logo-cell {
-    width: 118px;
+    width: 100%;
     text-align: center;
     vertical-align: middle;
 }
