@@ -20,23 +20,38 @@
                     <small class="text-muted">{{ $template->description ?: 'Generate PDF SK dari template ini.' }}</small>
                 </div>
                 <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label">Pilih User</label>
-                        <select id="user_id" class="form-select">
-                            <option value="">-- Pilih User --</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}" {{ (string) optional($selectedUser)->id === (string) $user->id ? 'selected' : '' }}>
-                                    {{ $user->nama_lengkap }} - {{ $user->nama_kelas ?? '-' }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <form action="{{ route('sk-templates.show', $template) }}" method="GET" id="single_generate_form">
+                        <div class="mb-3">
+                            <label class="form-label">Pilih User</label>
+                            <select id="user_id" name="user_id" class="form-select">
+                                <option value="">-- Pilih User --</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}" {{ (string) optional($selectedUser)->id === (string) $user->id ? 'selected' : '' }}>
+                                        {{ $user->nama_lengkap }} - {{ $user->nama_kelas ?? '-' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Tahun Generate SK</label>
+                                <input type="number" id="tahun_sk" name="tahun_sk" class="form-control" min="2000" max="2100" value="{{ $selectedYear }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Nomor SK Mulai Dari</label>
+                                <input type="number" id="nomor_mulai" name="nomor_mulai" class="form-control" min="1" value="{{ $startNumber }}">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary w-100 mb-3">Terapkan ke Preview</button>
+                    </form>
 
                     <div class="d-grid gap-2">
                         <a href="#" class="btn btn-primary disabled" id="previewLink" target="_blank">Preview Halaman</a>
                         <a href="#" class="btn btn-success disabled" id="pdfLink" target="_blank">Generate PDF</a>
                         <form action="{{ route('sk-templates.batch-pdf', $template) }}" method="POST" target="_blank">
                             @csrf
+                            <input type="hidden" name="tahun_sk" id="batch_tahun_sk" value="{{ $selectedYear }}">
+                            <input type="hidden" name="nomor_mulai" id="batch_nomor_mulai" value="{{ $startNumber }}">
                             <div class="mb-2">
                                 <label class="form-label">Generate Banyak User</label>
                                 <select name="user_ids[]" class="form-select" multiple size="10" required>
@@ -79,7 +94,9 @@
                         <div class="mb-3 text-muted">
                             Preview untuk user: <strong>{{ $selectedUser->nama_lengkap }}</strong>
                             @if($previewSkNumber)
-                                <div>Nomor SK dari pengaturan periode: <strong>{{ $previewSkNumber }}</strong></div>
+                                <div>Tahun generate: <strong>{{ $selectedYear }}</strong></div>
+                                <div>Nomor mulai: <strong>{{ $startNumber }}</strong></div>
+                                <div>Nomor SK hasil preview: <strong>{{ $previewSkNumber }}</strong></div>
                             @endif
                         </div>
                         <div class="template-preview-box">
@@ -97,12 +114,21 @@
 @section('js')
 <script>
     const userSelect = document.getElementById('user_id');
+    const yearInput = document.getElementById('tahun_sk');
+    const startNumberInput = document.getElementById('nomor_mulai');
     const previewLink = document.getElementById('previewLink');
     const pdfLink = document.getElementById('pdfLink');
     const templateId = @json($template->id);
+    const batchYearInput = document.getElementById('batch_tahun_sk');
+    const batchStartNumberInput = document.getElementById('batch_nomor_mulai');
 
     function updateLinks() {
         const userId = userSelect.value;
+        const year = yearInput.value || '{{ $selectedYear }}';
+        const startNumber = startNumberInput.value || '1';
+        batchYearInput.value = year;
+        batchStartNumberInput.value = startNumber;
+
         if (!userId) {
             previewLink.href = '#';
             pdfLink.href = '#';
@@ -111,17 +137,16 @@
             return;
         }
 
-        previewLink.href = `/sk-templates/${templateId}/preview/${userId}`;
-        pdfLink.href = `/sk-templates/${templateId}/pdf/${userId}`;
+        const query = `?tahun_sk=${encodeURIComponent(year)}&nomor_mulai=${encodeURIComponent(startNumber)}`;
+        previewLink.href = `/sk-templates/${templateId}/preview/${userId}${query}`;
+        pdfLink.href = `/sk-templates/${templateId}/pdf/${userId}${query}`;
         previewLink.classList.remove('disabled');
         pdfLink.classList.remove('disabled');
     }
 
-    userSelect.addEventListener('change', function () {
-        updateLinks();
-        if (this.value) {
-            window.location.href = `{{ route('sk-templates.show', $template) }}?user_id=${this.value}`;
-        }
+    [userSelect, yearInput, startNumberInput].forEach((element) => {
+        element.addEventListener('input', updateLinks);
+        element.addEventListener('change', updateLinks);
     });
 
     updateLinks();

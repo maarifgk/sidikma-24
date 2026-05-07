@@ -80,8 +80,13 @@ class SkTemplateController extends Controller
         $this->ensureRoleOne();
 
         $selectedUserId = $request->integer('user_id');
+        $selectedYear = $this->sanitizeGenerateYear($request->input('tahun_sk'));
         $selectedUser = $selectedUserId ? $this->findUserOrFail($selectedUserId) : null;
-        $previewSkNumber = $selectedUser ? $this->previewSkNumberForUser($selectedUser) : null;
+        $defaultStartNumber = $selectedUser ? $this->defaultStartNumberForUser($selectedUser) : 1;
+        $startNumber = $request->filled('nomor_mulai')
+            ? max(1, $this->sanitizeStartNumber($request->input('nomor_mulai')))
+            : $defaultStartNumber;
+        $previewSkNumber = $selectedUser ? $this->previewSkNumberForUser($selectedUser, $selectedYear, $startNumber) : null;
         $renderedHtml = $selectedUser ? $this->renderTemplate($skTemplate, $selectedUser, [
             'nomor_sk' => $previewSkNumber,
         ]) : null;
@@ -92,6 +97,8 @@ class SkTemplateController extends Controller
             'users' => $this->templateUsers(),
             'selectedUser' => $selectedUser,
             'selectedUserIds' => array_map('intval', (array) $request->input('user_ids', [])),
+            'selectedYear' => $selectedYear,
+            'startNumber' => $startNumber,
             'previewSkNumber' => $previewSkNumber,
             'renderedHtml' => $renderedHtml,
             'placeholders' => $this->placeholderDefinitions(),
@@ -216,7 +223,9 @@ class SkTemplateController extends Controller
         $this->ensureRoleOne();
 
         $user = $this->findUserOrFail($userId);
-        $skNumber = $this->previewSkNumberForUser($user);
+        $year = $this->sanitizeGenerateYear(request()->input('tahun_sk'));
+        $startNumber = $this->sanitizeStartNumber(request()->input('nomor_mulai'));
+        $skNumber = $this->previewSkNumberForUser($user, $year, $startNumber);
 
         return view('backend.sk_templates.preview', [
             'title' => $this->renderText($skTemplate->document_title, $user, ['nomor_sk' => $skNumber]),
@@ -230,7 +239,9 @@ class SkTemplateController extends Controller
         $this->ensureRoleOne();
 
         $user = $this->findUserOrFail($userId);
-        $skNumber = $this->previewSkNumberForUser($user);
+        $year = $this->sanitizeGenerateYear(request()->input('tahun_sk'));
+        $startNumber = $this->sanitizeStartNumber(request()->input('nomor_mulai'));
+        $skNumber = $this->previewSkNumberForUser($user, $year, $startNumber);
         $documentTitle = $this->renderText($skTemplate->document_title, $user, ['nomor_sk' => $skNumber]);
 
         $pdf = Pdf::loadView('backend.sk_templates.pdf', [
@@ -249,13 +260,17 @@ class SkTemplateController extends Controller
         $validated = $request->validate([
             'user_ids' => 'required|array|min:1',
             'user_ids.*' => 'required|integer',
+            'tahun_sk' => 'nullable|integer|min:2000|max:2100',
+            'nomor_mulai' => 'nullable|integer|min:1|max:999999',
         ]);
 
         $orderedIds = array_values(array_unique(array_map('intval', $validated['user_ids'])));
+        $generateYear = $this->sanitizeGenerateYear($validated['tahun_sk'] ?? null);
+        $startNumberOverride = $this->sanitizeStartNumber($validated['nomor_mulai'] ?? null);
         $users = $this->orderedTemplateUsers($orderedIds);
         abort_if($users->isEmpty(), 404);
 
-        [$combinedHtml, $documentTitle] = DB::transaction(function () use ($orderedIds, $users, $skTemplate) {
+        [$combinedHtml, $documentTitle] = DB::transaction(function () use ($orderedIds, $users, $skTemplate, $generateYear, $startNumberOverride) {
             $periodIds = $users->pluck('periode')->filter()->map(fn ($value) => (int) $value)->unique()->values()->all();
             $settings = SkYayasanSetting::query()
                 ->whereIn('periode_id', $periodIds)
@@ -269,8 +284,8 @@ class SkTemplateController extends Controller
             foreach ($users as $user) {
                 $periodId = (int) ($user->periode ?? 0);
                 $setting = $this->resolveNumberSettingForPeriod($periodId, $settings, true);
-                $currentNumber = $counters[$periodId] ?? max((int) $setting->nomor_awal, (int) $setting->nomor_berikutnya);
-                $generatedSkNumber = $this->formatSkNumber($setting, $currentNumber, $user);
+                $currentNumber = $counters[$periodId] ?? ($startNumberOverride ?: max((int) $setting->nomor_awal, (int) $setting->nomor_berikutnya));
+                $generatedSkNumber = $this->formatSkNumber($setting, $currentNumber, $user, $generateYear);
 
                 $htmlParts[] = $this->renderTemplate($skTemplate, $user, [
                     'nomor_sk' => $generatedSkNumber,
@@ -1080,15 +1095,23 @@ CSS;
         return $map;
     }
 
-    protected function previewSkNumberForUser($user): string
+    protected function previewSkNumberForUser($user, ?int $yearOverride = null, ?int $numberOverride = null): string
     {
         $setting = $this->resolveNumberSettingForPeriod((int) ($user->periode ?? 0));
 
         return $this->formatSkNumber(
             $setting,
-            max((int) $setting->nomor_awal, (int) $setting->nomor_berikutnya),
-            $user
+            $numberOverride ?: max((int) $setting->nomor_awal, (int) $setting->nomor_berikutnya),
+            $user,
+            $yearOverride
         );
+    }
+
+    protected function defaultStartNumberForUser($user): int
+    {
+        $setting = $this->resolveNumberSettingForPeriod((int) ($user->periode ?? 0));
+
+        return max((int) $setting->nomor_awal, (int) $setting->nomor_berikutnya);
     }
 
     protected function resolveNumberSettingForPeriod(int $periodId, ?Collection $settings = null, bool $persistIfMissing = false): SkYayasanSetting
@@ -1127,20 +1150,35 @@ CSS;
         return $setting;
     }
 
-    protected function formatSkNumber(SkYayasanSetting $setting, int $number, $user = null): string
+    protected function formatSkNumber(SkYayasanSetting $setting, int $number, $user = null, ?int $yearOverride = null): string
     {
         $periodName = trim((string) ($user->nama_periode ?? DB::table('periode')->where('id', $setting->periode_id)->value('nama_periode') ?? 'UMUM'));
         $pattern = $setting->nomor_pattern ?: $this->defaultSkNumberPattern($periodName);
         $paddedNumber = str_pad((string) $number, max(1, (int) $setting->digit_nomor), '0', STR_PAD_LEFT);
+        $year = $yearOverride ?: (int) now()->format('Y');
 
         return strtr($pattern, [
             '{{nomor_urut}}' => $paddedNumber,
             '{{nomor_urut_raw}}' => (string) $number,
             '{{periode}}' => $periodName,
             '{{periode_upper}}' => strtoupper($periodName),
-            '{{tahun}}' => now()->format('Y'),
+            '{{tahun}}' => (string) $year,
             '{{bulan_romawi}}' => $this->romanMonth((int) now()->format('n')),
         ]);
+    }
+
+    protected function sanitizeGenerateYear($value): int
+    {
+        $year = is_numeric($value) ? (int) $value : (int) now()->format('Y');
+
+        return max(2000, min(2100, $year));
+    }
+
+    protected function sanitizeStartNumber($value): int
+    {
+        $number = is_numeric($value) ? (int) $value : 0;
+
+        return max(0, min(999999, $number));
     }
 
     protected function romanMonth(int $month): string
