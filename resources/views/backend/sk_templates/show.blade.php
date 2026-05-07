@@ -260,6 +260,7 @@
                         </div>
                         <div class="template-preview-box">
                             <iframe
+                                id="template_preview_frame"
                                 class="template-preview-frame"
                                 src="{{ route('sk-templates.preview', [$template, $selectedUser->id]) }}?tahun_sk={{ $selectedYear }}&nomor_mulai={{ $startNumber }}"
                             ></iframe>
@@ -288,6 +289,7 @@
     const startNumberInput = document.getElementById('nomor_mulai');
     const previewLink = document.getElementById('previewLink');
     const pdfLink = document.getElementById('pdfLink');
+    const previewFrame = document.getElementById('template_preview_frame');
     const templateId = @json($template->id);
     const batchNomorTextInput = document.getElementById('batch_nomor_text');
     const batchYearInput = document.getElementById('batch_tahun_sk');
@@ -361,6 +363,9 @@
             pdfLink.href = '#';
             previewLink.classList.add('disabled');
             pdfLink.classList.add('disabled');
+            if (previewFrame) {
+                previewFrame.removeAttribute('src');
+            }
             return;
         }
 
@@ -369,6 +374,9 @@
         pdfLink.href = `/sk-templates/${templateId}/pdf/${userId}${query}`;
         previewLink.classList.remove('disabled');
         pdfLink.classList.remove('disabled');
+        if (previewFrame) {
+            previewFrame.src = previewLink.href;
+        }
     }
 
     [userSelect, nomorTextInput, yearInput, startNumberInput].forEach((element) => {
