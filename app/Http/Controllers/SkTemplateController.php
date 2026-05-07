@@ -857,9 +857,6 @@ body {
 .header-logo-wrap {
     margin: 0 auto;
     text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .header-logo {
@@ -1340,26 +1337,22 @@ CSS;
     protected function logoDisplayDimensions(string $logoUrl): array
     {
         [$sourceWidth, $sourceHeight] = $this->imageDimensionsFromSource($logoUrl);
-        // Allow wider (landscape) logos by increasing max width while constraining height.
-        // This preserves rectangular aspect ratios instead of forcing a square box.
-        $maxWidth = 160; // allow wider logos
-        $maxHeight = 96; // constrain height to keep header compact
+
+        // Use user-suggested defaults so logos like NU keep their natural proportion
+        $maxWidth = 130;
+        $maxHeight = 130;
+
         $ratio = min($maxWidth / $sourceWidth, $maxHeight / $sourceHeight);
 
         $imageWidth = max(1, (int) round($sourceWidth * $ratio));
         $imageHeight = max(1, (int) round($sourceHeight * $ratio));
 
-        // Increase visible wrapper width so logo has more breathing room.
-        // Apply a padding factor and ensure a reasonable minimum wrap width.
-        $paddingFactor = 1.25; // 25% extra space
-        $minWrapWidth = 120; // minimum container width in px
-        $wrapWidth = max($imageWidth, (int) round($imageWidth * $paddingFactor), $minWrapWidth);
-
-        // Keep wrap height close to image height but allow slight extra to avoid clipping
-        $wrapHeight = max($imageHeight, (int) round($imageHeight * 1.05));
+        // Keep wrap equal to image dimensions to avoid adding extra horizontal padding
+        $wrapWidth = $imageWidth;
+        $wrapHeight = $imageHeight;
 
         return [
-            'cell_width' => $wrapWidth + 16,
+            'cell_width' => $wrapWidth + 10,
             'wrap_width' => $wrapWidth,
             'wrap_height' => $wrapHeight,
             'image_width' => $imageWidth,
@@ -1416,15 +1409,15 @@ CSS;
                 // Use max-width/max-height and let aspect ratio be preserved; this works better with DomPDF
                 $newTag = rtrim(substr($newTag, 0, -1))
                     . ' preserveAspectRatio="xMidYMid meet"'
-                    . ' style="display:block;margin:0 auto;max-width:' . $this->attributeValue($wrapWidth) . 'px;max-height:' . $this->attributeValue($wrapHeight) . 'px;width:auto;height:auto;"'
+                    . ' style="display:block;margin:0 auto;max-width:' . $this->attributeValue($wrapWidth) . 'px;max-height:' . $this->attributeValue($wrapHeight) . 'px;width:auto;height:auto;object-fit:contain;"'
                     . '>';
 
                 return preg_replace('/<svg\b[^>]*>/i', $newTag, $svg, 1) ?? $svg;
             }
         }
 
-        // For raster images, set max-width/max-height and let width/height be automatic to preserve aspect ratio
-        return '<img src="' . $this->attributeValue($source) . '" alt="Logo" class="header-logo" style="display:block;margin:0 auto;max-width: ' . $this->attributeValue($wrapWidth) . 'px; max-height: ' . $this->attributeValue($wrapHeight) . 'px; width: auto; height: auto;">';
+    // For raster images, set max-width/max-height and let width/height be automatic to preserve aspect ratio
+    return '<img src="' . $this->attributeValue($source) . '" alt="Logo" class="header-logo" style="display:block;margin:0 auto;width:auto;height:auto;max-width:' . $this->attributeValue($wrapWidth) . 'px;max-height:' . $this->attributeValue($wrapHeight) . 'px;object-fit:contain;">';
     }
 
     protected function fontSizeValue($value, float $default): string
