@@ -425,7 +425,10 @@ class SkTemplateController extends Controller
 
     protected function findUserOrFail(int $userId)
     {
-        return $this->usersQuery()->where('users.id', $userId)->firstOrFail();
+        $user = $this->usersQuery()->where('users.id', $userId)->first();
+        abort_if(!$user, 404);
+
+        return $user;
     }
 
     protected function periods(): Collection
