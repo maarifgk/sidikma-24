@@ -196,19 +196,16 @@ class SkTemplateController extends Controller
             'pertama_penutup' => 'required|string',
             'kedua_text' => 'required|string',
             'ketiga_text' => 'required|string',
-            'signature_city' => 'required|string|max:255',
-            'signature_date_label' => 'required|string|max:255',
-            'signature_date' => 'required|string|max:255',
-            'signature_body_top' => 'required|string|max:255',
-            'signature_role' => 'required|string|max:255',
-            'signature_name' => 'required|string|max:255',
             'tembusan_title' => 'required|string|max:255',
             'tembusan_items' => 'required|string',
-            'logo_url' => 'nullable|string|max:500',
-            'stempel_url' => 'nullable|string|max:500',
-            'signature_url' => 'nullable|string|max:500',
-            'qr_url' => 'nullable|string|max:500',
+            'logo_url' => 'nullable|string',
+            'logo_file' => 'nullable|file|mimes:jpg,jpeg,png,webp,svg|max:4096',
         ]);
+
+        if ($request->hasFile('logo_file')) {
+            $logoFile = $request->file('logo_file');
+            $validated['logo_url'] = 'data:' . $logoFile->getMimeType() . ';base64,' . base64_encode(file_get_contents($logoFile->getRealPath()));
+        }
 
         $builderData = $this->normalizeBuilderData($validated);
 
@@ -301,10 +298,7 @@ class SkTemplateController extends Controller
             ['key' => 'waktu_cetak', 'label' => 'Tanggal dan jam cetak'],
             ['key' => 'tahun', 'label' => 'Tahun sekarang'],
             ['key' => 'bulan', 'label' => 'Nama bulan sekarang'],
-            ['key' => 'logo_url', 'label' => 'URL logo header'],
-            ['key' => 'stempel_url', 'label' => 'URL gambar stempel'],
-            ['key' => 'signature_url', 'label' => 'URL gambar tanda tangan'],
-            ['key' => 'qr_url', 'label' => 'URL gambar QR / barcode'],
+            ['key' => 'logo_url', 'label' => 'Logo kop surat'],
         ];
     }
 
@@ -339,9 +333,6 @@ class SkTemplateController extends Controller
             'tahun' => now()->format('Y'),
             'bulan' => now()->translatedFormat('F'),
             'logo_url' => $this->placeholderSvgDataUri('LOGO NU', '#159947', '#ffffff', 'circle'),
-            'stempel_url' => $this->placeholderSvgDataUri('STEMPEL', '#3cab62', '#ffffff', 'stamp'),
-            'signature_url' => $this->placeholderSvgDataUri('TTD', '#3f51b5', '#ffffff', 'signature'),
-            'qr_url' => $this->placeholderSvgDataUri('QR', '#111827', '#ffffff', 'qr'),
         ];
     }
 
@@ -363,18 +354,9 @@ class SkTemplateController extends Controller
             'pertama_penutup' => "Diangkat kembali sebagai tenaga pendidik LP. Ma'arif NU PCNU Gunungkidul untuk {{nama_kelas}} tahun pelajaran 2025/2026 dengan ketugasan {{ketugasan}}, dan kepadanya diberikan gaji pokok serta tunjangan lain yang berlaku di {{nama_kelas}}.",
             'kedua_text' => 'Keputusan ini berlaku terhitung mulai tanggal {{tanggal_mulai}} sampai dengan {{tanggal_selesai}} yang apabila di kemudian hari terdapat kekeliruan di dalamnya, akan diadakan perbaikan dan perhitungan kembali sebagaimana mestinya.',
             'ketiga_text' => 'Asli surat keputusan ini diberikan kepada yang bersangkutan.',
-            'signature_city' => 'Gunungkidul',
-            'signature_date_label' => 'Pada Tanggal',
-            'signature_date' => '{{tanggal_sk}}',
-            'signature_body_top' => "Pengurus LP Ma'arif NU Kab. Gunungkidul",
-            'signature_role' => 'Ketua,',
-            'signature_name' => 'Drs. H. SANGKIN, M.Pd.',
             'tembusan_title' => 'Tembusan Yth;',
             'tembusan_items' => "Kepala Kemenag Kab. Gunungkidul\nKepala {{nama_kelas}}\nArsip",
             'logo_url' => '{{logo_url}}',
-            'stempel_url' => '{{stempel_url}}',
-            'signature_url' => '{{signature_url}}',
-            'qr_url' => '{{qr_url}}',
         ];
     }
 
@@ -487,31 +469,12 @@ class SkTemplateController extends Controller
             </tr>
         </table>
 
-        <div class="signature-section">
-            <table class="signature-table">
-                <tr><td>Ditetapkan di</td><td class="colon">:</td><td>__SIGNATURE_CITY__</td></tr>
-                <tr><td>__SIGNATURE_DATE_LABEL__</td><td class="colon">:</td><td>__SIGNATURE_DATE__</td></tr>
-                <tr><td colspan="3">__SIGNATURE_BODY_TOP__</td></tr>
-                <tr><td colspan="3">__SIGNATURE_ROLE__</td></tr>
-            </table>
-
-            <div class="signature-visuals">
-                <img src="__STEMPEL_URL__" alt="Stempel" class="stamp-image">
-                <img src="__SIGNATURE_URL__" alt="Tanda Tangan" class="signature-image">
-            </div>
-
-            <div class="signature-name">__SIGNATURE_NAME__</div>
-        </div>
-
         <div class="footer-section">
             <div class="tembusan-block">
                 <div>__TEMBUSAN_TITLE__</div>
                 <ol>
                     __TEMBUSAN_ITEMS__
                 </ol>
-            </div>
-            <div class="qr-block">
-                <img src="__QR_URL__" alt="QR" class="qr-image">
             </div>
         </div>
     </div>
@@ -533,17 +496,8 @@ HTML, [
             '__PERTAMA_PENUTUP__' => $this->formatBuilderText($builderData['pertama_penutup']),
             '__KEDUA_TEXT__' => $this->formatBuilderText($builderData['kedua_text']),
             '__KETIGA_TEXT__' => $this->formatBuilderText($builderData['ketiga_text']),
-            '__SIGNATURE_CITY__' => $this->formatBuilderText($builderData['signature_city']),
-            '__SIGNATURE_DATE_LABEL__' => $this->formatBuilderText($builderData['signature_date_label']),
-            '__SIGNATURE_DATE__' => $this->formatBuilderText($builderData['signature_date']),
-            '__SIGNATURE_BODY_TOP__' => $this->formatBuilderText($builderData['signature_body_top']),
-            '__SIGNATURE_ROLE__' => $this->formatBuilderText($builderData['signature_role']),
-            '__SIGNATURE_NAME__' => $this->formatBuilderText($builderData['signature_name']),
-            '__STEMPEL_URL__' => $this->attributeValue($builderData['stempel_url']),
-            '__SIGNATURE_URL__' => $this->attributeValue($builderData['signature_url']),
             '__TEMBUSAN_TITLE__' => $this->formatBuilderText($builderData['tembusan_title']),
             '__TEMBUSAN_ITEMS__' => $tembusanHtml,
-            '__QR_URL__' => $this->attributeValue($builderData['qr_url']),
         ]);
     }
 
@@ -551,7 +505,7 @@ HTML, [
     {
         return <<<'CSS'
 body {
-    font-family: DejaVu Sans, sans-serif;
+    font-family: "Cambria Math", Cambria, "Times New Roman", serif;
     font-size: 11.5px;
     line-height: 1.33;
     color: #000000;
@@ -589,6 +543,7 @@ body {
 }
 
 .header-topline {
+    font-family: "Bodoni MT", Didot, "Times New Roman", serif;
     font-size: 13px;
     font-weight: 700;
     color: #159947;
@@ -596,6 +551,7 @@ body {
 }
 
 .header-title {
+    font-family: Calibri, Carlito, Arial, sans-serif;
     font-size: 26px;
     font-weight: 800;
     color: #0b8f2f;
@@ -605,6 +561,7 @@ body {
 
 .header-address,
 .header-contact {
+    font-family: "Bodoni MT", Didot, "Times New Roman", serif;
     color: #159947;
     font-size: 11px;
     font-weight: 700;
@@ -639,15 +596,13 @@ body {
 }
 
 .consideration-table,
-.decision-body-table,
-.signature-table {
+.decision-body-table {
     width: 100%;
     border-collapse: collapse;
 }
 
 .consideration-table td,
-.decision-body-table td,
-.signature-table td {
+.decision-body-table td {
     vertical-align: top;
     padding: 1px 0;
 }
@@ -690,42 +645,6 @@ body {
     width: 170px;
 }
 
-.signature-section {
-    width: 320px;
-    margin-left: auto;
-    margin-top: 12px;
-}
-
-.signature-visuals {
-    position: relative;
-    height: 132px;
-    margin-top: 6px;
-}
-
-.stamp-image {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 132px;
-    height: 132px;
-    object-fit: contain;
-}
-
-.signature-image {
-    position: absolute;
-    left: 86px;
-    top: 6px;
-    width: 118px;
-    height: 76px;
-    object-fit: contain;
-}
-
-.signature-name {
-    font-size: 12px;
-    font-weight: 800;
-    margin-top: 2px;
-}
-
 .footer-section {
     margin-top: 18px;
     width: 100%;
@@ -733,8 +652,7 @@ body {
 }
 
 .tembusan-block {
-    float: left;
-    width: 72%;
+    width: 100%;
 }
 
 .tembusan-block ol {
@@ -744,18 +662,6 @@ body {
 
 .tembusan-block li {
     margin-bottom: 2px;
-}
-
-.qr-block {
-    float: right;
-    width: 90px;
-    text-align: right;
-}
-
-.qr-image {
-    width: 84px;
-    height: 84px;
-    object-fit: contain;
 }
 
 .document::after {
@@ -809,9 +715,6 @@ CSS;
             'tahun' => now()->format('Y'),
             'bulan' => now()->translatedFormat('F'),
             'logo_url' => $this->placeholderSvgDataUri('LOGO NU', '#159947', '#ffffff', 'circle'),
-            'stempel_url' => $this->placeholderSvgDataUri('STEMPEL', '#3cab62', '#ffffff', 'stamp'),
-            'signature_url' => $this->placeholderSvgDataUri('TTD', '#3f51b5', '#ffffff', 'signature'),
-            'qr_url' => $this->placeholderSvgDataUri('QR', '#111827', '#ffffff', 'qr'),
         ];
 
         $map = [];
@@ -840,38 +743,6 @@ CSS;
     protected function placeholderSvgDataUri(string $text, string $primaryColor, string $secondaryColor, string $type): string
     {
         $svg = match ($type) {
-            'stamp' => '
-                <svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
-                    <circle cx="120" cy="120" r="102" fill="none" stroke="' . $primaryColor . '" stroke-width="8"/>
-                    <circle cx="120" cy="120" r="78" fill="none" stroke="' . $primaryColor . '" stroke-width="4"/>
-                    <text x="120" y="108" text-anchor="middle" font-size="16" font-family="Arial" fill="' . $primaryColor . '" font-weight="700">LEMBAGA PENDIDIKAN</text>
-                    <text x="120" y="132" text-anchor="middle" font-size="24" font-family="Arial" fill="' . $primaryColor . '" font-weight="800">' . $text . '</text>
-                    <text x="120" y="156" text-anchor="middle" font-size="16" font-family="Arial" fill="' . $primaryColor . '" font-weight="700">MA\'ARIF NU</text>
-                </svg>',
-            'signature' => '
-                <svg xmlns="http://www.w3.org/2000/svg" width="360" height="180" viewBox="0 0 360 180">
-                    <path d="M20 135 C60 20, 120 20, 135 100 S190 170, 220 65 S290 10, 335 115" fill="none" stroke="' . $primaryColor . '" stroke-width="8" stroke-linecap="round"/>
-                    <path d="M100 145 C145 90, 180 120, 215 45" fill="none" stroke="' . $primaryColor . '" stroke-width="6" stroke-linecap="round"/>
-                </svg>',
-            'qr' => '
-                <svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
-                    <rect width="180" height="180" fill="' . $secondaryColor . '"/>
-                    <rect x="10" y="10" width="50" height="50" fill="' . $primaryColor . '"/>
-                    <rect x="20" y="20" width="30" height="30" fill="' . $secondaryColor . '"/>
-                    <rect x="120" y="10" width="50" height="50" fill="' . $primaryColor . '"/>
-                    <rect x="130" y="20" width="30" height="30" fill="' . $secondaryColor . '"/>
-                    <rect x="10" y="120" width="50" height="50" fill="' . $primaryColor . '"/>
-                    <rect x="20" y="130" width="30" height="30" fill="' . $secondaryColor . '"/>
-                    <rect x="80" y="78" width="12" height="12" fill="' . $primaryColor . '"/>
-                    <rect x="96" y="78" width="12" height="12" fill="' . $primaryColor . '"/>
-                    <rect x="112" y="78" width="12" height="12" fill="' . $primaryColor . '"/>
-                    <rect x="80" y="94" width="12" height="12" fill="' . $primaryColor . '"/>
-                    <rect x="112" y="94" width="12" height="12" fill="' . $primaryColor . '"/>
-                    <rect x="80" y="110" width="12" height="12" fill="' . $primaryColor . '"/>
-                    <rect x="96" y="110" width="12" height="12" fill="' . $primaryColor . '"/>
-                    <rect x="112" y="110" width="12" height="12" fill="' . $primaryColor . '"/>
-                    <text x="90" y="164" text-anchor="middle" font-size="18" font-family="Arial" fill="' . $primaryColor . '" font-weight="700">' . $text . '</text>
-                </svg>',
             default => '
                 <svg xmlns="http://www.w3.org/2000/svg" width="260" height="260" viewBox="0 0 260 260">
                     <circle cx="130" cy="130" r="108" fill="' . $secondaryColor . '" stroke="' . $primaryColor . '" stroke-width="10"/>

@@ -18,10 +18,11 @@
                     <h5 class="mb-0" style="font-size: 30px;"><b>{{ $title }}</b></h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ $formAction }}" method="POST" autocomplete="off">
+                    <form action="{{ $formAction }}" method="POST" enctype="multipart/form-data" autocomplete="off">
                         @csrf
                         <input type="hidden" name="content" id="content">
                         <input type="hidden" name="custom_css" id="custom_css">
+                        <input type="hidden" name="logo_url" id="logo_url" value="{{ old('logo_url', $builderData['logo_url']) }}">
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Nama Template</label>
@@ -78,6 +79,19 @@
                             <div class="col-md-4">
                                 <label class="form-label">Kontak</label>
                                 <input type="text" name="header_contact" class="form-control builder-field" value="{{ old('header_contact', $builderData['header_contact']) }}" required>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Upload Logo Kop Surat</label>
+                                <input type="file" name="logo_file" id="logo_file" class="form-control" accept=".jpg,.jpeg,.png,.webp,.svg">
+                                <small class="text-muted">Logo ini akan dipakai di kop surat. Jika tidak diupload, sistem memakai logo yang sudah tersimpan.</small>
+                                <div class="mt-3">
+                                    <img
+                                        src="{{ old('logo_url', $builderData['logo_url']) }}"
+                                        alt="Preview logo kop surat"
+                                        id="logo_preview_image"
+                                        style="max-height: 96px; max-width: 100%; object-fit: contain; border: 1px solid rgba(67, 89, 113, .18); border-radius: 10px; padding: 8px; background: #fff;"
+                                    >
+                                </div>
                             </div>
 
                             <div class="col-12"><hr class="my-2"></div>
@@ -142,61 +156,16 @@
 
                             <div class="col-12"><hr class="my-2"></div>
                             <div class="col-12">
-                                <h6 class="mb-0">Tanda Tangan</h6>
+                                <h6 class="mb-0">Tembusan</h6>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Ditetapkan di</label>
-                                <input type="text" name="signature_city" class="form-control builder-field" value="{{ old('signature_city', $builderData['signature_city']) }}" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Label Tanggal</label>
-                                <input type="text" name="signature_date_label" class="form-control builder-field" value="{{ old('signature_date_label', $builderData['signature_date_label']) }}" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Tanggal Tanda Tangan</label>
-                                <input type="text" name="signature_date" class="form-control builder-field" value="{{ old('signature_date', $builderData['signature_date']) }}" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Baris Pengurus</label>
-                                <input type="text" name="signature_body_top" class="form-control builder-field" value="{{ old('signature_body_top', $builderData['signature_body_top']) }}" required>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Jabatan Penanda Tangan</label>
-                                <input type="text" name="signature_role" class="form-control builder-field" value="{{ old('signature_role', $builderData['signature_role']) }}" required>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Nama Penanda Tangan</label>
-                                <input type="text" name="signature_name" class="form-control builder-field" value="{{ old('signature_name', $builderData['signature_name']) }}" required>
-                            </div>
-
-                            <div class="col-12"><hr class="my-2"></div>
                             <div class="col-12">
-                                <h6 class="mb-0">Tembusan dan Asset Visual</h6>
-                            </div>
-                            <div class="col-md-6">
                                 <label class="form-label">Judul Tembusan</label>
                                 <input type="text" name="tembusan_title" class="form-control builder-field" value="{{ old('tembusan_title', $builderData['tembusan_title']) }}" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">URL Logo Header</label>
-                                <input type="text" name="logo_url" class="form-control builder-field" value="{{ old('logo_url', $builderData['logo_url']) }}">
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Daftar Tembusan</label>
                                 <textarea name="tembusan_items" rows="4" class="form-control builder-field" required>{{ old('tembusan_items', $builderData['tembusan_items']) }}</textarea>
                                 <small class="text-muted">Satu baris untuk satu item tembusan.</small>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">URL Stempel</label>
-                                <input type="text" name="stempel_url" class="form-control builder-field" value="{{ old('stempel_url', $builderData['stempel_url']) }}">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">URL Tanda Tangan</label>
-                                <input type="text" name="signature_url" class="form-control builder-field" value="{{ old('signature_url', $builderData['signature_url']) }}">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">URL QR / Barcode</label>
-                                <input type="text" name="qr_url" class="form-control builder-field" value="{{ old('qr_url', $builderData['qr_url']) }}">
                             </div>
                         </div>
 
@@ -259,6 +228,9 @@
     const cssInput = document.getElementById('custom_css');
     const titleInput = document.getElementById('document_title');
     const contentInput = document.getElementById('content');
+    const logoUrlInput = document.getElementById('logo_url');
+    const logoFileInput = document.getElementById('logo_file');
+    const logoPreviewImage = document.getElementById('logo_preview_image');
     const builderFields = Array.from(document.querySelectorAll('.builder-field'));
     const previewSamples = @json($previewSamples);
     const applyStandardTemplateButton = document.getElementById('apply_standard_template');
@@ -289,6 +261,7 @@
         const renderedContent = buildPreviewContent();
         cssInput.value = customCss;
         contentInput.value = renderedContent;
+        logoPreviewImage.src = logoUrlInput.value || previewSamples.logo_url || '';
 
         const previewHtml = `
             <!DOCTYPE html>
@@ -365,7 +338,7 @@
                 <table class="header-table">
                     <tr>
                         <td class="header-logo-cell">
-                            <img src="${formatAttr(getFieldValue('logo_url'))}" alt="Logo" class="header-logo">
+                            <img src="${formatAttr(logoUrlInput.value)}" alt="Logo" class="header-logo">
                         </td>
                         <td class="header-text-cell">
                             <div class="header-topline">${formatText(getFieldValue('header_topline'))}</div>
@@ -417,30 +390,10 @@
                         <tr><td class="label">Kedua</td><td class="colon">:</td><td>${formatText(getFieldValue('kedua_text'))}</td></tr>
                         <tr><td class="label">Ketiga</td><td class="colon">:</td><td>${formatText(getFieldValue('ketiga_text'))}</td></tr>
                     </table>
-
-                    <div class="signature-section">
-                        <table class="signature-table">
-                            <tr><td>Ditetapkan di</td><td class="colon">:</td><td>${formatText(getFieldValue('signature_city'))}</td></tr>
-                            <tr><td>${formatText(getFieldValue('signature_date_label'))}</td><td class="colon">:</td><td>${formatText(getFieldValue('signature_date'))}</td></tr>
-                            <tr><td colspan="3">${formatText(getFieldValue('signature_body_top'))}</td></tr>
-                            <tr><td colspan="3">${formatText(getFieldValue('signature_role'))}</td></tr>
-                        </table>
-
-                        <div class="signature-visuals">
-                            <img src="${formatAttr(getFieldValue('stempel_url'))}" alt="Stempel" class="stamp-image">
-                            <img src="${formatAttr(getFieldValue('signature_url'))}" alt="Tanda Tangan" class="signature-image">
-                        </div>
-
-                        <div class="signature-name">${formatText(getFieldValue('signature_name'))}</div>
-                    </div>
-
                     <div class="footer-section">
                         <div class="tembusan-block">
                             <div>${formatText(getFieldValue('tembusan_title'))}</div>
                             <ol>${tembusanItems}</ol>
-                        </div>
-                        <div class="qr-block">
-                            <img src="${formatAttr(getFieldValue('qr_url'))}" alt="QR" class="qr-image">
                         </div>
                     </div>
                 </div>
@@ -450,6 +403,21 @@
 
     [...builderFields, titleInput].forEach((element) => {
         element.addEventListener('input', renderPreview);
+    });
+
+    logoFileInput.addEventListener('change', function () {
+        const file = this.files && this.files[0];
+        if (!file) {
+            renderPreview();
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            logoUrlInput.value = event.target?.result || '';
+            renderPreview();
+        };
+        reader.readAsDataURL(file);
     });
 
     applyStandardTemplateButton.addEventListener('click', function () {
