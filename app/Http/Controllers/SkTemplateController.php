@@ -1329,18 +1329,20 @@ CSS;
     protected function logoDisplayDimensions(string $logoUrl): array
     {
         [$sourceWidth, $sourceHeight] = $this->imageDimensionsFromSource($logoUrl);
-
-        $maxWidth = 136;
-        $maxHeight = 110;
+        // Reduce default maximums so very wide logos are scaled down more aggressively.
+        // Keep reasonable minimum wrap sizes to maintain header alignment.
+        $maxWidth = 96; // previously 136
+        $maxHeight = 96; // previously 110
         $ratio = min($maxWidth / $sourceWidth, $maxHeight / $sourceHeight);
 
         $imageWidth = max(1, (int) round($sourceWidth * $ratio));
         $imageHeight = max(1, (int) round($sourceHeight * $ratio));
-        $wrapWidth = max($imageWidth, 96);
-        $wrapHeight = max($imageHeight, 96);
+        // ensure the visible wrap is not too large; allow smaller logos to stay small
+        $wrapWidth = max($imageWidth, 72);
+        $wrapHeight = max($imageHeight, 72);
 
         return [
-            'cell_width' => $wrapWidth + 12,
+            'cell_width' => $wrapWidth + 8,
             'wrap_width' => $wrapWidth,
             'wrap_height' => $wrapHeight,
             'image_width' => $imageWidth,
@@ -1375,13 +1377,14 @@ CSS;
             }
         }
 
-        return [260, 260];
+        // Fallback to a smaller default so unknown images don't render excessively large
+        return [96, 96];
     }
 
     protected function renderHeaderLogoMarkup(string $source, array $logoDimensions): string
     {
-        $width = $this->numericValue($logoDimensions['image_width']);
-        $height = $this->numericValue($logoDimensions['image_height']);
+    $width = $this->numericValue($logoDimensions['image_width']);
+    $height = $this->numericValue($logoDimensions['image_height']);
 
         if (str_starts_with($source, 'data:image/svg+xml;base64,')) {
             $svg = base64_decode(substr($source, strlen('data:image/svg+xml;base64,')), true) ?: '';
@@ -1391,8 +1394,8 @@ CSS;
                 $originalTag = $matches[0];
                 $newTag = preg_replace('/\s(width|height|style|preserveAspectRatio)="[^"]*"/i', '', $originalTag) ?? $originalTag;
                 $newTag = rtrim(substr($newTag, 0, -1))
-                    . ' width="' . e($width) . '"'
-                    . ' height="' . e($height) . '"'
+                    . ' width="' . $this->attributeValue($width) . '"'
+                    . ' height="' . $this->attributeValue($height) . '"'
                     . ' preserveAspectRatio="xMidYMid meet"'
                     . ' style="display:block;margin:0 auto;"'
                     . '>';
@@ -1401,7 +1404,7 @@ CSS;
             }
         }
 
-        return '<img src="' . $this->attributeValue($source) . '" alt="Logo" class="header-logo" style="width: ' . e($width) . 'px; height: ' . e($height) . 'px;">';
+        return '<img src="' . $this->attributeValue($source) . '" alt="Logo" class="header-logo" style="width: ' . $this->attributeValue($this->numericValue($width)) . 'px; height: ' . $this->attributeValue($this->numericValue($height)) . 'px;">';
     }
 
     protected function fontSizeValue($value, float $default): string
