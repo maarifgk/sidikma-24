@@ -112,7 +112,7 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-            $data['pendapatan2025'] = DB::table('payment')
+            $data['pendapatan'] = DB::table('payment')
             ->where('status', 'Lunas')
             ->sum('nilai');
 
