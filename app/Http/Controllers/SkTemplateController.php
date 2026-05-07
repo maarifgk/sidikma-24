@@ -37,6 +37,7 @@ class SkTemplateController extends Controller
                 'is_active' => true,
             ]),
             'placeholders' => $this->placeholderDefinitions(),
+            'previewSamples' => $this->previewSamples(),
             'formAction' => route('sk-templates.store'),
             'submitLabel' => 'Simpan Template',
             'isEdit' => false,
@@ -84,6 +85,7 @@ class SkTemplateController extends Controller
             'title' => 'Edit Template SK',
             'template' => $skTemplate,
             'placeholders' => $this->placeholderDefinitions(),
+            'previewSamples' => $this->previewSamples(),
             'formAction' => route('sk-templates.update', $skTemplate),
             'submitLabel' => 'Update Template',
             'isEdit' => true,
@@ -236,6 +238,32 @@ class SkTemplateController extends Controller
             ['key' => 'waktu_cetak', 'label' => 'Tanggal dan jam cetak'],
             ['key' => 'tahun', 'label' => 'Tahun sekarang'],
             ['key' => 'bulan', 'label' => 'Nama bulan sekarang'],
+        ];
+    }
+
+    protected function previewSamples(): array
+    {
+        return [
+            'nama_lengkap' => 'Ahmad Fauzi, S.Pd.I',
+            'email' => 'ahmad.fauzi@example.com',
+            'nis' => 'EWG-2026-001',
+            'nuptk' => '1234567890123456',
+            'nip' => '197812312006041001',
+            'tempat_lahir' => 'Gunungkidul',
+            'tgl_lahir' => '12 Januari 1987',
+            'tmt' => '01 Juli 2024',
+            'alamat' => 'Jl. Pendidikan No. 12, Gunungkidul',
+            'alamat_html' => 'Jl. Pendidikan No. 12<br>Gunungkidul',
+            'nama_kelas' => 'MI YAPPI Contoh',
+            'nama_jurusan' => 'Guru Tetap Yayasan',
+            'ketugasan' => 'Mengajar Guru Kelas',
+            'periode_sk' => 'Juli',
+            'ptt_lulus' => 'S1 Pendidikan Islam, 2010',
+            'p_studi' => 'Pendidikan Guru Madrasah Ibtidaiyah',
+            'tanggal_cetak' => now()->translatedFormat('d F Y'),
+            'waktu_cetak' => now()->translatedFormat('d F Y H:i'),
+            'tahun' => now()->format('Y'),
+            'bulan' => now()->translatedFormat('F'),
         ];
     }
 
