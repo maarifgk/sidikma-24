@@ -706,7 +706,7 @@ body {
 
 .header-divider {
     border-top: 4px solid #0b8f2f;
-    margin: 8px 0 4px;
+    margin: 3px 0 4px;
 }
 
 .decision-heading {
