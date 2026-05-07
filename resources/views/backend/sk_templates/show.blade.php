@@ -10,6 +10,50 @@
             padding: 24px;
             overflow: auto;
         }
+
+        .status-filter-panel {
+            border: 1px solid rgba(67, 89, 113, .16);
+            border-radius: 12px;
+            padding: 12px;
+            background: #f9fafc;
+        }
+
+        .status-filter-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .status-filter-option input {
+            display: none;
+        }
+
+        .status-filter-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(67, 89, 113, .18);
+            background: #fff;
+            color: #566274;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .18s ease;
+        }
+
+        .status-filter-option input:checked + .status-filter-chip {
+            background: #e8f2ff;
+            border-color: #3b82f6;
+            color: #1d4ed8;
+            box-shadow: 0 6px 18px rgba(59, 130, 246, .12);
+        }
+
+        .status-filter-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
     </style>
 
     <div class="row g-4">
@@ -35,11 +79,20 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Filter Status Kepegawaian</label>
-                            <select id="status_filter" class="form-select" multiple size="6">
-                                @foreach($statusOptions as $statusOption)
-                                    <option value="{{ $statusOption }}">{{ $statusOption }}</option>
-                                @endforeach
-                            </select>
+                            <div class="status-filter-panel">
+                                <div class="status-filter-grid" id="status_filter">
+                                    @foreach($statusOptions as $statusOption)
+                                        <label class="status-filter-option">
+                                            <input type="checkbox" value="{{ $statusOption }}">
+                                            <span class="status-filter-chip">{{ $statusOption }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                <div class="status-filter-actions">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="select_all_status">Pilih Semua</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="reset_status_filter">Reset</button>
+                                </div>
+                            </div>
                             <small class="text-muted">Bisa pilih lebih dari satu status.</small>
                         </div>
                     </div>
@@ -149,6 +202,9 @@
 <script>
     const periodFilter = document.getElementById('period_filter');
     const statusFilter = document.getElementById('status_filter');
+    const statusFilterInputs = Array.from(statusFilter.querySelectorAll('input[type="checkbox"]'));
+    const selectAllStatusButton = document.getElementById('select_all_status');
+    const resetStatusFilterButton = document.getElementById('reset_status_filter');
     const userSelect = document.getElementById('user_id');
     const batchUserSelect = document.getElementById('batch_user_ids');
     const yearInput = document.getElementById('tahun_sk');
@@ -167,7 +223,7 @@
         const optionPeriod = option.dataset.periode || '';
         const optionStatus = option.dataset.status || '';
         const selectedPeriod = periodFilter.value || '';
-        const selectedStatuses = Array.from(statusFilter.selectedOptions).map((option) => option.value).filter(Boolean);
+        const selectedStatuses = statusFilterInputs.filter((input) => input.checked).map((input) => input.value).filter(Boolean);
 
         return (!selectedPeriod || optionPeriod === selectedPeriod)
             && (!selectedStatuses.length || selectedStatuses.includes(optionStatus));
@@ -222,8 +278,23 @@
         element.addEventListener('change', updateLinks);
     });
 
-    [periodFilter, statusFilter].forEach((element) => {
-        element.addEventListener('change', applyUserFilters);
+    periodFilter.addEventListener('change', applyUserFilters);
+    statusFilterInputs.forEach((input) => {
+        input.addEventListener('change', applyUserFilters);
+    });
+
+    selectAllStatusButton.addEventListener('click', function () {
+        statusFilterInputs.forEach((input) => {
+            input.checked = true;
+        });
+        applyUserFilters();
+    });
+
+    resetStatusFilterButton.addEventListener('click', function () {
+        statusFilterInputs.forEach((input) => {
+            input.checked = false;
+        });
+        applyUserFilters();
     });
 
     applyUserFilters();
