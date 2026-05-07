@@ -3,12 +3,19 @@
 @section('content')
     <style>
         .template-preview-box {
-            min-height: 420px;
             border: 1px solid rgba(67, 89, 113, .16);
-            border-radius: 12px;
-            background: #fff;
-            padding: 24px;
+            border-radius: 14px;
+            background: #eef2f8;
+            padding: 14px;
             overflow: auto;
+        }
+
+        .template-preview-frame {
+            width: 100%;
+            height: 880px;
+            border: 0;
+            border-radius: 10px;
+            background: #eef2f8;
         }
 
         .status-filter-panel {
@@ -177,7 +184,7 @@
                     <h5 class="mb-0">Preview Template</h5>
                 </div>
                 <div class="card-body">
-                    @if($selectedUser && $renderedHtml)
+                    @if($selectedUser)
                         <div class="mb-3 text-muted">
                             Preview untuk user: <strong>{{ $selectedUser->nama_lengkap }}</strong>
                             @if($previewSkNumber)
@@ -187,7 +194,10 @@
                             @endif
                         </div>
                         <div class="template-preview-box">
-                            {!! $renderedHtml !!}
+                            <iframe
+                                class="template-preview-frame"
+                                src="{{ route('sk-templates.preview', [$template, $selectedUser->id]) }}?tahun_sk={{ $selectedYear }}&nomor_mulai={{ $startNumber }}"
+                            ></iframe>
                         </div>
                     @else
                         <div class="text-muted">Pilih user terlebih dahulu untuk melihat hasil render template dan generate PDF.</div>
