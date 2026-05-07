@@ -20,13 +20,42 @@
                     <small class="text-muted">{{ $template->description ?: 'Generate PDF SK dari template ini.' }}</small>
                 </div>
                 <div class="card-body">
+                    @php($periodOptions = collect($users)->pluck('nama_periode')->filter()->unique()->sort()->values())
+                    @php($statusOptions = collect($users)->pluck('nama_jurusan')->filter()->unique()->sort()->values())
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Filter Periode</label>
+                            <select id="period_filter" class="form-select">
+                                <option value="">-- Semua Periode --</option>
+                                @foreach($periodOptions as $periodOption)
+                                    <option value="{{ $periodOption }}">{{ $periodOption }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Filter Status Kepegawaian</label>
+                            <select id="status_filter" class="form-select">
+                                <option value="">-- Semua Status --</option>
+                                @foreach($statusOptions as $statusOption)
+                                    <option value="{{ $statusOption }}">{{ $statusOption }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
                     <form action="{{ route('sk-templates.show', $template) }}" method="GET" id="single_generate_form">
                         <div class="mb-3">
                             <label class="form-label">Pilih User</label>
                             <select id="user_id" name="user_id" class="form-select">
                                 <option value="">-- Pilih User --</option>
                                 @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ (string) optional($selectedUser)->id === (string) $user->id ? 'selected' : '' }}>
+                                    <option
+                                        value="{{ $user->id }}"
+                                        data-periode="{{ $user->nama_periode ?? '' }}"
+                                        data-status="{{ $user->nama_jurusan ?? '' }}"
+                                        {{ (string) optional($selectedUser)->id === (string) $user->id ? 'selected' : '' }}
+                                    >
                                         {{ $user->nama_lengkap }} - {{ $user->nama_kelas ?? '-' }}
                                     </option>
                                 @endforeach
@@ -54,14 +83,19 @@
                             <input type="hidden" name="nomor_mulai" id="batch_nomor_mulai" value="{{ $startNumber }}">
                             <div class="mb-2">
                                 <label class="form-label">Generate Banyak User</label>
-                                <select name="user_ids[]" class="form-select" multiple size="10" required>
+                                <select name="user_ids[]" id="batch_user_ids" class="form-select" multiple size="10" required>
                                     @foreach($users as $user)
-                                        <option value="{{ $user->id }}" {{ in_array((int) $user->id, $selectedUserIds ?? [], true) ? 'selected' : '' }}>
+                                        <option
+                                            value="{{ $user->id }}"
+                                            data-periode="{{ $user->nama_periode ?? '' }}"
+                                            data-status="{{ $user->nama_jurusan ?? '' }}"
+                                            {{ in_array((int) $user->id, $selectedUserIds ?? [], true) ? 'selected' : '' }}
+                                        >
                                             {{ $user->nama_lengkap }} - {{ $user->nama_kelas ?? '-' }} - {{ $user->nama_periode ?? '-' }}
                                         </option>
                                     @endforeach
                                 </select>
-                                <small class="text-muted">Nomor SK akan mengikuti urutan daftar user yang dipilih pada kotak ini, berdasarkan pengaturan periode.</small>
+                                <small class="text-muted">Nomor SK akan mengikuti urutan daftar user yang dipilih pada kotak ini, berdasarkan pengaturan periode. Filter periode dan status di atas juga berlaku di sini.</small>
                             </div>
                             <button type="submit" class="btn btn-warning w-100">Generate PDF Banyak User</button>
                         </form>
@@ -113,7 +147,10 @@
 
 @section('js')
 <script>
+    const periodFilter = document.getElementById('period_filter');
+    const statusFilter = document.getElementById('status_filter');
     const userSelect = document.getElementById('user_id');
+    const batchUserSelect = document.getElementById('batch_user_ids');
     const yearInput = document.getElementById('tahun_sk');
     const startNumberInput = document.getElementById('nomor_mulai');
     const previewLink = document.getElementById('previewLink');
@@ -121,6 +158,42 @@
     const templateId = @json($template->id);
     const batchYearInput = document.getElementById('batch_tahun_sk');
     const batchStartNumberInput = document.getElementById('batch_nomor_mulai');
+
+    function matchesFilters(option) {
+        if (!option.value) {
+            return true;
+        }
+
+        const optionPeriod = option.dataset.periode || '';
+        const optionStatus = option.dataset.status || '';
+        const selectedPeriod = periodFilter.value || '';
+        const selectedStatus = statusFilter.value || '';
+
+        return (!selectedPeriod || optionPeriod === selectedPeriod)
+            && (!selectedStatus || optionStatus === selectedStatus);
+    }
+
+    function applyUserFilters() {
+        Array.from(userSelect.options).forEach((option) => {
+            const visible = matchesFilters(option);
+            option.hidden = !visible;
+
+            if (!visible && option.selected) {
+                option.selected = false;
+            }
+        });
+
+        Array.from(batchUserSelect.options).forEach((option) => {
+            const visible = matchesFilters(option);
+            option.hidden = !visible;
+
+            if (!visible && option.selected) {
+                option.selected = false;
+            }
+        });
+
+        updateLinks();
+    }
 
     function updateLinks() {
         const userId = userSelect.value;
@@ -149,6 +222,10 @@
         element.addEventListener('change', updateLinks);
     });
 
-    updateLinks();
+    [periodFilter, statusFilter].forEach((element) => {
+        element.addEventListener('change', applyUserFilters);
+    });
+
+    applyUserFilters();
 </script>
 @endsection
