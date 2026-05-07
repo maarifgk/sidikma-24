@@ -2,11 +2,40 @@
 
 @section('content')
     <style>
+        .sk-template-preview-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .sk-template-preview-zoom {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sk-template-preview-zoom-label {
+            min-width: 56px;
+            text-align: center;
+            font-weight: 600;
+            color: #5f6b7c;
+        }
+
+        .sk-template-preview-scroll {
+            overflow: auto;
+            border: 1px solid rgba(67, 89, 113, .16);
+            border-radius: 14px;
+            background: #eef2f8;
+            padding: 14px;
+        }
+
         .sk-template-preview-frame {
             width: 100%;
             height: 880px;
-            border: 1px solid rgba(67, 89, 113, .16);
-            border-radius: 14px;
+            border: 0;
+            border-radius: 10px;
             background: #eef2f8;
         }
     </style>
@@ -289,7 +318,18 @@
                     <small class="text-muted">Preview otomatis menggunakan data contoh.</small>
                 </div>
                 <div class="card-body">
-                    <iframe id="pdf_preview_frame" class="sk-template-preview-frame"></iframe>
+                    <div class="sk-template-preview-toolbar">
+                        <small class="text-muted mb-0">Gunakan zoom untuk melihat detail layout.</small>
+                        <div class="sk-template-preview-zoom">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="preview_zoom_out">-</button>
+                            <span class="sk-template-preview-zoom-label" id="preview_zoom_label">100%</span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="preview_zoom_in">+</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="preview_zoom_reset">Reset</button>
+                        </div>
+                    </div>
+                    <div class="sk-template-preview-scroll">
+                        <iframe id="pdf_preview_frame" class="sk-template-preview-frame"></iframe>
+                    </div>
                 </div>
             </div>
 
@@ -315,6 +355,10 @@
 @section('js')
 <script>
     const previewFrame = document.getElementById('pdf_preview_frame');
+    const previewZoomInButton = document.getElementById('preview_zoom_in');
+    const previewZoomOutButton = document.getElementById('preview_zoom_out');
+    const previewZoomResetButton = document.getElementById('preview_zoom_reset');
+    const previewZoomLabel = document.getElementById('preview_zoom_label');
     const cssInput = document.getElementById('custom_css');
     const titleInput = document.getElementById('document_title');
     const contentInput = document.getElementById('content');
@@ -329,6 +373,7 @@
     const presetBuilderData = @json($presetBuilderData);
     const whatsappIconUrl = @json($whatsappIconUrl);
     const emailIconUrl = @json($emailIconUrl);
+    let previewZoomLevel = 1;
 
     function replacePlaceholders(template) {
         let output = template || '';
@@ -393,6 +438,17 @@
         `;
 
         previewFrame.srcdoc = previewHtml;
+        applyPreviewZoom();
+    }
+
+    function applyPreviewZoom() {
+        previewFrame.style.zoom = previewZoomLevel;
+        previewZoomLabel.textContent = `${Math.round(previewZoomLevel * 100)}%`;
+    }
+
+    function setPreviewZoom(nextZoom) {
+        previewZoomLevel = Math.max(0.5, Math.min(2, nextZoom));
+        applyPreviewZoom();
     }
 
     function escapeHtml(value) {
@@ -546,6 +602,18 @@
             }
         });
         renderPreview();
+    });
+
+    previewZoomOutButton.addEventListener('click', function () {
+        setPreviewZoom(previewZoomLevel - 0.1);
+    });
+
+    previewZoomInButton.addEventListener('click', function () {
+        setPreviewZoom(previewZoomLevel + 0.1);
+    });
+
+    previewZoomResetButton.addEventListener('click', function () {
+        setPreviewZoom(1);
     });
 
     renderPreview();
