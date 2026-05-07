@@ -593,7 +593,7 @@ if ($hour >= 0 && $hour <= 11) {
                     <h6 class="card-title text-uppercase text-muted">Pendapatan</h6>
                     <h5 class="fw-bold">Tahun Anggaran 2025/2026</h5>
                     <p class="display-6 text-success">
-                        Rp {{ number_format($pendapatan Keu2025, 0, ',', '.') }}
+                        Rp {{ number_format($pendapatan , 0, ',', '.') }}
                     </p>
                 </div>
                 <hr class="w-100 my-0 border-top border-secondary">
