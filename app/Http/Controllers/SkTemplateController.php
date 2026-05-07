@@ -454,6 +454,8 @@ class SkTemplateController extends Controller
             ->where(function ($query) {
                 $query->whereNull('users.status')->orWhere('users.status', '!=', 'Lulus');
             })
+            ->orderByRaw('case when users.kelas_id is null then 1 else 0 end')
+            ->orderBy('users.kelas_id')
             ->orderBy('users.nama_lengkap');
     }
 
