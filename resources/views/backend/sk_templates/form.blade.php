@@ -157,7 +157,7 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Nomor SK</label>
-                                <input type="text" name="nomor_sk" class="form-control builder-field" value="{{ old('nomor_sk', '{{nomor_sk}}') }}" readonly required>
+                                <input type="text" name="nomor_sk" class="form-control builder-field" value="{{ old('nomor_sk', '{{' . 'nomor_sk' . '}}') }}" readonly required>
                                 <small class="text-muted">Otomatis mengikuti Pengaturan SK Yayasan sesuai periode user saat generate.</small>
                             </div>
                             <div class="col-md-2">
