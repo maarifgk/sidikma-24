@@ -76,7 +76,7 @@
                         <small class="text-muted d-block mb-2">Placeholder tersedia</small>
                         <div class="d-flex flex-wrap gap-2">
                             @foreach($placeholders as $placeholder)
-                                <span class="badge bg-label-primary">{{ '{{' . $placeholder['key'] . '}}' }}</span>
+                                <span class="badge bg-label-primary">&#123;&#123;{{ $placeholder['key'] }}&#125;&#125;</span>
                             @endforeach
                         </div>
                     </div>
