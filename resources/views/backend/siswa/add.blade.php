@@ -100,8 +100,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label" for="tempat_lahir">Tempat Lahir</label>
-                                    <input type="text" class="form-control" id="tempat_lahir" name="tempat_lahir"
-                                        placeholder="Masukan Tempat Lahir" />
+                                    <input type="text" class="form-control" id="tempat_lahir" name="tempat_lahir"/>
                                 </div>
                             </div>
                             <div class="col-md-6">
