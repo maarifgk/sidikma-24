@@ -532,7 +532,7 @@ body {
 }
 
 .header-text-cell {
-    text-align: center;
+    text-align: right;
     vertical-align: middle;
 }
 
@@ -547,6 +547,7 @@ body {
     font-size: 13px;
     font-weight: 700;
     color: #159947;
+    text-align: right;
     text-transform: uppercase;
 }
 
@@ -555,6 +556,7 @@ body {
     font-size: 26px;
     font-weight: 800;
     color: #0b8f2f;
+    text-align: right;
     text-transform: uppercase;
     margin: 6px 0 4px;
 }
@@ -565,6 +567,7 @@ body {
     color: #159947;
     font-size: 11px;
     font-weight: 700;
+    text-align: right;
 }
 
 .header-divider {
