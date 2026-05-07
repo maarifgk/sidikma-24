@@ -7,11 +7,20 @@
                 <h5 class="mb-0" style="font-size: 32px;"><b>{{ $title }}</b></h5>
                 <small class="text-muted">Kelola banyak jenis template SK yayasan dan generate PDF dari data users.</small>
             </div>
-            <a href="{{ route('sk-templates.create') }}" class="btn btn-primary">
-                <i class="fa-solid fa-plus"></i> Buat Template
-            </a>
+            <div class="d-flex gap-2">
+                <a href="{{ route('sk-templates.settings') }}" class="btn btn-outline-primary">
+                    <i class="fa-solid fa-gear"></i> Pengaturan SK Yayasan
+                </a>
+                <a href="{{ route('sk-templates.create') }}" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> Buat Template
+                </a>
+            </div>
         </div>
         <div class="card-body">
+            <div class="alert alert-info">
+                Pengaturan SK Yayasan aktif untuk <strong>{{ $settingsCount }}</strong> periode.
+                Atur format nomor dan nomor berikutnya di menu <strong>Pengaturan SK Yayasan</strong>.
+            </div>
             <div class="table-responsive">
                 <table class="table table-striped align-middle">
                     <thead>

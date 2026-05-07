@@ -35,6 +35,22 @@
                     <div class="d-grid gap-2">
                         <a href="#" class="btn btn-primary disabled" id="previewLink" target="_blank">Preview Halaman</a>
                         <a href="#" class="btn btn-success disabled" id="pdfLink" target="_blank">Generate PDF</a>
+                        <form action="{{ route('sk-templates.batch-pdf', $template) }}" method="POST" target="_blank">
+                            @csrf
+                            <div class="mb-2">
+                                <label class="form-label">Generate Banyak User</label>
+                                <select name="user_ids[]" class="form-select" multiple size="10" required>
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->id }}" {{ in_array((int) $user->id, $selectedUserIds ?? [], true) ? 'selected' : '' }}>
+                                            {{ $user->nama_lengkap }} - {{ $user->nama_kelas ?? '-' }} - {{ $user->nama_periode ?? '-' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">Nomor SK akan mengikuti urutan daftar user yang dipilih pada kotak ini, berdasarkan pengaturan periode.</small>
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100">Generate PDF Banyak User</button>
+                        </form>
+                        <a href="{{ route('sk-templates.settings') }}" class="btn btn-outline-dark">Pengaturan SK Yayasan</a>
                         <a href="{{ route('sk-templates.edit', $template) }}" class="btn btn-outline-primary">Edit Template</a>
                         <a href="{{ route('sk-templates.index') }}" class="btn btn-outline-secondary">Kembali</a>
                     </div>
@@ -62,6 +78,9 @@
                     @if($selectedUser && $renderedHtml)
                         <div class="mb-3 text-muted">
                             Preview untuk user: <strong>{{ $selectedUser->nama_lengkap }}</strong>
+                            @if($previewSkNumber)
+                                <div>Nomor SK dari pengaturan periode: <strong>{{ $previewSkNumber }}</strong></div>
+                            @endif
                         </div>
                         <div class="template-preview-box">
                             {!! $renderedHtml !!}

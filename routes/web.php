@@ -176,12 +176,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/sk-templates', [SkTemplateController::class, 'index'])->name('sk-templates.index');
     Route::get('/sk-templates/create', [SkTemplateController::class, 'create'])->name('sk-templates.create');
     Route::post('/sk-templates', [SkTemplateController::class, 'store'])->name('sk-templates.store');
+    Route::get('/sk-templates/settings', [SkTemplateController::class, 'settings'])->name('sk-templates.settings');
+    Route::post('/sk-templates/settings', [SkTemplateController::class, 'updateSettings'])->name('sk-templates.settings.update');
     Route::get('/sk-templates/{skTemplate}', [SkTemplateController::class, 'show'])->name('sk-templates.show');
     Route::get('/sk-templates/{skTemplate}/edit', [SkTemplateController::class, 'edit'])->name('sk-templates.edit');
     Route::post('/sk-templates/{skTemplate}/update', [SkTemplateController::class, 'update'])->name('sk-templates.update');
     Route::get('/sk-templates/{skTemplate}/delete', [SkTemplateController::class, 'delete'])->name('sk-templates.delete');
     Route::get('/sk-templates/{skTemplate}/preview/{userId}', [SkTemplateController::class, 'preview'])->name('sk-templates.preview');
     Route::get('/sk-templates/{skTemplate}/pdf/{userId}', [SkTemplateController::class, 'pdf'])->name('sk-templates.pdf');
+    Route::post('/sk-templates/{skTemplate}/pdf-batch', [SkTemplateController::class, 'batchPdf'])->name('sk-templates.batch-pdf');
     //sarpras
     Route::get('/sarpras', [SarprasController::class, 'view'])->name('sarpras');
     Route::get('/sarpras/add', [SarprasController::class, 'add'])->name('sarpras.add');

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\SkTemplate;
+use App\Models\SkYayasanSetting;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -19,6 +21,7 @@ class SkTemplateController extends Controller
         return view('backend.sk_templates.index', [
             'title' => 'Template SK',
             'templates' => SkTemplate::query()->latest()->get(),
+            'settingsCount' => SkYayasanSetting::query()->count(),
         ]);
     }
 
@@ -78,16 +81,81 @@ class SkTemplateController extends Controller
 
         $selectedUserId = $request->integer('user_id');
         $selectedUser = $selectedUserId ? $this->findUserOrFail($selectedUserId) : null;
-        $renderedHtml = $selectedUser ? $this->renderTemplate($skTemplate, $selectedUser) : null;
+        $previewSkNumber = $selectedUser ? $this->previewSkNumberForUser($selectedUser) : null;
+        $renderedHtml = $selectedUser ? $this->renderTemplate($skTemplate, $selectedUser, [
+            'nomor_sk' => $previewSkNumber,
+        ]) : null;
 
         return view('backend.sk_templates.show', [
             'title' => 'Generate PDF SK',
             'template' => $skTemplate,
             'users' => $this->templateUsers(),
             'selectedUser' => $selectedUser,
+            'selectedUserIds' => array_map('intval', (array) $request->input('user_ids', [])),
+            'previewSkNumber' => $previewSkNumber,
             'renderedHtml' => $renderedHtml,
             'placeholders' => $this->placeholderDefinitions(),
         ]);
+    }
+
+    public function settings()
+    {
+        $this->ensureRoleOne();
+
+        $periods = $this->periods();
+        $settings = SkYayasanSetting::query()->get()->keyBy('periode_id');
+
+        return view('backend.sk_templates.settings', [
+            'title' => 'Pengaturan SK Yayasan',
+            'periods' => $periods,
+            'settingsData' => $this->settingsFormData($periods, $settings),
+            'patternHelp' => [
+                '{{nomor_urut}}' => 'Nomor urut dengan nol di depan sesuai digit',
+                '{{nomor_urut_raw}}' => 'Nomor urut tanpa nol di depan',
+                '{{periode}}' => 'Nama periode',
+                '{{periode_upper}}' => 'Nama periode huruf besar',
+                '{{tahun}}' => 'Tahun sekarang',
+                '{{bulan_romawi}}' => 'Bulan sekarang dalam angka Romawi',
+            ],
+        ]);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $this->ensureRoleOne();
+
+        $validated = $request->validate([
+            'settings' => 'required|array',
+            'settings.*.nomor_pattern' => 'required|string|max:255',
+            'settings.*.nomor_awal' => 'required|integer|min:1|max:999999',
+            'settings.*.nomor_berikutnya' => 'required|integer|min:1|max:999999',
+            'settings.*.digit_nomor' => 'required|integer|min:1|max:10',
+            'settings.*.is_active' => 'nullable|boolean',
+        ]);
+
+        $periodIds = $this->periods()->pluck('id')->map(fn ($id) => (int) $id)->all();
+
+        foreach ($periodIds as $periodId) {
+            $input = $validated['settings'][$periodId] ?? null;
+            if (!$input) {
+                continue;
+            }
+
+            SkYayasanSetting::query()->updateOrCreate(
+                ['periode_id' => $periodId],
+                [
+                    'nomor_pattern' => $input['nomor_pattern'],
+                    'nomor_awal' => (int) $input['nomor_awal'],
+                    'nomor_berikutnya' => max((int) $input['nomor_awal'], (int) $input['nomor_berikutnya']),
+                    'digit_nomor' => (int) $input['digit_nomor'],
+                    'is_active' => (bool) ($input['is_active'] ?? false),
+                ]
+            );
+        }
+
+        Alert::success('Pengaturan SK Yayasan berhasil diperbarui');
+
+        return redirect()->route('sk-templates.settings');
     }
 
     public function edit(SkTemplate $skTemplate)
@@ -148,10 +216,11 @@ class SkTemplateController extends Controller
         $this->ensureRoleOne();
 
         $user = $this->findUserOrFail($userId);
+        $skNumber = $this->previewSkNumberForUser($user);
 
         return view('backend.sk_templates.preview', [
-            'title' => $this->renderText($skTemplate->document_title, $user),
-            'html' => $this->renderTemplate($skTemplate, $user),
+            'title' => $this->renderText($skTemplate->document_title, $user, ['nomor_sk' => $skNumber]),
+            'html' => $this->renderTemplate($skTemplate, $user, ['nomor_sk' => $skNumber]),
             'customCss' => $skTemplate->custom_css,
         ]);
     }
@@ -161,15 +230,74 @@ class SkTemplateController extends Controller
         $this->ensureRoleOne();
 
         $user = $this->findUserOrFail($userId);
-        $documentTitle = $this->renderText($skTemplate->document_title, $user);
+        $skNumber = $this->previewSkNumberForUser($user);
+        $documentTitle = $this->renderText($skTemplate->document_title, $user, ['nomor_sk' => $skNumber]);
 
         $pdf = Pdf::loadView('backend.sk_templates.pdf', [
             'title' => $documentTitle,
-            'html' => $this->renderTemplate($skTemplate, $user),
+            'html' => $this->renderTemplate($skTemplate, $user, ['nomor_sk' => $skNumber]),
             'customCss' => $skTemplate->custom_css,
         ])->setPaper($skTemplate->paper_size ?: 'A4', $skTemplate->orientation === 'landscape' ? 'landscape' : 'portrait');
 
         return $pdf->stream(Str::slug($documentTitle ?: $skTemplate->name ?: 'template-sk') . '.pdf');
+    }
+
+    public function batchPdf(SkTemplate $skTemplate, Request $request)
+    {
+        $this->ensureRoleOne();
+
+        $validated = $request->validate([
+            'user_ids' => 'required|array|min:1',
+            'user_ids.*' => 'required|integer',
+        ]);
+
+        $orderedIds = array_values(array_unique(array_map('intval', $validated['user_ids'])));
+        $users = $this->orderedTemplateUsers($orderedIds);
+        abort_if($users->isEmpty(), 404);
+
+        [$combinedHtml, $documentTitle] = DB::transaction(function () use ($orderedIds, $users, $skTemplate) {
+            $periodIds = $users->pluck('periode')->filter()->map(fn ($value) => (int) $value)->unique()->values()->all();
+            $settings = SkYayasanSetting::query()
+                ->whereIn('periode_id', $periodIds)
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('periode_id');
+
+            $counters = [];
+            $htmlParts = [];
+
+            foreach ($users as $user) {
+                $periodId = (int) ($user->periode ?? 0);
+                $setting = $this->resolveNumberSettingForPeriod($periodId, $settings, true);
+                $currentNumber = $counters[$periodId] ?? max((int) $setting->nomor_awal, (int) $setting->nomor_berikutnya);
+                $generatedSkNumber = $this->formatSkNumber($setting, $currentNumber, $user);
+
+                $htmlParts[] = $this->renderTemplate($skTemplate, $user, [
+                    'nomor_sk' => $generatedSkNumber,
+                ]);
+
+                $counters[$periodId] = $currentNumber + 1;
+            }
+
+            foreach ($counters as $periodId => $nextNumber) {
+                $setting = $this->resolveNumberSettingForPeriod($periodId, $settings, true);
+                $setting->nomor_berikutnya = $nextNumber;
+                $setting->save();
+            }
+
+            return [
+                implode('<div style="page-break-after: always;"></div>', $htmlParts),
+                ($skTemplate->name ?: 'SK Yayasan') . ' Batch ' . now()->format('Ymd-His'),
+            ];
+        });
+
+        $pdf = Pdf::loadView('backend.sk_templates.pdf', [
+            'title' => $documentTitle,
+            'html' => $combinedHtml,
+            'customCss' => $skTemplate->custom_css,
+        ])->setPaper($skTemplate->paper_size ?: 'A4', $skTemplate->orientation === 'landscape' ? 'landscape' : 'portrait');
+
+        return $pdf->stream(Str::slug($documentTitle ?: $skTemplate->name ?: 'template-sk-batch') . '.pdf');
     }
 
     protected function ensureRoleOne(): void
@@ -267,9 +395,30 @@ class SkTemplateController extends Controller
         return $this->usersQuery()->get();
     }
 
+    protected function orderedTemplateUsers(array $orderedIds): Collection
+    {
+        $usersById = $this->usersQuery()
+            ->whereIn('users.id', $orderedIds)
+            ->get()
+            ->keyBy('id');
+
+        return collect($orderedIds)
+            ->map(fn ($id) => $usersById->get($id))
+            ->filter()
+            ->values();
+    }
+
     protected function findUserOrFail(int $userId)
     {
         return $this->usersQuery()->where('users.id', $userId)->firstOrFail();
+    }
+
+    protected function periods(): Collection
+    {
+        return DB::table('periode')
+            ->select('id', 'nama_periode')
+            ->orderBy('id')
+            ->get();
     }
 
     protected function usersQuery()
@@ -325,6 +474,29 @@ class SkTemplateController extends Controller
             ['key' => 'bulan', 'label' => 'Nama bulan sekarang'],
             ['key' => 'logo_url', 'label' => 'Logo kop surat'],
         ];
+    }
+
+    protected function settingsFormData(Collection $periods, Collection $settings): array
+    {
+        $rows = [];
+
+        foreach ($periods as $period) {
+            $setting = $settings->get($period->id);
+            $rows[(int) $period->id] = [
+                'nomor_pattern' => old("settings.{$period->id}.nomor_pattern", $setting->nomor_pattern ?? $this->defaultSkNumberPattern($period->nama_periode)),
+                'nomor_awal' => old("settings.{$period->id}.nomor_awal", $setting->nomor_awal ?? 1),
+                'nomor_berikutnya' => old("settings.{$period->id}.nomor_berikutnya", $setting->nomor_berikutnya ?? 1),
+                'digit_nomor' => old("settings.{$period->id}.digit_nomor", $setting->digit_nomor ?? 4),
+                'is_active' => old("settings.{$period->id}.is_active", $setting->is_active ?? true),
+            ];
+        }
+
+        return $rows;
+    }
+
+    protected function defaultSkNumberPattern(?string $periodName = null): string
+    {
+        return '{{nomor_urut}}/SK.01/LPM.GK/' . strtoupper((string) ($periodName ?: '{{periode}}')) . '/{{tahun}}';
     }
 
     protected function previewSamples(): array
@@ -853,21 +1025,21 @@ body {
 CSS;
     }
 
-    protected function renderTemplate(SkTemplate $template, $user): string
+    protected function renderTemplate(SkTemplate $template, $user, array $overrides = []): string
     {
-        return strtr((string) $template->content, $this->replacementMap($user));
+        return strtr((string) $template->content, $this->replacementMap($user, true, $overrides));
     }
 
-    protected function renderText(string $text, $user): string
+    protected function renderText(string $text, $user, array $overrides = []): string
     {
-        return trim(strtr($text, $this->replacementMap($user, false)));
+        return trim(strtr($text, $this->replacementMap($user, false, $overrides)));
     }
 
-    protected function replacementMap($user, bool $escapeHtml = true): array
+    protected function replacementMap($user, bool $escapeHtml = true, array $overrides = []): array
     {
         Carbon::setLocale('id');
 
-        $values = [
+        $values = array_merge([
             'nama_lengkap' => $user->nama_lengkap ?? '',
             'email' => $user->email ?? '',
             'nis' => $user->nis ?? '',
@@ -896,7 +1068,7 @@ CSS;
             'tahun' => now()->format('Y'),
             'bulan' => now()->translatedFormat('F'),
             'logo_url' => $this->placeholderSvgDataUri('LOGO NU', '#159947', '#ffffff', 'circle'),
-        ];
+        ], $overrides);
 
         $map = [];
         foreach ($values as $key => $value) {
@@ -906,6 +1078,89 @@ CSS;
         }
 
         return $map;
+    }
+
+    protected function previewSkNumberForUser($user): string
+    {
+        $setting = $this->resolveNumberSettingForPeriod((int) ($user->periode ?? 0));
+
+        return $this->formatSkNumber(
+            $setting,
+            max((int) $setting->nomor_awal, (int) $setting->nomor_berikutnya),
+            $user
+        );
+    }
+
+    protected function resolveNumberSettingForPeriod(int $periodId, ?Collection $settings = null, bool $persistIfMissing = false): SkYayasanSetting
+    {
+        $existing = $settings?->get($periodId);
+        if ($existing) {
+            return $existing;
+        }
+
+        $periodName = DB::table('periode')->where('id', $periodId)->value('nama_periode') ?: 'UMUM';
+
+        $setting = $persistIfMissing
+            ? SkYayasanSetting::query()->firstOrCreate(
+                ['periode_id' => $periodId],
+                [
+                    'nomor_pattern' => $this->defaultSkNumberPattern($periodName),
+                    'nomor_awal' => 1,
+                    'nomor_berikutnya' => 1,
+                    'digit_nomor' => 4,
+                    'is_active' => true,
+                ]
+            )
+            : new SkYayasanSetting([
+                'periode_id' => $periodId,
+                'nomor_pattern' => $this->defaultSkNumberPattern($periodName),
+                'nomor_awal' => 1,
+                'nomor_berikutnya' => 1,
+                'digit_nomor' => 4,
+                'is_active' => true,
+            ]);
+
+        if ($settings) {
+            $settings->put($periodId, $setting);
+        }
+
+        return $setting;
+    }
+
+    protected function formatSkNumber(SkYayasanSetting $setting, int $number, $user = null): string
+    {
+        $periodName = trim((string) ($user->nama_periode ?? DB::table('periode')->where('id', $setting->periode_id)->value('nama_periode') ?? 'UMUM'));
+        $pattern = $setting->nomor_pattern ?: $this->defaultSkNumberPattern($periodName);
+        $paddedNumber = str_pad((string) $number, max(1, (int) $setting->digit_nomor), '0', STR_PAD_LEFT);
+
+        return strtr($pattern, [
+            '{{nomor_urut}}' => $paddedNumber,
+            '{{nomor_urut_raw}}' => (string) $number,
+            '{{periode}}' => $periodName,
+            '{{periode_upper}}' => strtoupper($periodName),
+            '{{tahun}}' => now()->format('Y'),
+            '{{bulan_romawi}}' => $this->romanMonth((int) now()->format('n')),
+        ]);
+    }
+
+    protected function romanMonth(int $month): string
+    {
+        $map = [
+            1 => 'I',
+            2 => 'II',
+            3 => 'III',
+            4 => 'IV',
+            5 => 'V',
+            6 => 'VI',
+            7 => 'VII',
+            8 => 'VIII',
+            9 => 'IX',
+            10 => 'X',
+            11 => 'XI',
+            12 => 'XII',
+        ];
+
+        return $map[$month] ?? '';
     }
 
     protected function formatDate($value): string
