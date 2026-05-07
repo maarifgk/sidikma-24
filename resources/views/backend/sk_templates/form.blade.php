@@ -52,7 +52,7 @@
                             <div class="col-12">
                                 <label class="form-label">Konten Template HTML</label>
                                 <textarea name="content" rows="24" class="form-control" style="font-family: monospace;" required>{{ old('content', $template->content) }}</textarea>
-                                <small class="text-muted">Gunakan placeholder seperti <code>{{ '{{nama_lengkap}}' }}</code>, <code>{{ '{{nama_kelas}}' }}</code>, dan lain-lain.</small>
+                                <small class="text-muted">Gunakan placeholder seperti <code>&#123;&#123;nama_lengkap&#125;&#125;</code>, <code>&#123;&#123;nama_kelas&#125;&#125;</code>, dan lain-lain.</small>
                             </div>
                         </div>
 
@@ -87,7 +87,7 @@
                     <div class="list-group list-group-flush">
                         @foreach($placeholders as $placeholder)
                             <div class="list-group-item px-0">
-                                <div class="fw-semibold"><code>{{ '{{' . $placeholder['key'] . '}}' }}</code></div>
+                                <div class="fw-semibold"><code>&#123;&#123;{{ $placeholder['key'] }}&#125;&#125;</code></div>
                                 <small class="text-muted">{{ $placeholder['label'] }}</small>
                             </div>
                         @endforeach
