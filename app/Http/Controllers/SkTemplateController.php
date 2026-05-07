@@ -1394,8 +1394,10 @@ CSS;
 
     protected function renderHeaderLogoMarkup(string $source, array $logoDimensions): string
     {
-    $width = $this->numericValue($logoDimensions['image_width']);
-    $height = $this->numericValue($logoDimensions['image_height']);
+        $imageWidth = $this->numericValue($logoDimensions['image_width']);
+        $imageHeight = $this->numericValue($logoDimensions['image_height']);
+        $wrapWidth = $this->numericValue($logoDimensions['wrap_width']);
+        $wrapHeight = $this->numericValue($logoDimensions['wrap_height']);
 
         if (str_starts_with($source, 'data:image/svg+xml;base64,')) {
             $svg = base64_decode(substr($source, strlen('data:image/svg+xml;base64,')), true) ?: '';
@@ -1405,19 +1407,18 @@ CSS;
                 $originalTag = $matches[0];
                 // remove existing width/height/style/preserveAspectRatio to re-insert controlled attributes
                 $newTag = preg_replace('/\s(width|height|style|preserveAspectRatio)="[^"]*"/i', '', $originalTag) ?? $originalTag;
-                // Set only width and preserve aspect ratio; omit explicit height to avoid squashing
+                // Use max-width/max-height and let aspect ratio be preserved; this works better with DomPDF
                 $newTag = rtrim(substr($newTag, 0, -1))
-                    . ' width="' . $this->attributeValue($this->numericValue($width)) . '"'
                     . ' preserveAspectRatio="xMidYMid meet"'
-                    . ' style="display:block;margin:0 auto;height:auto;"'
+                    . ' style="display:block;margin:0 auto;max-width:' . $this->attributeValue($wrapWidth) . 'px;max-height:' . $this->attributeValue($wrapHeight) . 'px;width:auto;height:auto;"'
                     . '>';
 
                 return preg_replace('/<svg\b[^>]*>/i', $newTag, $svg, 1) ?? $svg;
             }
         }
 
-        // For raster images, set width and let height be automatic to preserve original aspect ratio
-        return '<img src="' . $this->attributeValue($source) . '" alt="Logo" class="header-logo" style="width: ' . $this->attributeValue($this->numericValue($width)) . 'px; height: auto;">';
+        // For raster images, set max-width/max-height and let width/height be automatic to preserve aspect ratio
+        return '<img src="' . $this->attributeValue($source) . '" alt="Logo" class="header-logo" style="display:block;margin:0 auto;max-width: ' . $this->attributeValue($wrapWidth) . 'px; max-height: ' . $this->attributeValue($wrapHeight) . 'px; width: auto; height: auto;">';
     }
 
     protected function fontSizeValue($value, float $default): string
