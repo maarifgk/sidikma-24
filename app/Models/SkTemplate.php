@@ -13,12 +13,14 @@ class SkTemplate extends Model
         'description',
         'paper_size',
         'orientation',
+        'builder_data',
         'custom_css',
         'content',
         'is_active',
     ];
 
     protected $casts = [
+        'builder_data' => 'array',
         'is_active' => 'boolean',
     ];
 }

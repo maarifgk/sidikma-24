@@ -26,21 +26,26 @@ class SkTemplateController extends Controller
     {
         $this->ensureRoleOne();
 
+        $defaultBuilderData = $this->defaultBuilderData();
+
         return view('backend.sk_templates.form', [
             'title' => 'Buat Template SK',
             'template' => new SkTemplate([
                 'paper_size' => 'A4',
                 'orientation' => 'portrait',
+                'builder_data' => $defaultBuilderData,
                 'document_title' => 'SK Yayasan - {{nama_lengkap}}',
                 'content' => $this->defaultContent(),
                 'custom_css' => $this->defaultCss(),
                 'is_active' => true,
             ]),
+            'builderData' => $defaultBuilderData,
             'placeholders' => $this->placeholderDefinitions(),
             'previewSamples' => $this->previewSamples(),
             'presetTitle' => 'SK Yayasan - {{nama_lengkap}}',
-            'presetContent' => $this->defaultContent(),
+            'presetContent' => $this->buildContentFromBuilderData($defaultBuilderData),
             'presetCss' => $this->defaultCss(),
+            'presetBuilderData' => $defaultBuilderData,
             'formAction' => route('sk-templates.store'),
             'submitLabel' => 'Simpan Template',
             'isEdit' => false,
@@ -51,9 +56,12 @@ class SkTemplateController extends Controller
     {
         $this->ensureRoleOne();
 
-        $payload = $this->validatedPayload($request);
+        [$payload, $builderData] = $this->validatedPayload($request);
         $payload['slug'] = $this->makeUniqueSlug($payload['name']);
         $payload['is_active'] = $request->boolean('is_active');
+        $payload['builder_data'] = $builderData;
+        $payload['custom_css'] = $this->defaultCss();
+        $payload['content'] = $this->buildContentFromBuilderData($builderData);
 
         SkTemplate::create($payload);
 
@@ -84,14 +92,18 @@ class SkTemplateController extends Controller
     {
         $this->ensureRoleOne();
 
+        $builderData = $this->normalizeBuilderData($skTemplate->builder_data ?? []);
+
         return view('backend.sk_templates.form', [
             'title' => 'Edit Template SK',
             'template' => $skTemplate,
+            'builderData' => $builderData,
             'placeholders' => $this->placeholderDefinitions(),
             'previewSamples' => $this->previewSamples(),
             'presetTitle' => 'SK Yayasan - {{nama_lengkap}}',
-            'presetContent' => $this->defaultContent(),
+            'presetContent' => $this->buildContentFromBuilderData($this->defaultBuilderData()),
             'presetCss' => $this->defaultCss(),
+            'presetBuilderData' => $this->defaultBuilderData(),
             'formAction' => route('sk-templates.update', $skTemplate),
             'submitLabel' => 'Update Template',
             'isEdit' => true,
@@ -102,9 +114,12 @@ class SkTemplateController extends Controller
     {
         $this->ensureRoleOne();
 
-        $payload = $this->validatedPayload($request);
+        [$payload, $builderData] = $this->validatedPayload($request);
         $payload['slug'] = $this->makeUniqueSlug($payload['name'], $skTemplate->id);
         $payload['is_active'] = $request->boolean('is_active');
+        $payload['builder_data'] = $builderData;
+        $payload['custom_css'] = $this->defaultCss();
+        $payload['content'] = $this->buildContentFromBuilderData($builderData);
 
         $skTemplate->update($payload);
 
@@ -160,15 +175,50 @@ class SkTemplateController extends Controller
 
     protected function validatedPayload(Request $request): array
     {
-        return $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'document_title' => 'required|string|max:255',
             'description' => 'nullable|string|max:2000',
             'paper_size' => 'required|in:A4,legal,letter',
             'orientation' => 'required|in:portrait,landscape',
-            'custom_css' => 'nullable|string',
-            'content' => 'required|string',
+            'header_topline' => 'required|string|max:255',
+            'header_title' => 'required|string|max:255',
+            'header_address' => 'required|string|max:500',
+            'header_contact' => 'required|string|max:255',
+            'decision_title' => 'required|string|max:255',
+            'nomor_sk' => 'required|string|max:255',
+            'opening_line' => 'required|string|max:255',
+            'menimbang_text' => 'required|string',
+            'mengingat_text' => 'required|string',
+            'memperhatikan_text' => 'required|string',
+            'memutuskan_title' => 'required|string|max:255',
+            'pertama_intro' => 'required|string|max:255',
+            'pertama_penutup' => 'required|string',
+            'kedua_text' => 'required|string',
+            'ketiga_text' => 'required|string',
+            'signature_city' => 'required|string|max:255',
+            'signature_date_label' => 'required|string|max:255',
+            'signature_date' => 'required|string|max:255',
+            'signature_body_top' => 'required|string|max:255',
+            'signature_role' => 'required|string|max:255',
+            'signature_name' => 'required|string|max:255',
+            'tembusan_title' => 'required|string|max:255',
+            'tembusan_items' => 'required|string',
+            'logo_url' => 'nullable|string|max:500',
+            'stempel_url' => 'nullable|string|max:500',
+            'signature_url' => 'nullable|string|max:500',
+            'qr_url' => 'nullable|string|max:500',
         ]);
+
+        $builderData = $this->normalizeBuilderData($validated);
+
+        return [[
+            'name' => $validated['name'],
+            'document_title' => $validated['document_title'],
+            'description' => $validated['description'] ?? null,
+            'paper_size' => $validated['paper_size'],
+            'orientation' => $validated['orientation'],
+        ], $builderData];
     }
 
     protected function makeUniqueSlug(string $name, ?int $ignoreId = null): string
@@ -295,20 +345,78 @@ class SkTemplateController extends Controller
         ];
     }
 
+    protected function defaultBuilderData(): array
+    {
+        return [
+            'header_topline' => 'PENGURUS CABANG NAHDLATUL ULAMA GUNUNGKIDUL',
+            'header_title' => "LEMBAGA PENDIDIKAN MA'ARIF NU",
+            'header_address' => 'Jln. Tentara Pelajar, Trimulyo I, Kepek, Wonosari, Gunungkidul-55813',
+            'header_contact' => '08522947609    maarifgunungkidul@gmail.com',
+            'decision_title' => "SURAT KEPUTUSAN KETUA LP MA'ARIF NU GUNUNGKIDUL",
+            'nomor_sk' => '{{nomor_sk}}',
+            'opening_line' => "Ketua Lembaga Pendidikan Ma'arif NU Kabupaten Gunungkidul",
+            'menimbang_text' => "Bahwa demi meningkatkan kualitas pelayanan pendidikan di {{nama_kelas}}, maka dipandang perlu mengangkat guru tetap yang memenuhi kualifikasi;\nBahwa guru tersebut di bawah ini memenuhi syarat untuk diangkat sebagai Guru Tetap di LP. Ma'arif NU PCNU Gunungkidul untuk {{nama_kelas}}, sesuai dengan kualifikasi tersebut;",
+            'mengingat_text' => "1. Undang-undang Nomor 20 Tahun 2003 tentang Sisdiknas;\n2. Pedoman Penyelenggaraan LP Ma'arif NU DIY No 01 Tahun 2023;\n3. Aturan Kepegawaian LP Ma'arif NU DIY No 04 Tahun 2023;",
+            'memperhatikan_text' => "Bahwa tenaga pendidik berikut, berstatus aktif di {{nama_kelas}} sesuai dengan verifikasi data di Aplikasi SiDIKMa-GK pada tahun ditetapkannya keputusan ini;",
+            'memutuskan_title' => 'MEMUTUSKAN',
+            'pertama_intro' => 'Guru tersebut di bawah ini :',
+            'pertama_penutup' => "Diangkat kembali sebagai tenaga pendidik LP. Ma'arif NU PCNU Gunungkidul untuk {{nama_kelas}} tahun pelajaran 2025/2026 dengan ketugasan {{ketugasan}}, dan kepadanya diberikan gaji pokok serta tunjangan lain yang berlaku di {{nama_kelas}}.",
+            'kedua_text' => 'Keputusan ini berlaku terhitung mulai tanggal {{tanggal_mulai}} sampai dengan {{tanggal_selesai}} yang apabila di kemudian hari terdapat kekeliruan di dalamnya, akan diadakan perbaikan dan perhitungan kembali sebagaimana mestinya.',
+            'ketiga_text' => 'Asli surat keputusan ini diberikan kepada yang bersangkutan.',
+            'signature_city' => 'Gunungkidul',
+            'signature_date_label' => 'Pada Tanggal',
+            'signature_date' => '{{tanggal_sk}}',
+            'signature_body_top' => "Pengurus LP Ma'arif NU Kab. Gunungkidul",
+            'signature_role' => 'Ketua,',
+            'signature_name' => 'Drs. H. SANGKIN, M.Pd.',
+            'tembusan_title' => 'Tembusan Yth;',
+            'tembusan_items' => "Kepala Kemenag Kab. Gunungkidul\nKepala {{nama_kelas}}\nArsip",
+            'logo_url' => '{{logo_url}}',
+            'stempel_url' => '{{stempel_url}}',
+            'signature_url' => '{{signature_url}}',
+            'qr_url' => '{{qr_url}}',
+        ];
+    }
+
+    protected function normalizeBuilderData(array $data): array
+    {
+        $defaults = $this->defaultBuilderData();
+        $normalized = [];
+
+        foreach ($defaults as $key => $defaultValue) {
+            $normalized[$key] = array_key_exists($key, $data) && $data[$key] !== null
+                ? (string) $data[$key]
+                : $defaultValue;
+        }
+
+        return $normalized;
+    }
+
     protected function defaultContent(): string
     {
-        return <<<'HTML'
+        return $this->buildContentFromBuilderData($this->defaultBuilderData());
+    }
+
+    protected function buildContentFromBuilderData(array $builderData): string
+    {
+        $builderData = $this->normalizeBuilderData($builderData);
+        $tembusanItems = array_values(array_filter(array_map('trim', preg_split("/\r\n|\n|\r/", $builderData['tembusan_items'])), fn ($item) => $item !== ''));
+        $tembusanHtml = collect($tembusanItems)->map(function ($item) {
+            return '<li>' . $this->formatBuilderText($item) . '</li>';
+        })->implode("\n");
+
+        return strtr(<<<'HTML'
 <div class="document">
     <table class="header-table">
         <tr>
             <td class="header-logo-cell">
-                <img src="{{logo_url}}" alt="Logo" class="header-logo">
+                <img src="__LOGO_URL__" alt="Logo" class="header-logo">
             </td>
             <td class="header-text-cell">
-                <div class="header-topline">PENGURUS CABANG NAHDLATUL ULAMA GUNUNGKIDUL</div>
-                <div class="header-title">LEMBAGA PENDIDIKAN MA'ARIF NU</div>
-                <div class="header-address">Jln. Tentara Pelajar, Trimulyo I, Kepek, Wonosari, Gunungkidul-55813</div>
-                <div class="header-contact">08522947609 &nbsp;&nbsp; maarifgunungkidul@gmail.com</div>
+                <div class="header-topline">__HEADER_TOPLINE__</div>
+                <div class="header-title">__HEADER_TITLE__</div>
+                <div class="header-address">__HEADER_ADDRESS__</div>
+                <div class="header-contact">__HEADER_CONTACT__</div>
             </td>
         </tr>
     </table>
@@ -316,44 +424,32 @@ class SkTemplateController extends Controller
     <div class="header-divider"></div>
 
     <div class="text-center decision-heading">
-        <div class="decision-title">SURAT KEPUTUSAN KETUA LP MA'ARIF NU GUNUNGKIDUL</div>
-        <div class="decision-number">Nomor : {{nomor_sk}}</div>
+        <div class="decision-title">__DECISION_TITLE__</div>
+        <div class="decision-number">Nomor : __NOMOR_SK__</div>
     </div>
 
     <div class="content-block">
-        <p class="opening-line">Ketua Lembaga Pendidikan Ma'arif NU Kabupaten Gunungkidul</p>
+        <p class="opening-line">__OPENING_LINE__</p>
 
         <table class="consideration-table">
             <tr>
                 <td class="label">Menimbang</td>
                 <td class="colon">:</td>
-                <td>
-                    Bahwa demi meningkatkan kualitas pelayanan pendidikan di <strong>{{nama_kelas}}</strong>,
-                    maka dipandang perlu mengangkat guru tetap yang memenuhi kualifikasi;<br>
-                    Bahwa guru tersebut di bawah ini memenuhi syarat untuk diangkat sebagai guru tetap
-                    di LP. Ma'arif NU PCNU Gunungkidul untuk <strong>{{nama_kelas}}</strong>, sesuai dengan kualifikasi tersebut;
-                </td>
+                <td>__MENIMBANG_TEXT__</td>
             </tr>
             <tr>
                 <td class="label">Mengingat</td>
                 <td class="colon">:</td>
-                <td>
-                    1. Undang-undang Nomor 20 Tahun 2003 tentang Sisdiknas;<br>
-                    2. Pedoman Penyelenggaraan LP Ma'arif NU DIY No 01 Tahun 2023;<br>
-                    3. Aturan Kepegawaian LP Ma'arif NU DIY No 04 Tahun 2023;
-                </td>
+                <td>__MENGINGAT_TEXT__</td>
             </tr>
             <tr>
                 <td class="label">Memperhatikan</td>
                 <td class="colon">:</td>
-                <td>
-                    Bahwa tenaga pendidik berikut berstatus aktif di <strong>{{nama_kelas}}</strong> sesuai
-                    verifikasi data di Aplikasi SiDIKMa-GK pada tahun ditetapkannya keputusan ini;
-                </td>
+                <td>__MEMPERHATIKAN_TEXT__</td>
             </tr>
         </table>
 
-        <div class="memutuskan-title">MEMUTUSKAN</div>
+        <div class="memutuskan-title">__MEMUTUSKAN_TITLE__</div>
 
         <table class="decision-body-table">
             <tr>
@@ -365,7 +461,7 @@ class SkTemplateController extends Controller
                 <td class="label">Pertama</td>
                 <td class="colon">:</td>
                 <td>
-                    Guru tersebut di bawah ini :
+                    __PERTAMA_INTRO__
                     <table class="identity-table">
                         <tr><td class="num">1.</td><td class="field">Nama</td><td class="colon">:</td><td>{{nama_lengkap}}</td></tr>
                         <tr><td class="num">2.</td><td class="field">Tempat, tanggal lahir</td><td class="colon">:</td><td>{{tempat_lahir}}, {{tgl_lahir}}</td></tr>
@@ -376,60 +472,79 @@ class SkTemplateController extends Controller
                         <tr><td class="num">7.</td><td class="field">Program Studi</td><td class="colon">:</td><td>{{p_studi}}</td></tr>
                         <tr><td class="num">8.</td><td class="field">Status Kepegawaian</td><td class="colon">:</td><td>{{nama_jurusan}}</td></tr>
                     </table>
-                    Diangkat kembali sebagai tenaga pendidik LP. Ma'arif NU PCNU Gunungkidul untuk
-                    <strong>{{nama_kelas}}</strong> tahun pelajaran 2025/2026 dengan ketugasan
-                    <strong>{{ketugasan}}</strong>, dan kepadanya diberikan gaji pokok sebesar
-                    <strong>{{gaji_pokok}}</strong> serta tunjangan lain <strong>{{tunjangan_lain}}</strong>.
+                    __PERTAMA_PENUTUP__
                 </td>
             </tr>
             <tr>
                 <td class="label">Kedua</td>
                 <td class="colon">:</td>
-                <td>
-                    Keputusan ini berlaku terhitung mulai tanggal <strong>{{tanggal_mulai}}</strong> sampai dengan
-                    <strong>{{tanggal_selesai}}</strong> yang apabila di kemudian hari terdapat kekeliruan di dalamnya,
-                    akan diadakan perbaikan dan perhitungan kembali sebagaimana mestinya.
-                </td>
+                <td>__KEDUA_TEXT__</td>
             </tr>
             <tr>
                 <td class="label">Ketiga</td>
                 <td class="colon">:</td>
-                <td>Asli surat keputusan ini diberikan kepada yang bersangkutan.</td>
+                <td>__KETIGA_TEXT__</td>
             </tr>
         </table>
 
         <div class="signature-section">
             <table class="signature-table">
-                <tr><td>Ditetapkan di</td><td class="colon">:</td><td>Gunungkidul</td></tr>
-                <tr><td>Pada Tanggal</td><td class="colon">:</td><td>{{tanggal_sk}}</td></tr>
-                <tr><td colspan="3">Pengurus LP Ma'arif NU Kab. Gunungkidul</td></tr>
-                <tr><td colspan="3">Ketua,</td></tr>
+                <tr><td>Ditetapkan di</td><td class="colon">:</td><td>__SIGNATURE_CITY__</td></tr>
+                <tr><td>__SIGNATURE_DATE_LABEL__</td><td class="colon">:</td><td>__SIGNATURE_DATE__</td></tr>
+                <tr><td colspan="3">__SIGNATURE_BODY_TOP__</td></tr>
+                <tr><td colspan="3">__SIGNATURE_ROLE__</td></tr>
             </table>
 
             <div class="signature-visuals">
-                <img src="{{stempel_url}}" alt="Stempel" class="stamp-image">
-                <img src="{{signature_url}}" alt="Tanda Tangan" class="signature-image">
+                <img src="__STEMPEL_URL__" alt="Stempel" class="stamp-image">
+                <img src="__SIGNATURE_URL__" alt="Tanda Tangan" class="signature-image">
             </div>
 
-            <div class="signature-name">Drs. H. SANGKIN, M.Pd.</div>
+            <div class="signature-name">__SIGNATURE_NAME__</div>
         </div>
 
         <div class="footer-section">
             <div class="tembusan-block">
-                <div>Tembusan Yth;</div>
+                <div>__TEMBUSAN_TITLE__</div>
                 <ol>
-                    <li>Kepala Kemenag Kab. Gunungkidul</li>
-                    <li>Kepala {{nama_kelas}}</li>
-                    <li>Arsip</li>
+                    __TEMBUSAN_ITEMS__
                 </ol>
             </div>
             <div class="qr-block">
-                <img src="{{qr_url}}" alt="QR" class="qr-image">
+                <img src="__QR_URL__" alt="QR" class="qr-image">
             </div>
         </div>
     </div>
 </div>
-HTML;
+HTML, [
+            '__LOGO_URL__' => $this->attributeValue($builderData['logo_url']),
+            '__HEADER_TOPLINE__' => $this->formatBuilderText($builderData['header_topline']),
+            '__HEADER_TITLE__' => $this->formatBuilderText($builderData['header_title']),
+            '__HEADER_ADDRESS__' => $this->formatBuilderText($builderData['header_address']),
+            '__HEADER_CONTACT__' => $this->formatBuilderText($builderData['header_contact']),
+            '__DECISION_TITLE__' => $this->formatBuilderText($builderData['decision_title']),
+            '__NOMOR_SK__' => $this->formatBuilderText($builderData['nomor_sk']),
+            '__OPENING_LINE__' => $this->formatBuilderText($builderData['opening_line']),
+            '__MENIMBANG_TEXT__' => $this->formatBuilderText($builderData['menimbang_text']),
+            '__MENGINGAT_TEXT__' => $this->formatBuilderText($builderData['mengingat_text']),
+            '__MEMPERHATIKAN_TEXT__' => $this->formatBuilderText($builderData['memperhatikan_text']),
+            '__MEMUTUSKAN_TITLE__' => $this->formatBuilderText($builderData['memutuskan_title']),
+            '__PERTAMA_INTRO__' => $this->formatBuilderText($builderData['pertama_intro']),
+            '__PERTAMA_PENUTUP__' => $this->formatBuilderText($builderData['pertama_penutup']),
+            '__KEDUA_TEXT__' => $this->formatBuilderText($builderData['kedua_text']),
+            '__KETIGA_TEXT__' => $this->formatBuilderText($builderData['ketiga_text']),
+            '__SIGNATURE_CITY__' => $this->formatBuilderText($builderData['signature_city']),
+            '__SIGNATURE_DATE_LABEL__' => $this->formatBuilderText($builderData['signature_date_label']),
+            '__SIGNATURE_DATE__' => $this->formatBuilderText($builderData['signature_date']),
+            '__SIGNATURE_BODY_TOP__' => $this->formatBuilderText($builderData['signature_body_top']),
+            '__SIGNATURE_ROLE__' => $this->formatBuilderText($builderData['signature_role']),
+            '__SIGNATURE_NAME__' => $this->formatBuilderText($builderData['signature_name']),
+            '__STEMPEL_URL__' => $this->attributeValue($builderData['stempel_url']),
+            '__SIGNATURE_URL__' => $this->attributeValue($builderData['signature_url']),
+            '__TEMBUSAN_TITLE__' => $this->formatBuilderText($builderData['tembusan_title']),
+            '__TEMBUSAN_ITEMS__' => $tembusanHtml,
+            '__QR_URL__' => $this->attributeValue($builderData['qr_url']),
+        ]);
     }
 
     protected function defaultCss(): string
@@ -768,5 +883,22 @@ CSS;
         };
 
         return 'data:image/svg+xml;base64,' . base64_encode($svg);
+    }
+
+    protected function formatBuilderText(string $value): string
+    {
+        return nl2br($this->escapeTextPreservingPlaceholders($value));
+    }
+
+    protected function escapeTextPreservingPlaceholders(string $value): string
+    {
+        return preg_replace_callback('/\{\{[a-zA-Z0-9_]+\}\}/', function ($matches) use ($value) {
+            return $matches[0];
+        }, e($value));
+    }
+
+    protected function attributeValue(string $value): string
+    {
+        return e($value);
     }
 }
