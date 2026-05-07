@@ -180,6 +180,11 @@
                             </select>
                         </div>
                         <div class="row g-2 mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Text Setelah Nomor SK</label>
+                                <input type="text" id="nomor_text" name="nomor_text" class="form-control" value="{{ $nomorText }}" placeholder="Contoh: SK.01/LPM.GK">
+                                <small class="text-muted">Dipakai untuk placeholder <code>&#123;&#123;teks_nomor_sk&#125;&#125;</code> saat generate.</small>
+                            </div>
                             <div class="col-md-6">
                                 <label class="form-label">Tahun Generate SK</label>
                                 <input type="number" id="tahun_sk" name="tahun_sk" class="form-control" min="2000" max="2100" value="{{ $selectedYear }}">
@@ -197,6 +202,7 @@
                         <a href="#" class="btn btn-success disabled" id="pdfLink" target="_blank">Generate PDF</a>
                         <form action="{{ route('sk-templates.batch-pdf', $template) }}" method="POST" target="_blank">
                             @csrf
+                            <input type="hidden" name="nomor_text" id="batch_nomor_text" value="{{ $nomorText }}">
                             <input type="hidden" name="tahun_sk" id="batch_tahun_sk" value="{{ $selectedYear }}">
                             <input type="hidden" name="nomor_mulai" id="batch_nomor_mulai" value="{{ $startNumber }}">
                             <div class="mb-2">
@@ -246,6 +252,7 @@
                         <div class="mb-3 text-muted">
                             Preview untuk user: <strong>{{ $selectedUser->nama_lengkap }}</strong>
                             @if($previewSkNumber)
+                                <div>Text setelah nomor SK: <strong>{{ $nomorText }}</strong></div>
                                 <div>Tahun generate: <strong>{{ $selectedYear }}</strong></div>
                                 <div>Nomor mulai: <strong>{{ $startNumber }}</strong></div>
                                 <div>Nomor SK hasil preview: <strong>{{ $previewSkNumber }}</strong></div>
@@ -276,11 +283,13 @@
     const resetStatusFilterButton = document.getElementById('reset_status_filter');
     const userSelect = document.getElementById('user_id');
     const batchUserSelect = document.getElementById('batch_user_ids');
+    const nomorTextInput = document.getElementById('nomor_text');
     const yearInput = document.getElementById('tahun_sk');
     const startNumberInput = document.getElementById('nomor_mulai');
     const previewLink = document.getElementById('previewLink');
     const pdfLink = document.getElementById('pdfLink');
     const templateId = @json($template->id);
+    const batchNomorTextInput = document.getElementById('batch_nomor_text');
     const batchYearInput = document.getElementById('batch_tahun_sk');
     const batchStartNumberInput = document.getElementById('batch_nomor_mulai');
 
@@ -340,8 +349,10 @@
 
     function updateLinks() {
         const userId = userSelect.value;
+        const nomorText = nomorTextInput.value || 'SK.01/LPM.GK';
         const year = yearInput.value || '{{ $selectedYear }}';
         const startNumber = startNumberInput.value || '1';
+        batchNomorTextInput.value = nomorText;
         batchYearInput.value = year;
         batchStartNumberInput.value = startNumber;
 
@@ -353,14 +364,14 @@
             return;
         }
 
-        const query = `?tahun_sk=${encodeURIComponent(year)}&nomor_mulai=${encodeURIComponent(startNumber)}`;
+        const query = `?nomor_text=${encodeURIComponent(nomorText)}&tahun_sk=${encodeURIComponent(year)}&nomor_mulai=${encodeURIComponent(startNumber)}`;
         previewLink.href = `/sk-templates/${templateId}/preview/${userId}${query}`;
         pdfLink.href = `/sk-templates/${templateId}/pdf/${userId}${query}`;
         previewLink.classList.remove('disabled');
         pdfLink.classList.remove('disabled');
     }
 
-    [userSelect, yearInput, startNumberInput].forEach((element) => {
+    [userSelect, nomorTextInput, yearInput, startNumberInput].forEach((element) => {
         element.addEventListener('input', updateLinks);
         element.addEventListener('change', updateLinks);
     });

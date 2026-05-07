@@ -26,7 +26,6 @@
                         <thead>
                             <tr>
                                 <th>Periode</th>
-                                <th>Teks Nomor SK Yayasan</th>
                                 <th>Format Nomor SK</th>
                                 <th width="120">Digit</th>
                                 <th width="120">Nomor Awal</th>
@@ -40,10 +39,6 @@
                                 <tr>
                                     <td>
                                         <div class="fw-semibold">{{ $period->nama_periode }}</div>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="settings[{{ $period->id }}][nomor_text]" class="form-control" value="{{ $row['nomor_text'] ?? 'SK.01/LPM.GK' }}" required>
-                                        <small class="text-muted">Contoh: <code>SK.01/LPM.GK</code></small>
                                     </td>
                                     <td>
                                         <input type="text" name="settings[{{ $period->id }}][nomor_pattern]" class="form-control" value="{{ $row['nomor_pattern'] ?? '' }}" required>
