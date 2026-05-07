@@ -8,6 +8,7 @@ class SkYayasanSetting extends Model
 {
     protected $fillable = [
         'periode_id',
+        'nomor_text',
         'nomor_pattern',
         'nomor_awal',
         'nomor_berikutnya',

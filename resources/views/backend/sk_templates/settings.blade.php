@@ -26,6 +26,7 @@
                         <thead>
                             <tr>
                                 <th>Periode</th>
+                                <th>Teks Nomor SK Yayasan</th>
                                 <th>Format Nomor SK</th>
                                 <th width="120">Digit</th>
                                 <th width="120">Nomor Awal</th>
@@ -41,8 +42,12 @@
                                         <div class="fw-semibold">{{ $period->nama_periode }}</div>
                                     </td>
                                     <td>
+                                        <input type="text" name="settings[{{ $period->id }}][nomor_text]" class="form-control" value="{{ $row['nomor_text'] ?? 'SK.01/LPM.GK' }}" required>
+                                        <small class="text-muted">Contoh: <code>SK.01/LPM.GK</code></small>
+                                    </td>
+                                    <td>
                                         <input type="text" name="settings[{{ $period->id }}][nomor_pattern]" class="form-control" value="{{ $row['nomor_pattern'] ?? '' }}" required>
-                                        <small class="text-muted">Contoh: <code>&#123;&#123;nomor_urut&#125;&#125;/SK.01/LPM.GK/&#123;&#123;periode&#125;&#125;/&#123;&#123;tahun&#125;&#125;</code></small>
+                                        <small class="text-muted">Contoh: <code>&#123;&#123;nomor_urut&#125;&#125;/&#123;&#123;teks_nomor_sk&#125;&#125;/&#123;&#123;periode&#125;&#125;/&#123;&#123;tahun&#125;&#125;</code></small>
                                     </td>
                                     <td>
                                         <input type="number" name="settings[{{ $period->id }}][digit_nomor]" class="form-control" min="1" max="10" value="{{ $row['digit_nomor'] ?? 4 }}" required>

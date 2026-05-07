@@ -119,6 +119,7 @@ class SkTemplateController extends Controller
             'patternHelp' => [
                 '{{nomor_urut}}' => 'Nomor urut dengan nol di depan sesuai digit',
                 '{{nomor_urut_raw}}' => 'Nomor urut tanpa nol di depan',
+                '{{teks_nomor_sk}}' => 'Teks nomor SK yayasan yang diatur per periode',
                 '{{periode}}' => 'Nama periode',
                 '{{periode_upper}}' => 'Nama periode huruf besar',
                 '{{tahun}}' => 'Tahun sekarang',
@@ -133,6 +134,7 @@ class SkTemplateController extends Controller
 
         $validated = $request->validate([
             'settings' => 'required|array',
+            'settings.*.nomor_text' => 'required|string|max:255',
             'settings.*.nomor_pattern' => 'required|string|max:255',
             'settings.*.nomor_awal' => 'required|integer|min:1|max:999999',
             'settings.*.nomor_berikutnya' => 'required|integer|min:1|max:999999',
@@ -151,6 +153,7 @@ class SkTemplateController extends Controller
             SkYayasanSetting::query()->updateOrCreate(
                 ['periode_id' => $periodId],
                 [
+                    'nomor_text' => $input['nomor_text'],
                     'nomor_pattern' => $input['nomor_pattern'],
                     'nomor_awal' => (int) $input['nomor_awal'],
                     'nomor_berikutnya' => max((int) $input['nomor_awal'], (int) $input['nomor_berikutnya']),
@@ -503,6 +506,7 @@ class SkTemplateController extends Controller
         foreach ($periods as $period) {
             $setting = $settings->get($period->id);
             $rows[(int) $period->id] = [
+                'nomor_text' => old("settings.{$period->id}.nomor_text", $setting->nomor_text ?? 'SK.01/LPM.GK'),
                 'nomor_pattern' => old("settings.{$period->id}.nomor_pattern", $setting->nomor_pattern ?? $this->defaultSkNumberPattern($period->nama_periode)),
                 'nomor_awal' => old("settings.{$period->id}.nomor_awal", $setting->nomor_awal ?? 1),
                 'nomor_berikutnya' => old("settings.{$period->id}.nomor_berikutnya", $setting->nomor_berikutnya ?? 1),
@@ -516,7 +520,7 @@ class SkTemplateController extends Controller
 
     protected function defaultSkNumberPattern(?string $periodName = null): string
     {
-        return '{{nomor_urut}}/SK.01/LPM.GK/' . strtoupper((string) ($periodName ?: '{{periode}}')) . '/{{tahun}}';
+        return '{{nomor_urut}}/{{teks_nomor_sk}}/' . strtoupper((string) ($periodName ?: '{{periode}}')) . '/{{tahun}}';
     }
 
     protected function previewSamples(): array
@@ -1133,6 +1137,7 @@ CSS;
                 ['periode_id' => $periodId],
                 [
                     'nomor_pattern' => $this->defaultSkNumberPattern($periodName),
+                    'nomor_text' => 'SK.01/LPM.GK',
                     'nomor_awal' => 1,
                     'nomor_berikutnya' => 1,
                     'digit_nomor' => 4,
@@ -1142,6 +1147,7 @@ CSS;
             : new SkYayasanSetting([
                 'periode_id' => $periodId,
                 'nomor_pattern' => $this->defaultSkNumberPattern($periodName),
+                'nomor_text' => 'SK.01/LPM.GK',
                 'nomor_awal' => 1,
                 'nomor_berikutnya' => 1,
                 'digit_nomor' => 4,
@@ -1165,6 +1171,7 @@ CSS;
         return strtr($pattern, [
             '{{nomor_urut}}' => $paddedNumber,
             '{{nomor_urut_raw}}' => (string) $number,
+            '{{teks_nomor_sk}}' => (string) ($setting->nomor_text ?: 'SK.01/LPM.GK'),
             '{{periode}}' => $periodName,
             '{{periode_upper}}' => strtoupper($periodName),
             '{{tahun}}' => (string) $year,
