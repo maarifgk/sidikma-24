@@ -231,9 +231,14 @@ class SkTemplateController extends Controller
         $nomorText = $this->sanitizeNomorText(request()->input('nomor_text'));
         $skNumber = $this->previewSkNumberForUser($user, $year, $startNumber, $nomorText);
 
+        $rendered = $this->renderTemplate($skTemplate, $user, ['nomor_sk' => $skNumber]);
+
+        // Remove header logo markup temporarily for preview (keep empty wrapper to preserve layout)
+        $renderedWithoutLogo = preg_replace('/(<div\s+class=["\\'\"]header-logo-wrap["\'\"][^>]*>).*?(<\/div>)/is', '$1$2', $rendered);
+
         return view('backend.sk_templates.preview', [
             'title' => $this->renderText($skTemplate->document_title, $user, ['nomor_sk' => $skNumber]),
-            'html' => $this->renderTemplate($skTemplate, $user, ['nomor_sk' => $skNumber]),
+            'html' => $renderedWithoutLogo,
             'customCss' => $skTemplate->custom_css,
         ]);
     }
@@ -249,9 +254,14 @@ class SkTemplateController extends Controller
         $skNumber = $this->previewSkNumberForUser($user, $year, $startNumber, $nomorText);
         $documentTitle = $this->renderText($skTemplate->document_title, $user, ['nomor_sk' => $skNumber]);
 
+        $rendered = $this->renderTemplate($skTemplate, $user, ['nomor_sk' => $skNumber]);
+
+        // Remove header logo markup temporarily for PDF output (keep empty wrapper to preserve layout)
+        $renderedWithoutLogo = preg_replace('/(<div\s+class=["\\'\"]header-logo-wrap["\'\"][^>]*>).*?(<\/div>)/is', '$1$2', $rendered);
+
         $pdf = Pdf::loadView('backend.sk_templates.pdf', [
             'title' => $documentTitle,
-            'html' => $this->renderTemplate($skTemplate, $user, ['nomor_sk' => $skNumber]),
+            'html' => $renderedWithoutLogo,
             'customCss' => $skTemplate->custom_css,
         ])->setPaper($skTemplate->paper_size ?: 'A4', $skTemplate->orientation === 'landscape' ? 'landscape' : 'portrait');
 
