@@ -128,9 +128,11 @@
 
     function replacePlaceholders(template) {
         let output = template || '';
+        const openToken = '{' + '{';
+        const closeToken = '}' + '}';
 
         Object.entries(previewSamples).forEach(([key, value]) => {
-            const token = `{{${key}}}`;
+            const token = openToken + key + closeToken;
             output = output.split(token).join(value ?? '');
         });
 
