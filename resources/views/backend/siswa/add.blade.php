@@ -8,8 +8,14 @@
                     <h5 class="mb-0" style="font-size: 40px">{{ $title }}</h5>
                 </div>
                 <div class="card-body">
-                    <form action="/siswa/add" method="POST" enctype="multipart/form-data">
+                    <form action="/siswa/add" method="POST" enctype="multipart/form-data" autocomplete="off">
                         @csrf
+                        <input type="text" name="fake_username" autocomplete="username" tabindex="-1"
+                            aria-hidden="true"
+                            style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">
+                        <input type="password" name="fake_password" autocomplete="current-password" tabindex="-1"
+                            aria-hidden="true"
+                            style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -30,7 +36,7 @@
                                 <div class="mb-3">
                                     <label class="form-label" for="email">Email</label>
                                     <input type="email" class="form-control" id="email" name="email"
-                                        placeholder="Masukan Email" required />
+                                        placeholder="Masukan Email" autocomplete="off" required />
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -100,7 +106,8 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label" for="tempat_lahir">Tempat Lahir</label>
-                                    <input type="text" class="form-control" id="tempat_lahir" name="tempat_lahir"/>
+                                    <input type="text" class="form-control" id="tempat_lahir" name="tempat_lahir"
+                                        autocomplete="off" />
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -140,7 +147,7 @@
                                 <div class="mb-3">
                                     <label class="form-label" for="password">Password Baru Aplikasi</label>
                                     <input type="password" class="form-control" id="password" name="password"
-                                        placeholder="Masukan Password"  />
+                                        placeholder="Masukan Password" autocomplete="new-password" />
                                 </div>
                             </div>
                               <div class="col-md-6">
