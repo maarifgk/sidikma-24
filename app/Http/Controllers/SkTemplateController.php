@@ -655,8 +655,8 @@ class SkTemplateController extends Controller
 <div class="document">
     <table class="header-table">
         <tr>
-            <td class="header-logo-cell" style="width: __HEADER_LOGO_CELL_WIDTH__px;">
-                <div class="header-logo-wrap" style="width: __HEADER_LOGO_WRAP_WIDTH__px; height: __HEADER_LOGO_WRAP_HEIGHT__px;">
+                <td class="header-logo-cell" style="width: __HEADER_LOGO_CELL_WIDTH__px;">
+                <div class="header-logo-wrap" style="width: __HEADER_LOGO_WRAP_WIDTH__px; max-height: __HEADER_LOGO_WRAP_HEIGHT__px; display:flex;align-items:center;justify-content:center;">
                     __HEADER_LOGO_MARKUP__
                 </div>
             </td>
@@ -854,9 +854,20 @@ body {
     text-align: center;
 }
 
+.header-logo-wrap {
+    margin: 0 auto;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .header-logo {
     display: block;
     margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
 }
 
 .header-topline {
@@ -1329,20 +1340,20 @@ CSS;
     protected function logoDisplayDimensions(string $logoUrl): array
     {
         [$sourceWidth, $sourceHeight] = $this->imageDimensionsFromSource($logoUrl);
-        // Reduce default maximums so very wide logos are scaled down more aggressively.
-        // Keep reasonable minimum wrap sizes to maintain header alignment.
-        $maxWidth = 96; // previously 136
-        $maxHeight = 96; // previously 110
+        // Allow wider (landscape) logos by increasing max width while constraining height.
+        // This preserves rectangular aspect ratios instead of forcing a square box.
+        $maxWidth = 160; // allow wider logos
+        $maxHeight = 96; // constrain height to keep header compact
         $ratio = min($maxWidth / $sourceWidth, $maxHeight / $sourceHeight);
 
         $imageWidth = max(1, (int) round($sourceWidth * $ratio));
         $imageHeight = max(1, (int) round($sourceHeight * $ratio));
-        // ensure the visible wrap is not too large; allow smaller logos to stay small
-        $wrapWidth = max($imageWidth, 72);
-        $wrapHeight = max($imageHeight, 72);
+        // Use the image dimensions directly for the wrap so rectangular logos keep shape
+        $wrapWidth = $imageWidth;
+        $wrapHeight = $imageHeight;
 
         return [
-            'cell_width' => $wrapWidth + 8,
+            'cell_width' => $wrapWidth + 12,
             'wrap_width' => $wrapWidth,
             'wrap_height' => $wrapHeight,
             'image_width' => $imageWidth,
