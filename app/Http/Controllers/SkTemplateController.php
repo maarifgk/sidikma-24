@@ -655,7 +655,9 @@ class SkTemplateController extends Controller
     <table class="header-table">
         <tr>
             <td class="header-logo-cell">
-                <img src="__LOGO_URL__" alt="Logo" class="header-logo">
+                <div class="header-logo-wrap">
+                    <img src="__LOGO_URL__" alt="Logo" class="header-logo">
+                </div>
             </td>
             <td class="header-text-cell">
                 <div class="header-topline" style="font-size: __HEADER_TOPLINE_FONT_SIZE__px;">__HEADER_TOPLINE__</div>
@@ -832,7 +834,7 @@ body {
 }
 
 .header-logo-cell {
-    width: 128px;
+    width: 118px;
     text-align: center;
     vertical-align: middle;
 }
@@ -842,12 +844,20 @@ body {
     vertical-align: middle;
 }
 
+.header-logo-wrap {
+    width: 110px;
+    height: 110px;
+    margin: 0 auto;
+    text-align: center;
+    overflow: hidden;
+}
+
 .header-logo {
-    width: 112px;
-    height: auto;
-    max-width: 112px;
-    max-height: none;
-    display: inline-block;
+    width: auto;
+    height: 100px;
+    max-width: 110px;
+    display: block;
+    margin: 0 auto;
 }
 
 .header-topline {
