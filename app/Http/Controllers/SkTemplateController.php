@@ -1348,12 +1348,18 @@ CSS;
 
         $imageWidth = max(1, (int) round($sourceWidth * $ratio));
         $imageHeight = max(1, (int) round($sourceHeight * $ratio));
-        // Use the image dimensions directly for the wrap so rectangular logos keep shape
-        $wrapWidth = $imageWidth;
-        $wrapHeight = $imageHeight;
+
+        // Increase visible wrapper width so logo has more breathing room.
+        // Apply a padding factor and ensure a reasonable minimum wrap width.
+        $paddingFactor = 1.25; // 25% extra space
+        $minWrapWidth = 120; // minimum container width in px
+        $wrapWidth = max($imageWidth, (int) round($imageWidth * $paddingFactor), $minWrapWidth);
+
+        // Keep wrap height close to image height but allow slight extra to avoid clipping
+        $wrapHeight = max($imageHeight, (int) round($imageHeight * 1.05));
 
         return [
-            'cell_width' => $wrapWidth + 12,
+            'cell_width' => $wrapWidth + 16,
             'wrap_width' => $wrapWidth,
             'wrap_height' => $wrapHeight,
             'image_width' => $imageWidth,
