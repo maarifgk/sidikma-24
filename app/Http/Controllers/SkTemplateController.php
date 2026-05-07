@@ -656,7 +656,7 @@ class SkTemplateController extends Controller
     <table class="header-table">
         <tr>
                 <td class="header-logo-cell" style="width: __HEADER_LOGO_CELL_WIDTH__px;">
-                <div class="header-logo-wrap" style="width: __HEADER_LOGO_WRAP_WIDTH__px; max-height: __HEADER_LOGO_WRAP_HEIGHT__px; display:flex;align-items:center;justify-content:center;">
+                <div class="header-logo-wrap" style="width: __HEADER_LOGO_WRAP_WIDTH__px; text-align:center;">
                     __HEADER_LOGO_MARKUP__
                 </div>
             </td>
@@ -1338,16 +1338,16 @@ CSS;
     {
         [$sourceWidth, $sourceHeight] = $this->imageDimensionsFromSource($logoUrl);
 
-        // Use user-suggested defaults so logos like NU keep their natural proportion
-        $maxWidth = 130;
-        $maxHeight = 130;
+        // Use larger defaults for NU logo
+        $maxWidth = 150;
+        $maxHeight = 150;
 
         $ratio = min($maxWidth / $sourceWidth, $maxHeight / $sourceHeight);
 
         $imageWidth = max(1, (int) round($sourceWidth * $ratio));
         $imageHeight = max(1, (int) round($sourceHeight * $ratio));
 
-        // Keep wrap equal to image dimensions to avoid adding extra horizontal padding
+        // No extra padding — wrapper equals image size
         $wrapWidth = $imageWidth;
         $wrapHeight = $imageHeight;
 
@@ -1395,29 +1395,9 @@ CSS;
     {
         $imageWidth = $this->numericValue($logoDimensions['image_width']);
         $imageHeight = $this->numericValue($logoDimensions['image_height']);
-        $wrapWidth = $this->numericValue($logoDimensions['wrap_width']);
-        $wrapHeight = $this->numericValue($logoDimensions['wrap_height']);
 
-        if (str_starts_with($source, 'data:image/svg+xml;base64,')) {
-            $svg = base64_decode(substr($source, strlen('data:image/svg+xml;base64,')), true) ?: '';
-            $svg = preg_replace('/<\?xml.*?\?>/i', '', $svg) ?? $svg;
-
-            if (preg_match('/<svg\b[^>]*>/i', $svg, $matches)) {
-                $originalTag = $matches[0];
-                // remove existing width/height/style/preserveAspectRatio to re-insert controlled attributes
-                $newTag = preg_replace('/\s(width|height|style|preserveAspectRatio)="[^"]*"/i', '', $originalTag) ?? $originalTag;
-                // Use max-width/max-height and let aspect ratio be preserved; this works better with DomPDF
-                $newTag = rtrim(substr($newTag, 0, -1))
-                    . ' preserveAspectRatio="xMidYMid meet"'
-                    . ' style="display:block;margin:0 auto;max-width:' . $this->attributeValue($wrapWidth) . 'px;max-height:' . $this->attributeValue($wrapHeight) . 'px;width:auto;height:auto;object-fit:contain;"'
-                    . '>';
-
-                return preg_replace('/<svg\b[^>]*>/i', $newTag, $svg, 1) ?? $svg;
-            }
-        }
-
-    // For raster images, set max-width/max-height and let width/height be automatic to preserve aspect ratio
-    return '<img src="' . $this->attributeValue($source) . '" alt="Logo" class="header-logo" style="display:block;margin:0 auto;width:auto;height:auto;max-width:' . $this->attributeValue($wrapWidth) . 'px;max-height:' . $this->attributeValue($wrapHeight) . 'px;object-fit:contain;">';
+        // Render a fixed-size image (DomPDF renders fixed pixel sizes reliably)
+        return '\n<img src="' . $this->attributeValue($source) . '" alt="Logo" style="display:block;margin:0 auto;width:' . $imageWidth . 'px;height:' . $imageHeight . 'px;">\n';
     }
 
     protected function fontSizeValue($value, float $default): string
