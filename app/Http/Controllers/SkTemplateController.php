@@ -212,6 +212,13 @@ class SkTemplateController extends Controller
             'memutuskan_title_font_size' => 'required|numeric|between:8,40',
             'decision_body_font_size' => 'required|numeric|between:8,40',
             'identity_table_font_size' => 'required|numeric|between:8,40',
+            'signature_city' => 'required|string|max:255',
+            'signature_date_label' => 'required|string|max:255',
+            'signature_date' => 'required|string|max:255',
+            'signature_body_top' => 'required|string|max:255',
+            'signature_role' => 'required|string|max:255',
+            'signature_name' => 'required|string|max:255',
+            'signature_font_size' => 'required|numeric|between:8,40',
             'tembusan_title' => 'required|string|max:255',
             'tembusan_items' => 'required|string',
             'tembusan_title_font_size' => 'required|numeric|between:8,40',
@@ -384,6 +391,13 @@ class SkTemplateController extends Controller
             'memutuskan_title_font_size' => '15',
             'decision_body_font_size' => '11.5',
             'identity_table_font_size' => '11.5',
+            'signature_city' => 'Gunungkidul',
+            'signature_date_label' => 'Pada Tanggal',
+            'signature_date' => '{{tanggal_sk}}',
+            'signature_body_top' => "Pengurus LP Ma'arif NU Kab. Gunungkidul",
+            'signature_role' => 'Ketua,',
+            'signature_name' => 'Drs. H. SANGKIN, M.Pd.',
+            'signature_font_size' => '11.5',
             'tembusan_title' => 'Tembusan Yth;',
             'tembusan_items' => "Kepala Kemenag Kab. Gunungkidul\nKepala {{nama_kelas}}\nArsip",
             'tembusan_title_font_size' => '11.5',
@@ -525,6 +539,17 @@ class SkTemplateController extends Controller
             </tr>
         </table>
 
+        <div class="signature-section" style="font-size: __SIGNATURE_FONT_SIZE__px;">
+            <table class="signature-table">
+                <tr><td class="signature-label">Ditetapkan di</td><td class="colon">:</td><td>__SIGNATURE_CITY__</td></tr>
+                <tr><td class="signature-label">__SIGNATURE_DATE_LABEL__</td><td class="colon">:</td><td>__SIGNATURE_DATE__</td></tr>
+                <tr><td colspan="3" class="signature-body-top">__SIGNATURE_BODY_TOP__</td></tr>
+                <tr><td colspan="3" class="signature-role">__SIGNATURE_ROLE__</td></tr>
+                <tr><td colspan="3" class="signature-space"></td></tr>
+                <tr><td colspan="3" class="signature-name">__SIGNATURE_NAME__</td></tr>
+            </table>
+        </div>
+
         <div class="footer-section">
             <div class="tembusan-block">
                 <div style="font-size: __TEMBUSAN_TITLE_FONT_SIZE__px;">__TEMBUSAN_TITLE__</div>
@@ -566,6 +591,13 @@ HTML, [
             '__MEMUTUSKAN_TITLE_FONT_SIZE__' => $this->fontSizeValue($builderData['memutuskan_title_font_size'], 15),
             '__DECISION_BODY_FONT_SIZE__' => $this->fontSizeValue($builderData['decision_body_font_size'], 11.5),
             '__IDENTITY_TABLE_FONT_SIZE__' => $this->fontSizeValue($builderData['identity_table_font_size'], 11.5),
+            '__SIGNATURE_CITY__' => $this->formatBuilderText($builderData['signature_city']),
+            '__SIGNATURE_DATE_LABEL__' => $this->formatBuilderText($builderData['signature_date_label']),
+            '__SIGNATURE_DATE__' => $this->formatBuilderText($builderData['signature_date']),
+            '__SIGNATURE_BODY_TOP__' => $this->formatBuilderText($builderData['signature_body_top']),
+            '__SIGNATURE_ROLE__' => $this->formatBuilderText($builderData['signature_role']),
+            '__SIGNATURE_NAME__' => $this->formatBuilderText($builderData['signature_name']),
+            '__SIGNATURE_FONT_SIZE__' => $this->fontSizeValue($builderData['signature_font_size'], 11.5),
             '__TEMBUSAN_TITLE__' => $this->formatBuilderText($builderData['tembusan_title']),
             '__TEMBUSAN_ITEMS__' => $tembusanHtml,
             '__TEMBUSAN_TITLE_FONT_SIZE__' => $this->fontSizeValue($builderData['tembusan_title_font_size'], 11.5),
@@ -748,6 +780,44 @@ body {
 
 .identity-table .field {
     width: 170px;
+}
+
+.signature-section {
+    width: 320px;
+    margin-left: auto;
+    margin-top: 18px;
+}
+
+.signature-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.signature-table td {
+    padding: 0;
+    vertical-align: top;
+}
+
+.signature-label {
+    width: 105px;
+}
+
+.signature-body-top,
+.signature-role,
+.signature-name {
+    text-align: left;
+}
+
+.signature-body-top {
+    padding-top: 2px;
+}
+
+.signature-space {
+    height: 62px;
+}
+
+.signature-name {
+    font-weight: 700;
 }
 
 .footer-section {

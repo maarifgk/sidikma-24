@@ -12,7 +12,7 @@
     </style>
 
     <div class="row g-4">
-        <div class="col-lg-8">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0" style="font-size: 30px;"><b>{{ $title }}</b></h5>
@@ -204,6 +204,40 @@
 
                             <div class="col-12"><hr class="my-2"></div>
                             <div class="col-12">
+                                <h6 class="mb-0">Area Tanda Tangan</h6>
+                                <small class="text-muted">Bagian ini hanya area teks penetapan, tanpa gambar tanda tangan.</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Ditetapkan di</label>
+                                <input type="text" name="signature_city" class="form-control builder-field" value="{{ old('signature_city', $builderData['signature_city']) }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Label Tanggal</label>
+                                <input type="text" name="signature_date_label" class="form-control builder-field" value="{{ old('signature_date_label', $builderData['signature_date_label']) }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Tanggal Penetapan</label>
+                                <input type="text" name="signature_date" class="form-control builder-field" value="{{ old('signature_date', $builderData['signature_date']) }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Baris Pengurus</label>
+                                <input type="text" name="signature_body_top" class="form-control builder-field" value="{{ old('signature_body_top', $builderData['signature_body_top']) }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Jabatan</label>
+                                <input type="text" name="signature_role" class="form-control builder-field" value="{{ old('signature_role', $builderData['signature_role']) }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Nama Penanda Tangan</label>
+                                <input type="text" name="signature_name" class="form-control builder-field" value="{{ old('signature_name', $builderData['signature_name']) }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Font Area Tanda Tangan</label>
+                                <input type="number" name="signature_font_size" class="form-control builder-field" value="{{ old('signature_font_size', $builderData['signature_font_size']) }}" min="8" max="40" step="0.5" required>
+                            </div>
+
+                            <div class="col-12"><hr class="my-2"></div>
+                            <div class="col-12">
                                 <h6 class="mb-0">Tembusan</h6>
                             </div>
                             <div class="col-12">
@@ -248,7 +282,7 @@
             </div>
         </div>
 
-        <div class="col-lg-4">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">Preview Hasil PDF</h5>
@@ -463,6 +497,16 @@
                         <tr><td class="label">Kedua</td><td class="colon">:</td><td>${formatText(getFieldValue('kedua_text'))}</td></tr>
                         <tr><td class="label">Ketiga</td><td class="colon">:</td><td>${formatText(getFieldValue('ketiga_text'))}</td></tr>
                     </table>
+                    <div class="signature-section" style="font-size:${fontSizePx('signature_font_size', 11.5)};">
+                        <table class="signature-table">
+                            <tr><td class="signature-label">Ditetapkan di</td><td class="colon">:</td><td>${formatText(getFieldValue('signature_city'))}</td></tr>
+                            <tr><td class="signature-label">${formatText(getFieldValue('signature_date_label'))}</td><td class="colon">:</td><td>${formatText(getFieldValue('signature_date'))}</td></tr>
+                            <tr><td colspan="3" class="signature-body-top">${formatText(getFieldValue('signature_body_top'))}</td></tr>
+                            <tr><td colspan="3" class="signature-role">${formatText(getFieldValue('signature_role'))}</td></tr>
+                            <tr><td colspan="3" class="signature-space"></td></tr>
+                            <tr><td colspan="3" class="signature-name">${formatText(getFieldValue('signature_name'))}</td></tr>
+                        </table>
+                    </div>
                     <div class="footer-section">
                         <div class="tembusan-block">
                             <div style="font-size:${fontSizePx('tembusan_title_font_size', 11.5)};">${formatText(getFieldValue('tembusan_title'))}</div>
