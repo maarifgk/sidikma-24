@@ -1,6 +1,8 @@
-- [x] Add edit method in TagihanController.php to retrieve bill data for editing
-- [x] Add update method in TagihanController.php to handle bill updates
-- [x] Create edit.blade.php view for editing bills
-- [x] Update "Edit" button link in view.blade.php to point to edit route
-- [x] Add routes for edit and update in routes/web.php
-- [ ] Test the edit functionality
+# Nav Menu Text Hide/Show Task
+
+## Steps:
+- [x] 1. Create TODO.md 
+- [x] 2. Edit resources/views/backend/mobile_role2/layout.blade.php to add CSS for hiding inactive menu text spans
+- [ ] 3. Update TODO.md with completion status
+- [ ] 4. Test changes (optional: artisan serve and check pages)
+- [ ] 5. Complete task

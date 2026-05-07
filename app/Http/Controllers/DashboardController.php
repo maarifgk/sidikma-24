@@ -133,7 +133,12 @@ class DashboardController extends Controller
                 ->where('status', 'Lunas')
                 ->orderByDesc('created_at')
                 ->limit(5)
-                ->get();
+                ->get()
+                ->map(function ($payment) {
+                    $payment->nilai = (int) preg_replace('/[^\d]/', '', (string) $payment->nilai);
+
+                    return $payment;
+                });
 
         $data['grafikPendapatan'] = $pendapatanBulanan;
 

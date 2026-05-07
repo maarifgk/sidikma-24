@@ -93,6 +93,33 @@ class ProposalController extends Controller
         $data['proposal'] = DB::table('proposal')->where('id', $request->id)->first();
         return view('backend.proposal.open', $data);
     }
+
+    public function viewFile($id)
+    {
+        $proposal = DB::table('proposal')->where('id', $id)->first();
+
+        abort_unless($proposal, 404);
+
+        $filePath = $this->resolveDocumentPath('proposal', $proposal->proposal ?? null);
+
+        abort_unless($filePath, 404, 'File proposal tidak ditemukan.');
+
+        return response()->file($filePath);
+    }
+
+    public function viewApprovedFile($id)
+    {
+        $proposal = DB::table('proposal')->where('id', $id)->first();
+
+        abort_unless($proposal, 404);
+
+        $filePath = $this->resolveDocumentPath('approve_proposal', $proposal->approve_proposal ?? null);
+
+        abort_unless($filePath, 404, 'File approval proposal tidak ditemukan.');
+
+        return response()->file($filePath);
+    }
+
     public function openProses(Request $request)
     {
         $file_path = public_path() . '/storage/dokumen/approve_proposal/' . $request->approve_proposal;
@@ -158,5 +185,71 @@ class ProposalController extends Controller
                 'msg'     => 'Error : ' . $e->getMessage() . ' Line : ' . $e->getLine() . ' File : ' . $e->getFile()
             ]);
         }
+    }
+
+    // Show edit form for data pengajuan proposal (role 1)
+    public function editInfo()
+    {
+        if (request()->user()->role != 1) {
+            abort(403);
+        }
+        $data['title'] = 'Edit Data Pengajuan Proposal';
+        return view('backend.proposal.edit_info', $data);
+    }
+
+    // Update data pengajuan proposal
+    public function updateInfo(Request $request)
+    {
+        if (request()->user()->role != 1) {
+            abort(403);
+        }
+        try {
+            $id = $request->id ?? 1;
+            $payload = [
+                'label_1' => strip_tags($request->input('label_1')) ?? '',
+                'label_2' => strip_tags($request->input('label_2')) ?? '',
+                'label_3' => strip_tags($request->input('label_3')) ?? '',
+                'label_4' => strip_tags($request->input('label_4')) ?? '',
+                'nb'      => strip_tags($request->input('nb')) ?? '',
+                'link_proposal' => filter_var($request->input('link_proposal'), FILTER_SANITIZE_URL) ?? '',
+            ];
+
+            DB::table('aplikasi')->where('id', $id)->update([
+                'info_proposal' => json_encode($payload),
+            ]);
+
+            $params['activity'] = 'Update Data Pengajuan Proposal';
+            $params['detail'] = 'User ' . request()->user()->id . ' updated info_proposal';
+            \App\Providers\Helper::log_transaction($params);
+
+            Alert::success('Sukses', 'Data Pengajuan Proposal disimpan');
+            return redirect('/proposal');
+        } catch (Exception $e) {
+            return response([
+                'success' => false,
+                'msg'     => 'Error : ' . $e->getMessage() . ' Line : ' . $e->getLine() . ' File : ' . $e->getFile()
+            ]);
+        }
+    }
+
+    private function resolveDocumentPath(string $folder, ?string $filename): ?string
+    {
+        if (!$filename) {
+            return null;
+        }
+
+        $cleanFilename = basename($filename);
+        $candidates = [
+            public_path("storage/dokumen/{$folder}/{$cleanFilename}"),
+            $_SERVER['DOCUMENT_ROOT'] . "/storage/dokumen/{$folder}/{$cleanFilename}",
+        ];
+
+        foreach ($candidates as $path) {
+            if ($path && File::exists($path)) {
+                return $path;
+            }
+        }
+
+        return null;
     }
 }

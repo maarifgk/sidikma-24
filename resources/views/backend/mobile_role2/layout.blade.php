@@ -34,9 +34,7 @@
             margin: 0;
             font-family: 'Manrope', sans-serif;
             color: var(--text);
-            background:
-                radial-gradient(circle at top left, rgba(10, 72, 179, 0.14), transparent 32%),
-                linear-gradient(180deg, #0a48b3 0, #0a48b3 210px, var(--bg) 210px, var(--bg) 100%);
+            background: var(--bg);
         }
 
         a {
@@ -55,7 +53,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            color: #fff;
+            color: var(--text);
             margin-bottom: 18px;
         }
 
@@ -69,11 +67,12 @@
             width: 46px;
             height: 46px;
             border-radius: 14px;
-            background: rgba(255, 255, 255, 0.16);
+            background: var(--surface-strong);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            box-shadow: 0 8px 22px rgba(17, 33, 63, 0.08);
             backdrop-filter: blur(10px);
         }
 
@@ -85,13 +84,13 @@
 
         .brand small,
         .topbar .user-meta {
-            color: rgba(255, 255, 255, 0.74);
+            color: var(--muted);
         }
 
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 24px;
+            border-radius: 16px;
             box-shadow: var(--shadow);
             backdrop-filter: blur(14px);
         }
@@ -117,7 +116,7 @@
             height: 66px;
             border-radius: 20px;
             overflow: hidden;
-            border: 3px solid rgba(255, 255, 255, 0.24);
+            border: 3px solid rgba(255, 255, 255, 0.16);
             background: rgba(255, 255, 255, 0.16);
             flex-shrink: 0;
         }
@@ -143,7 +142,7 @@
         }
 
         .hero .title {
-            font-size: 24px;
+            font-size: 16px;
             font-weight: 800;
             line-height: 1.15;
         }
@@ -171,7 +170,7 @@
         }
 
         .section-head span {
-            font-size: 12px;
+            font-size: 8px;
             color: var(--muted);
         }
 
@@ -239,11 +238,11 @@
         .badge {
             display: inline-flex;
             align-items: center;
-            padding: 6px 10px;
+            padding: 6px 6px;
             border-radius: 999px;
             font-size: 11px;
             font-weight: 700;
-            white-space: nowrap;
+            /* white-space: nowrap; */
         }
 
         .badge.primary { background: var(--primary-soft); color: var(--primary); }
@@ -307,11 +306,11 @@
             left: 50%;
             bottom: 18px;
             transform: translateX(-50%);
-            width: min(448px, calc(100% - 24px));
+            width: min(448px, calc(100% - 16px));
             background: rgba(255, 255, 255, 0.94);
             border: 1px solid rgba(255, 255, 255, 0.7);
             box-shadow: 0 20px 44px rgba(17, 33, 63, 0.16);
-            border-radius: 24px;
+            border-radius: 16px;
             padding: 10px 8px;
             display: grid;
             grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -337,11 +336,34 @@
             color: #fff;
         }
 
+        /* .bottom-nav a span {
+            display: none;
+        }
+
+        .bottom-nav a.active span {
+            display: block;
+        } */
+
         .empty-state {
             padding: 20px 16px;
             text-align: center;
             color: var(--muted);
             font-size: 13px;
+        }
+
+        .mobile-input {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font: inherit;
+            color: var(--text);
+            background: var(--surface-strong);
+        }
+
+        textarea.mobile-input {
+            resize: vertical;
         }
     </style>
 </head>
@@ -367,27 +389,25 @@
         @yield('content')
     </div>
 
-    <nav class="bottom-nav">
-        <a href="{{ route('mobile.role2.dashboard') }}" class="{{ $activeMenu === 'dashboard' ? 'active' : '' }}">
-            <i class="fa-solid fa-house"></i>
-            <span>Dashboard</span>
-        </a>
-        <a href="{{ route('mobile.role2.informasi') }}" class="{{ $activeMenu === 'informasi' ? 'active' : '' }}">
-            <i class="fa-solid fa-users"></i>
-            <span>Informasi</span>
-        </a>
-        <a href="{{ route('mobile.role2.pembayaran') }}" class="{{ $activeMenu === 'pembayaran' ? 'active' : '' }}">
-            <i class="fa-solid fa-wallet"></i>
-            <span>Pembayaran</span>
-        </a>
-        <a href="{{ route('mobile.role2.files') }}" class="{{ $activeMenu === 'files' ? 'active' : '' }}">
-            <i class="fa-solid fa-file-arrow-down"></i>
-            <span>File SK</span>
-        </a>
-        <a href="{{ route('mobile.role2.profile') }}" class="{{ $activeMenu === 'profile' ? 'active' : '' }}">
-            <i class="fa-solid fa-user"></i>
-            <span>Profile</span>
-        </a>
+    @php
+        $navItems = [
+            ['route' => 'mobile.role2.dashboard', 'key' => 'dashboard', 'icon' => 'fa-house', 'label' => 'Dashboard'],
+            ['route' => 'mobile.role2.presensi', 'key' => 'presensi', 'icon' => 'fa-location-crosshairs', 'label' => 'Presensi'],
+            ['route' => 'mobile.role2.pembayaran', 'key' => 'pembayaran', 'icon' => 'fa-wallet', 'label' => 'Pembayaran'],
+            ['route' => 'mobile.role2.files', 'key' => 'files', 'icon' => 'fa-file-arrow-down', 'label' => 'File SK'],
+            ['route' => 'mobile.role2.profile', 'key' => 'profile', 'icon' => 'fa-user', 'label' => 'Profile'],
+        ];
+    @endphp
+
+    <nav class="bottom-nav" style="grid-template-columns: repeat({{ count($navItems) }}, minmax(0, 1fr));">
+        @foreach($navItems as $item)
+            <a href="{{ route($item['route']) }}" class="{{ $activeMenu === $item['key'] ? 'active' : '' }}">
+                <i class="fa-solid {{ $item['icon'] }}"></i>
+                <span style="font-size: 8px">{{ $item['label'] }}</span>
+            </a>
+        @endforeach
     </nav>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @yield('js')
 </body>
 </html>

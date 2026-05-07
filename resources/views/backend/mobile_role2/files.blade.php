@@ -6,14 +6,14 @@
             <div>
                 <div class="eyebrow">File SK Yayasan</div>
                 <div class="title">{{ $profile->nama_kelas ?? '-' }}</div>
-                <p class="subtitle">Menampilkan file SK pribadi dan file SK sekolah yang terhubung ke asal madrasah user login.</p>
+                <p class="subtitle">Menampilkan file SK Yayasan yang terhubung ke asal madrasah user login.</p>
             </div>
         </div>
     </section>
 
     <section class="section">
         <div class="section-head">
-            <h3>File SK Pribadi</h3>
+            <h3>File SK Yayasan</h3>
             <span>{{ $personalFiles->count() }} file</span>
         </div>
         <div class="card list-card">
@@ -31,7 +31,7 @@
         </div>
     </section>
 
-    <section class="section">
+    {{-- <section class="section">
         <div class="section-head">
             <h3>File SK Sekolah</h3>
             <span>Relasi sekolah</span>
@@ -50,5 +50,5 @@
                 <div class="empty-state">Belum ada file SK sekolah yang cocok dengan madrasah user login.</div>
             @endforelse
         </div>
-    </section>
+    </section> --}}
 @endsection

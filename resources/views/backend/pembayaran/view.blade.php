@@ -109,60 +109,122 @@
                     <div class="card shadow mb-4 border-bottom-success" id="infosiswa" value="0">
                         <!-- Card Header - Accordion -->
 
-                        <a href="#informasisiswa" class="d-block card-header py-3"
-                        data-toggle="collapse" role="button" aria-expanded="true" style="background-color: #009991;"
-                        aria-controls="collapseCardExample">
-                        <h6 class="m-0 font-weight-bold text-white">Informasi Pembayaran Iuran LP. Ma'arif NU PCNU Gunungkidul</h6>
-                        </a>
+                        <div class="d-block card-header py-3" style="background-color: #009991;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="#informasisiswa" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample" style="color:inherit; text-decoration:none;">
+                                    <h6 class="m-0 font-weight-bold text-white">Informasi Pembayaran Iuran LP. Ma'arif NU PCNU Gunungkidul</h6>
+                                </a>
+                                @if (request()->user()->role == 1)
+                                    <a href="/pembayaran/info/edit" class="btn btn-warning btn-sm">Edit</a>
+                                @endif
+                            </div>
+                        </div>
 
                         <!-- Card Content - Collapse -->
                         <div class="collapse show" id="informasisiswa">
                             <div class="card-body">
-                                <table class="table table-striped">
-                                    <tbody>
+                                @if (!empty(Helper::apk()->info_pembayaran))
+                                    @php
+                                        $raw = Helper::apk()->info_pembayaran;
+                                        $decoded = json_decode($raw, true);
+                                    @endphp
 
-                                        <tr>
-                                            <td class="m-0 font-weight-bold text-dark">IURAN</td>
-                                            <td class="m-0 font-weight-bold text-dark">NOMINAL</td>
-                                        </tr>
-                                        <tr>
-                                            <td>a. Iuran Siswa Jenjang Madrasah Ibtidaiyah</td>
-                                            <td width="800px">: Rp.1000</td>
-                                        </tr>
-                                        <tr>
-                                            <td>b. Iuran Siswa Jenjang Madrasah Tsanawiyah/SMP</td>
-                                            <td width="800px">: Rp.1000</td>
-                                        </tr>
-                                        <tr>
-                                            <td>c. Iuran Kepala/Guru ASN Madrasah Bersertifikasi</td>
-                                            <td width="800px">: Rp.20.000</td>
-                                        </tr>
-                                        <tr>
-                                            <td>d. Iuran Kepala/Guru ASN Madrasah Belum Sertifikasi</td>
-                                            <td width="800px">: Rp.15.000</td>
-                                        </tr>
-                                        <tr>
-                                            <td>e. Iuran Kepala/Guru Madrasah Yayasan Bersertifikasi/Inpassing</td>
-                                            <td width="800px">: Rp.10.000</td>
-                                        </tr>
-                                        <tr>
-                                            <td>f. Iuran Kepala/Guru Madrasah Yayasan Belum Bersertifikasi</td>
-                                            <td width="800px">: Rp.2000</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="m-0 font-weight-bold text-dark">SK YAYASAN</td>
-                                            <td class="m-0 font-weight-bold text-dark">NOMINAL</td>
-                                        </tr>
-                                        <tr>
-                                            <td>a. Penerbitan SK GTY/GTT/PTY/PTT Baru</td>
-                                            <td width="800px">: Rp.50.000</td>
-                                        </tr>
-                                        <tr>
-                                            <td>b. Perpanjangan SK Yayasan GTY/GTT/PTY/PTT</td>
-                                            <td width="800px">: Rp.25.000</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                    @if (json_last_error() === JSON_ERROR_NONE && is_array($decoded))
+                                        <table class="table table-striped">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="m-0 font-weight-bold text-dark">IURAN</td>
+                                                    <td class="m-0 font-weight-bold text-dark">NOMINAL</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>{{ e($decoded['label_iuran_ibtidaiyah'] ?? 'a. Iuran Siswa Jenjang Madrasah Ibtidaiyah') }}</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['iuran_ibtidaiyah'] ?? 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>{{ e($decoded['label_iuran_tsanawiyah'] ?? 'b. Iuran Siswa Jenjang Madrasah Tsanawiyah/SMP') }}</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['iuran_tsanawiyah'] ?? 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>{{ e($decoded['label_iuran_guru_asn_sertifikasi'] ?? 'c. Iuran Kepala/Guru ASN Madrasah Bersertifikasi') }}</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['iuran_guru_asn_sertifikasi'] ?? 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>{{ e($decoded['label_iuran_guru_asn_belum'] ?? 'd. Iuran Kepala/Guru ASN Madrasah Belum Sertifikasi') }}</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['iuran_guru_asn_belum'] ?? 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>{{ e($decoded['label_iuran_guru_yayasan_sertifikasi'] ?? "e. Iuran Kepala/Guru Madrasah Yayasan Bersertifikasi/Inpassing") }}</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['iuran_guru_yayasan_sertifikasi'] ?? 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>{{ e($decoded['label_iuran_guru_yayasan_belum'] ?? 'f. Iuran Kepala/Guru Madrasah Yayasan Belum Bersertifikasi') }}</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['iuran_guru_yayasan_belum'] ?? 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="m-0 font-weight-bold text-dark">SK YAYASAN</td>
+                                                    <td class="m-0 font-weight-bold text-dark">NOMINAL</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>a. Penerbitan SK GTY/GTT/PTY/PTT Baru</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['sk_penerbitan'] ?? 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>b. Perpanjangan SK Yayasan GTY/GTT/PTY/PTT</td>
+                                                    <td width="800px">: Rp.{{ number_format($decoded['sk_perpanjangan'] ?? 0) }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    @else
+                                        {{-- fallback to raw html for older entries or manual content --}}
+                                        {!! Helper::apk()->info_pembayaran !!}
+                                    @endif
+                                @else
+                                    <table class="table table-striped">
+                                        <tbody>
+
+                                            <tr>
+                                                <td class="m-0 font-weight-bold text-dark">IURAN</td>
+                                                <td class="m-0 font-weight-bold text-dark">NOMINAL</td>
+                                            </tr>
+                                            <tr>
+                                                <td>a. Iuran Siswa Jenjang Madrasah Ibtidaiyah</td>
+                                                <td width="800px">: Rp.1000</td>
+                                            </tr>
+                                            <tr>
+                                                <td>b. Iuran Siswa Jenjang Madrasah Tsanawiyah/SMP</td>
+                                                <td width="800px">: Rp.1000</td>
+                                            </tr>
+                                            <tr>
+                                                <td>c. Iuran Kepala/Guru ASN Madrasah Bersertifikasi</td>
+                                                <td width="800px">: Rp.20.000</td>
+                                            </tr>
+                                            <tr>
+                                                <td>d. Iuran Kepala/Guru ASN Madrasah Belum Sertifikasi</td>
+                                                <td width="800px">: Rp.15.000</td>
+                                            </tr>
+                                            <tr>
+                                                <td>e. Iuran Kepala/Guru Madrasah Yayasan Bersertifikasi/Inpassing</td>
+                                                <td width="800px">: Rp.10.000</td>
+                                            </tr>
+                                            <tr>
+                                                <td>f. Iuran Kepala/Guru Madrasah Yayasan Belum Bersertifikasi</td>
+                                                <td width="800px">: Rp.2000</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="m-0 font-weight-bold text-dark">SK YAYASAN</td>
+                                                <td class="m-0 font-weight-bold text-dark">NOMINAL</td>
+                                            </tr>
+                                            <tr>
+                                                <td>a. Penerbitan SK GTY/GTT/PTY/PTT Baru</td>
+                                                <td width="800px">: Rp.50.000</td>
+                                            </tr>
+                                            <tr>
+                                                <td>b. Perpanjangan SK Yayasan GTY/GTT/PTY/PTT</td>
+                                                <td width="800px">: Rp.25.000</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                @endif
                             </div>
                         </div>
                     </div>

@@ -12,63 +12,177 @@
         <div class="card-body">
             <div class="card shadow mb-4 border-bottom-success" id="infosiswa" value="0">
                 <!-- Card Header - Accordion -->
-                <a href="#" class="d-block card-header py-3"
-                    data-toggle="collapse" role="button" aria-expanded="true" style="background-color: #007F3E;"
-                    aria-controls="collapseCardExample">
-                    <h6 class="m-0 font-weight-bold text-white">KELENGKAPAN GURU BARU DI LINGKUNGAN LP. MA’ARIF NU GUNUNGKIDUL</h6>
-                </a>
+                <div class="d-block card-header py-3" style="background-color: #007F3E;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="#" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample" style="color:inherit; text-decoration:none;">
+                            <h6 class="m-0 font-weight-bold text-white">KELENGKAPAN GURU BARU DI LINGKUNGAN LP. MA’ARIF NU GUNUNGKIDUL</h6>
+                        </a>
+                        @if (request()->user()->role == 1)
+                            <a href="/usulan/info/edit" class="btn btn-warning btn-sm">Edit</a>
+                        @endif
+                    </div>
+                </div>
                 <div class="collapse show" id="informasisiswa">
                     <div class="card-body">
-                        <table class="table table-striped">
-                            <tbody>
-                                <tr>
-                                    <td>1.</td>
-                                    <td>Mengisi surat pernyataan siap berhidmat di LP. Ma’arif NU Gunungkidul, yang bermaterai 10.000</td>
-                                </tr>
-                                <tr>
-                                    <td>2.</td>
-                                    <td>Mendapatkan surat rekomendasi dari Ketua MWC, di lingkungan Madrasah/Sekolah tempat bekerja.
-                                        Surat rekomendasi MWC ditujukan kepada Ketua LP. Ma’arif NU Gunungkidul yang berisikan bahwa
-                                        guru baru tersebut diizinkan berhidmat di Madrasah/Sekolah di wilayahnya.</td>
-                                </tr>
-                                <tr>
-                                    <td>3.</td>
-                                    <td>Mendapatkan Surat Pernyataan dari Kepala Madrasah/Sekolah yang akan di tempati bekerja.
-                                        Surat berisikan pernyataan bahwa Madrasah/Sekolah tersebut membutuhkan guru dan siap
-                                        menerima guru baru atas nama orang tersebut.</td>
-                                </tr>
-                                <tr>
-                                    <td>4.</td>
-                                    <td>Mengirimkan kelengkapan administrasi berupa;</td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td>a. Electronik Warga Nahdatul Ulama Gunungkidul (EWANUGK)</td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td>b. Foto Resmi (file jpg/img)</td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td>c. Ijazah Terakhir (file pdf)</td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td>d. Surat Permohonan dari Madrasah/Sekolah diketahui MWC setempat (file pdf)
-                                        <a href="https://drive.google.com/file/d/1i2JiQ9BWIhLbB1eT7OcXA_SoldDCMRkk/view?usp=sharing" target="_blank"
-                                            class="btn btn-danger">Download PDF</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td>e. Surat Pernyataan Siap Behidmad di Ma'arif (file pdf)
-                                        <a href="https://docs.google.com/document/d/1WgwKzJDhJWFZJDaZ_-Si-iMoYDf3kSLR/edit?usp=drive_link&ouid=105030289517228020971&rtpof=true&sd=true" target="_blank"
-                                            class="btn btn-danger">Download PDF</a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        @if (!empty(Helper::apk()->info_usulan))
+                            @php $raw = Helper::apk()->info_usulan; $decoded = json_decode($raw, true); @endphp
+                            @if (json_last_error() === JSON_ERROR_NONE && is_array($decoded))
+                                <table class="table table-striped">
+                                    <tbody>
+                                        <tr>
+                                            <td>1.</td>
+                                            <td>{{ e($decoded['label_1'] ?? '') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2.</td>
+                                            <td>{!! nl2br(e($decoded['label_2'] ?? '')) !!}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>3.</td>
+                                            <td>{!! nl2br(e($decoded['label_3'] ?? '')) !!}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>4.</td>
+                                            <td>{{ e($decoded['label_4'] ?? '') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>{{ e($decoded['label_4_a'] ?? '') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>{{ e($decoded['label_4_b'] ?? '') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>{{ e($decoded['label_4_c'] ?? '') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>
+                                                {{ e($decoded['label_4_d'] ?? '') }}
+                                                @php $link_perm = $decoded['link_permohonan'] ?? null; @endphp
+                                                @if (!empty($link_perm))
+                                                    <a href="{{ $link_perm }}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">Download PDF</a>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>{!! nl2br(e($decoded['label_4_e'] ?? '')) !!}
+                                                @php $link_permya = $decoded['link_pernyataan'] ?? null; @endphp
+                                                @if (!empty($link_permya))
+                                                    <a href="{{ $link_permya }}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">Download PDF</a>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            @else
+                                {{-- fallback to static content --}}
+                                <table class="table table-striped">
+                                    <tbody>
+                                        <tr>
+                                            <td>1.</td>
+                                            <td>Mengisi surat pernyataan siap berhidmat di LP. Ma'arif NU Gunungkidul, yang bermaterai 10.000</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2.</td>
+                                            <td>Mendapatkan surat rekomendasi dari Ketua MWC, di lingkungan Madrasah/Sekolah tempat bekerja. Surat rekomendasi MWC ditujukan kepada Ketua LP. Ma'arif NU Gunungkidul yang berisikan bahwa guru baru tersebut diizinkan berhidmat di Madrasah/Sekolah di wilayahnya.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>3.</td>
+                                            <td>Mendapatkan Surat Pernyataan dari Kepala Madrasah/Sekolah yang akan di tempati bekerja. Surat berisikan pernyataan bahwa Madrasah/Sekolah tersebut membutuhkan guru dan siap menerima guru baru atas nama orang tersebut.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>4.</td>
+                                            <td>Mengirimkan kelengkapan administrasi berupa;</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>a. Electronik Warga Nahdatul Ulama Gunungkidul (EWANUGK)</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>b. Foto Resmi (file jpg/img)</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>c. Ijazah Terakhir (file pdf)</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                                <td>d. Surat Permohonan dari Madrasah/Sekolah diketahui MWC setempat (file pdf)
+                                                    @php $link_perm = $decoded['link_permohonan'] ?? null; @endphp
+                                                    @if (!empty($link_perm))
+                                                        <a href="{{ $link_perm }}" target="_blank" class="btn btn-danger">Download PDF</a>
+                                                    @else
+                                                        <a href="https://drive.google.com/file/d/1i2JiQ9BWIhLbB1eT7OcXA_SoldDCMRkk/view?usp=sharing" target="_blank" class="btn btn-danger">Download PDF</a>
+                                                    @endif
+                                                </td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>e. Surat Pernyataan Siap Behidmad di Ma'arif (file pdf)
+                                                @php $link_permya = $decoded['link_pernyataan'] ?? null; @endphp
+                                                @if (!empty($link_permya))
+                                                    <a href="{{ $link_permya }}" target="_blank" class="btn btn-danger">Download PDF</a>
+                                                @else
+                                                    <a href="https://docs.google.com/document/d/1WgwKzJDhJWFZJDaZ_-Si-iMoYDf3kSLR/edit?usp=drive_link&ouid=105030289517228020971&rtpof=true&sd=true" target="_blank" class="btn btn-danger">Download PDF</a>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            @endif
+                        @else
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td>1.</td>
+                                        <td>Mengisi surat pernyataan siap berhidmat di LP. Ma'arif NU Gunungkidul, yang bermaterai 10.000</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2.</td>
+                                        <td>Mendapatkan surat rekomendasi dari Ketua MWC, di lingkungan Madrasah/Sekolah tempat bekerja. Surat rekomendasi MWC ditujukan kepada Ketua LP. Ma'arif NU Gunungkidul yang berisikan bahwa guru baru tersebut diizinkan berhidmat di Madrasah/Sekolah di wilayahnya.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3.</td>
+                                        <td>Mendapatkan Surat Pernyataan dari Kepala Madrasah/Sekolah yang akan di tempati bekerja. Surat berisikan pernyataan bahwa Madrasah/Sekolah tersebut membutuhkan guru dan siap menerima guru baru atas nama orang tersebut.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4.</td>
+                                        <td>Mengirimkan kelengkapan administrasi berupa;</td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>a. Electronik Warga Nahdatul Ulama Gunungkidul (EWANUGK)</td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>b. Foto Resmi (file jpg/img)</td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>c. Ijazah Terakhir (file pdf)</td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>d. Surat Permohonan dari Madrasah/Sekolah diketahui MWC setempat (file pdf)
+                                            <a href="https://drive.google.com/file/d/1i2JiQ9BWIhLbB1eT7OcXA_SoldDCMRkk/view?usp=sharing" target="_blank"
+                                                class="btn btn-danger">Download PDF</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>e. Surat Pernyataan Siap Behidmad di Ma'arif (file pdf)
+                                            <a href="https://docs.google.com/document/d/1WgwKzJDhJWFZJDaZ_-Si-iMoYDf3kSLR/edit?usp=drive_link&ouid=105030289517228020971&rtpof=true&sd=true" target="_blank"
+                                                class="btn btn-danger">Download PDF</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        @endif
                     </div>
                 </div>
             </div>

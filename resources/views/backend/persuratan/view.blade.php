@@ -20,80 +20,75 @@
                 </a>
                 <div class="collapse show" id="informasisiswa">
                     <div class="card-body">
-                        <table class="table table-striped">
-                            <tbody>   
-                                <tr>
-                                    <td>1.</td>
-                                    <td>Surat Pernyataan</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>2.</td>
-                                    <td>Surat Rekomendasi</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>3.</td>
-                                    <td>Surat Perintah Tugas</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>4.</td>
-                                    <td>Surat Keterangan</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>KET:</td>
-                                    <td>Permohonan Persuratan kepada Yayasan harus menyertakan Surat Permohonan dari Madrasah/Sekolah Asal</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        @if (!empty(Helper::apk()->info_persuratan))
+                            @php $raw = Helper::apk()->info_persuratan; $decoded = json_decode($raw, true); @endphp
+                            @if (request()->user()->role == 1)
+                                <div class="mb-2">
+                                    <a href="/persuratan/info/edit" class="btn btn-sm btn-warning">Edit</a>
+                                </div>
+                            @endif
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td>1.</td>
+                                        <td>{{ e($decoded['label_1'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2.</td>
+                                        <td>{{ e($decoded['label_2'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3.</td>
+                                        <td>{{ e($decoded['label_3'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4.</td>
+                                        <td>{{ e($decoded['label_4'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>KET:</td>
+                                        <td>{!! nl2br(e($decoded['ket'] ?? '')) !!}
+                                            @php $link = $decoded['link_persuratan'] ?? null; @endphp
+                                            @if (!empty($link))
+                                                <div class="mt-2">
+                                                    <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">Download PDF</a>
+                                                </div>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        @else
+                            @if (request()->user()->role == 1)
+                                <div class="mb-2">
+                                    <a href="/persuratan/info/edit" class="btn btn-sm btn-warning">Edit</a>
+                                </div>
+                            @endif
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td>1.</td>
+                                        <td>Surat Pernyataan</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2.</td>
+                                        <td>Surat Rekomendasi</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3.</td>
+                                        <td>Surat Perintah Tugas</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4.</td>
+                                        <td>Surat Keterangan</td>
+                                    </tr>
+                                    <tr>
+                                        <td>KET:</td>
+                                        <td>Permohonan Persuratan kepada Yayasan harus menyertakan Surat Permohonan dari Madrasah/Sekolah Asal</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -217,7 +212,7 @@
                             @elseif ($t->kelas == 58)
                                 MI YAPPI Wiyoko
                             @elseif ($t->kelas == 60)
-                                MI Maarif Mulo 
+                                MI Maarif Mulo
                             @elseif ($t->kelas == 62)
                                 MI Maarif Wareng
                             @elseif ($t->kelas == 63)
@@ -410,7 +405,7 @@
                             @elseif ($t->kelas == 58)
                                 MI YAPPI Wiyoko
                             @elseif ($t->kelas == 60)
-                                MI Maarif Mulo 
+                                MI Maarif Mulo
                             @elseif ($t->kelas == 62)
                                 MI Maarif Wareng
                             @elseif ($t->kelas == 63)

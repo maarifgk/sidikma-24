@@ -16,7 +16,7 @@
                                 <tr>
                                     <th  width="300px" class="mb-0" style="font-size: 20px">{{ $title }}</th>
                                     <th  width="800px"></th>
-                                </tr>   
+                                </tr>
                                 <tr>
                                     <td>Nama Lengkap</td>
                                     <td>: {{ $siswa->nama_lengkap }}</td>
@@ -25,6 +25,16 @@
                                     <td>NUPTK/NPK</td>
                                     <td>: {{ $siswa->nuptk }}</span></td>
                                 </tr>
+                                @if (in_array((int) $siswa->jurusan_id, [5, 8], true))
+                                <tr>
+                                    <td>NIP</td>
+                                    <td>: {{ $siswa->nip ?? '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Pangkat/Golongan</td>
+                                    <td>: {{ $siswa->pangkat_golongan ?? '-' }}</td>
+                                </tr>
+                                @endif
                                 <tr>
                                     <td>EWANUGK</td>
                                     <td>: {{ $siswa->nis }}</td>
@@ -143,7 +153,7 @@
                                     @elseif ($siswa->kelas_id == 58)
                                         MI YAPPI Wiyoko
                                     @elseif ($siswa->kelas_id == 60)
-                                        MI Maarif Mulo 
+                                        MI Maarif Mulo
                                     @elseif ($siswa->kelas_id == 62)
                                         MI Maarif Wareng
                                     @elseif ($siswa->kelas_id == 63)
@@ -203,6 +213,8 @@
                                         Pegawai Tetap Yayasan
                                     @elseif ($siswa->jurusan_id == 7)
                                         Pegawai Tidak Tetap
+                                    @elseif ($siswa->jurusan_id == 8)
+                                        PNS Non Sertifikasi
                                     @endif</td>
                                 </tr>
                                 <tr>

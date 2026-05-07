@@ -10,7 +10,7 @@
             </div>
             <div class="card-body">
                 <div class="card shadow mb-4 border-bottom-success" id="infosiswa" value="0">
-                    <a href="#" class="d-block card-header py-3" 
+                    <a href="#" class="d-block card-header py-3"
                         data-toggle="collapse" role="button" aria-expanded="true"
                         aria-controls="collapseCardExample"
                         style="background-color: #007F3E; border: 1px solid #007F3E;">
@@ -19,7 +19,7 @@
                     <div class="collapse show" id="informasisiswa">
                         <div class="card-body">
                             <table class="table table-striped">
-                                <tbody>   
+                                <tbody>
                                     <tr><td>Nama Madrasah/Sekolah</td><td>: {{ $siswa->nama_lengkap }}</td></tr>
                                     <tr><td>NPSN</td><td>: {{ $siswa->nis }}</td></tr>
                                     <tr><td>Email</td><td>: {{ $siswa->email }}</td></tr>
@@ -57,10 +57,10 @@
                         </div>
                     @endforeach
                 </div>
-                                            
+
                 <!-- Tenaga Pendidik -->
                 <div class="card shadow mb-4 border-bottom-success" id="infosiswa" value="0">
-                    <a href="#" class="d-block card-header py-3" 
+                    <a href="#" class="d-block card-header py-3"
                         data-toggle="collapse" role="button" aria-expanded="true"
                         aria-controls="collapseCardExample"
                         style="background-color: #007F3E; border: 1px solid #007F3E;">
@@ -102,6 +102,7 @@
                                             @elseif ($tp->jurusan_id == 5) Pegawai Negeri Sipil
                                             @elseif ($tp->jurusan_id == 6) Pegawai Tetap Yayasan
                                             @elseif ($tp->jurusan_id == 7) Pegawai Tidak Tetap
+                                            @elseif ($tp->jurusan_id == 8) PNS Non Sertifikasi
                                             @endif
                                         </td>
                                         <td>

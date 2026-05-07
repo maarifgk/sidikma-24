@@ -6,7 +6,7 @@
             <div>
                 <div class="eyebrow">Pembayaran SK Yayasan</div>
                 <div class="title">Tagihan Terkait SK</div>
-                <p class="subtitle">Filter mengikuti tagihan user login dan jenis pembayaran yang mengandung `SK` atau `Yayasan`.</p>
+                {{-- <p class="subtitle">Filter mengikuti tagihan user login dan jenis pembayaran yang mengandung `SK` atau `Yayasan`.</p> --}}
             </div>
         </div>
     </section>
@@ -58,7 +58,12 @@
                         @elseif ($payment->status_payment === 'Lunas')
                             <a href="{{ url('/lainyaPdf/' . $payment->id) }}" target="_blank" class="action secondary">PDF</a>
                         @else
-                            <a href="{{ url('/pembayaran/payment/' . $payment->id) }}" class="action">Bayar</a>
+                            @if(!empty($hasUnpaidIuran) && $hasUnpaidIuran)
+                                {{-- Tampilkan tombol Bayar dalam keadaan disabled saat masih ada iuran belum lunas --}}
+                                <a href="#" class="action disabled" data-message="Pembayaran SK Yayasan tidak dapat dilakukan karena masih ada tagihan Iuran madrasah yang belum lunas. Silakan selesaikan Iuran terlebih dahulu.">Bayar</a>
+                            @else
+                                <a href="{{ url('/mobile/role-2/pembayaran/payment/' . $payment->id) }}" class="action">Bayar</a>
+                            @endif
                         @endif
                     </div>
                 </div>
@@ -67,4 +72,28 @@
             @endforelse
         </div>
     </section>
+
+    {{-- Tampilkan session error (server-side redirect) --}}
+    @if(session('error'))
+        <script>
+            // Tampilkan alert setelah load jika server-side mengembalikan error
+            document.addEventListener('DOMContentLoaded', function () {
+                alert(@json(session('error')));
+            });
+        </script>
+    @endif
+
+    <script>
+        // Tangkap klik pada tombol Bayar yang disabled dan tampilkan keterangan
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('a.action.disabled').forEach(function (el) {
+                el.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var msg = el.getAttribute('data-message') || 'Terdapat tagihan iuran yang belum lunas.';
+                    // Gunakan alert sederhana agar kompatibel di mobile webview
+                    alert(msg);
+                });
+            });
+        });
+    </script>
 @endsection

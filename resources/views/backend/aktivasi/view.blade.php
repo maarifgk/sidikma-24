@@ -20,30 +20,74 @@
                 </a>
                 <div class="collapse show" id="informasisiswa">
                     <div class="card-body">
-                        <table class="table table-striped">
-                            <tbody>   
-                                <tr>
-                                    <td>1.</td>
-                                    <td>Nama Guru/Pegawai</td>
-                                </tr>
-                                <tr>
-                                    <td>2.</td>
-                                    <td>Asal Madrasah/Sekolah</td>
-                                </tr>
-                                <tr>
-                                    <td>3.</td>
-                                    <td>TMT Non Aktif</td>
-                                </tr>
-                                <tr>
-                                    <td>4.</td>
-                                    <td>Surat Permohonan Non Aktif</td>
-                                </tr>
-                                <tr>
-                                    <td>KET:</td>
-                                    <td>Permohonan Aktivasi Guru/Pegawai kepada Yayasan harus menyertakan Surat Permohonan dari Madrasah/Sekolah Asal</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        @if (!empty(Helper::apk()->info_aktivasi))
+                            @php $raw = Helper::apk()->info_aktivasi; $decoded = json_decode($raw, true); @endphp
+                            @if (request()->user()->role == 1)
+                                <div class="mb-2">
+                                    <a href="/aktivasi/info/edit" class="btn btn-sm btn-warning">Edit</a>
+                                </div>
+                            @endif
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td>1.</td>
+                                        <td>{{ e($decoded['label_1'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2.</td>
+                                        <td>{{ e($decoded['label_2'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3.</td>
+                                        <td>{{ e($decoded['label_3'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4.</td>
+                                        <td>
+                                            {{ e($decoded['label_4'] ?? '') }}
+                                            @php $link = $decoded['link_aktivasi'] ?? null; @endphp
+                                            @if (!empty($link))
+                                                <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">Download PDF</a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>KET:</td>
+                                        <td>{!! nl2br(e($decoded['ket'] ?? '')) !!}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        @else
+                            @if (request()->user()->role == 1)
+                                <div class="mb-2">
+                                    <a href="/aktivasi/info/edit" class="btn btn-sm btn-warning">Edit</a>
+                                </div>
+                            @endif
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td>1.</td>
+                                        <td>Nama Guru/Pegawai</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2.</td>
+                                        <td>Asal Madrasah/Sekolah</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3.</td>
+                                        <td>TMT Non Aktif</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4.</td>
+                                        <td>Surat Permohonan Non Aktif</td>
+                                    </tr>
+                                    <tr>
+                                        <td>KET:</td>
+                                        <td>Permohonan Aktivasi Guru/Pegawai kepada Yayasan harus menyertakan Surat Permohonan dari Madrasah/Sekolah Asal</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -169,7 +213,7 @@
                                 @elseif ($t->kelas == 58)
                                     MI YAPPI Wiyoko
                                 @elseif ($t->kelas == 60)
-                                    MI Maarif Mulo 
+                                    MI Maarif Mulo
                                 @elseif ($t->kelas == 62)
                                     MI Maarif Wareng
                                 @elseif ($t->kelas == 63)
@@ -358,7 +402,7 @@
                             @elseif ($t->kelas == 58)
                                 MI YAPPI Wiyoko
                             @elseif ($t->kelas == 60)
-                                MI Maarif Mulo 
+                                MI Maarif Mulo
                             @elseif ($t->kelas == 62)
                                 MI Maarif Wareng
                             @elseif ($t->kelas == 63)

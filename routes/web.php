@@ -45,6 +45,8 @@ use App\Http\Controllers\ModulController;
 use App\Http\Controllers\DataSiswaController;
 use App\Http\Controllers\DataTenagaPendidikController;
 use App\Http\Controllers\MobileRole2Controller;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceAdminController;
 
 
 
@@ -80,8 +82,23 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [MobileRole2Controller::class, 'dashboard'])->name('dashboard');
         Route::get('/informasi', [MobileRole2Controller::class, 'informasi'])->name('informasi');
         Route::get('/pembayaran', [MobileRole2Controller::class, 'pembayaran'])->name('pembayaran');
+    Route::get('/pembayaran/payment/{id}', [MobileRole2Controller::class, 'payment'])->name('pembayaran.payment');
         Route::get('/files', [MobileRole2Controller::class, 'files'])->name('files');
         Route::get('/profile', [MobileRole2Controller::class, 'profile'])->name('profile');
+        Route::get('/presensi', [AttendanceController::class, 'index'])->name('presensi');
+        Route::post('/presensi', [AttendanceController::class, 'store'])->name('presensi.store');
+        Route::get('/izin', [AttendanceController::class, 'permission'])->name('izin');
+        Route::post('/izin', [AttendanceController::class, 'storePermission'])->name('izin.store');
+    });
+
+    Route::prefix('presensi')->name('presensi.')->group(function () {
+        Route::get('/dashboard', [AttendanceAdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/settings', [AttendanceAdminController::class, 'settings'])->name('settings');
+        Route::post('/settings', [AttendanceAdminController::class, 'updateSettings'])->name('settings.update');
+        Route::get('/laporan', [AttendanceAdminController::class, 'report'])->name('report');
+        Route::get('/laporan/export', [AttendanceAdminController::class, 'exportReport'])->name('report.export');
+        Route::get('/izin', [AttendanceAdminController::class, 'permissions'])->name('permissions');
+        Route::post('/izin/{id}', [AttendanceAdminController::class, 'updatePermission'])->name('permissions.update');
     });
     Route::get('logout', [AuthController::class, 'logout'])->name('logout');
     //Update Sipinter
@@ -105,6 +122,8 @@ Route::middleware(['auth'])->group(function () {
     //Aktivasi
     Route::get('/aktivasi', [AktivasiController::class, 'view'])->name('aktivasi');
     Route::get('/aktivasi/add', [AktivasiController::class, 'add'])->name('aktivasi.add');
+    Route::get('/aktivasi/info/edit', [AktivasiController::class, 'editInfo'])->name('aktivasi.info.edit');
+    Route::post('/aktivasi/info/update', [AktivasiController::class, 'updateInfo'])->name('aktivasi.info.update');
     Route::post('/aktivasi/proses', [AktivasiController::class, 'addsarpras'])->name('aktivasi.addProses');
     Route::get('/aktivasi/edit/{id}', [AktivasiController::class, 'edit'])->name('aktivasi.edit');
     Route::post('/aktivasi/editProses', [AktivasiController::class, 'editProses'])->name('aktivasi.editProses');
@@ -189,6 +208,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/usulan', [UsulanController::class, 'view'])->name('usulan');
     Route::get('/usulan/open/{id}', [UsulanController::class, 'open'])->name('usulan.open');
     Route::get('/usulan/add', [UsulanController::class, 'add'])->name('usulan.add');
+    Route::get('/usulan/info/edit', [UsulanController::class, 'editInfo'])->name('usulan.info.edit');
+    Route::post('/usulan/info/update', [UsulanController::class, 'updateInfo'])->name('usulan.info.update');
     Route::post('/usulan/proses', [UsulanController::class, 'addsarpras'])->name('usulan.addProses');
     Route::get('/usulan/edit/{id}', [UsulanController::class, 'edit'])->name('usulan.edit');
     Route::post('/usulan/editProses', [UsulanController::class, 'editProses'])->name('usulan.editProses');
@@ -196,6 +217,8 @@ Route::middleware(['auth'])->group(function () {
     //Mutasi Guru & Pegawai
     Route::get('/mutasi', [MutasiController::class, 'view'])->name('mutasi');
     Route::get('/mutasi/add', [MutasiController::class, 'add'])->name('mutasi.add');
+    Route::get('/mutasi/info/edit', [MutasiController::class, 'editInfo'])->name('mutasi.info.edit');
+    Route::post('/mutasi/info/update', [MutasiController::class, 'updateInfo'])->name('mutasi.info.update');
     Route::post('/mutasi/proses', [MutasiController::class, 'addmutasi'])->name('mutasi.addProses');
     Route::get('/mutasi/edit/{id}', [MutasiController::class, 'edit'])->name('mutasi.edit');
     Route::post('/mutasi/editProses', [MutasiController::class, 'editProses'])->name('mutasi.editProses');
@@ -203,13 +226,19 @@ Route::middleware(['auth'])->group(function () {
     //Persuratan
     Route::get('/persuratan', [PersuratanController::class, 'view'])->name('persuratan');
     Route::get('/persuratan/add', [PersuratanController::class, 'add'])->name('persuratan.add');
+    Route::get('/persuratan/info/edit', [PersuratanController::class, 'editInfo'])->name('persuratan.info.edit');
+    Route::post('/persuratan/info/update', [PersuratanController::class, 'updateInfo'])->name('persuratan.info.update');
     Route::post('/persuratan/proses', [PersuratanController::class, 'addsarpras'])->name('persuratan.addProses');
     Route::get('/persuratan/edit/{id}', [PersuratanController::class, 'edit'])->name('persuratan.edit');
     Route::post('/persuratan/editProses', [PersuratanController::class, 'editProses'])->name('persuratan.editProses');
     Route::get('/persuratan/delete/{id}', [PersuratanController::class, 'delete'])->name('persuratan.delete');
     //Proposal
     Route::get('/proposal', [ProposalController::class, 'view'])->name('proposal');
+    Route::get('/proposal/file/{id}', [ProposalController::class, 'viewFile'])->name('proposal.file');
+    Route::get('/proposal/file/{id}/approved', [ProposalController::class, 'viewApprovedFile'])->name('proposal.file.approved');
     Route::get('/proposal/open/{id}', [ProposalController::class, 'open'])->name('proposal.open');
+    Route::get('/proposal/info/edit', [ProposalController::class, 'editInfo'])->name('proposal.info.edit');
+    Route::post('/proposal/info/update', [ProposalController::class, 'updateInfo'])->name('proposal.info.update');
     Route::post('/proposal/openProses', [ProposalController::class, 'openProses'])->name('proposal.openProses');
     Route::get('/proposal/add', [ProposalController::class, 'add'])->name('proposal.add');
     Route::post('/proposal/proses', [ProposalController::class, 'addsarpras'])->name('proposal.addProses');
@@ -227,6 +256,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/sk_januari', [SkJanuariController::class, 'view'])->name('sk_januari');
     //pembayaran
     Route::get('/pembayaran', [PembayaranController::class, 'view'])->name('pembayaran');
+    Route::get('/pembayaran/info/edit', [PembayaranController::class, 'editInfo'])->name('pembayaran.info.edit');
+    Route::post('/pembayaran/info/update', [PembayaranController::class, 'updateInfo'])->name('pembayaran.info.update');
     Route::get('/pembayaran/search', [PembayaranController::class, 'search'])->name('pembayaran.search');
     Route::get('/pembayaran/spp/{id}', [PembayaranController::class, 'spp'])->name('pembayaran.spp');
     Route::get('/pembayaran/payment/{id}', [PembayaranController::class, 'payment'])->name('pembayaran.payment');
@@ -342,6 +373,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/batik-maarif/snap', [BatikMaarifController::class, 'createSnapToken'])->name('batik.maarif.snap');
     // Integrasi Midtrans
     Route::post('/batik-maarif/pay', [BatikMaarifController::class, 'pay'])->name('batik.maarif.pay');
+    // Admin: update stok & harga
+    Route::post('/batik-maarif/update-stok', [BatikMaarifController::class, 'updateStok'])->name('batik.maarif.updateStok');
     Route::post('/batik-maarif/notification', [BatikMaarifController::class, 'notificationHandler'])->name('batik.maarif.notification');
 
     // Opsional (redirect setelah bayar)

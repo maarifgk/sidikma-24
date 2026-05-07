@@ -23,7 +23,7 @@ class MutasiController extends Controller
         $data['permohonanmutasi'] = DB::table('mutasi')->where('skl_asal', request()->user()->kelas_id)->get();
         return view('backend.mutasi.view', $data);
     }
-    
+
     public function add()
     {
         $data['title'] = "Input Data Mutasi & Pegawai";
@@ -94,6 +94,49 @@ class MutasiController extends Controller
             DB::table('mutasi')->where('id', $id)->delete();
             Alert::success('Data Berhasil Dihapus!');
             return redirect()->route('mutasi');
+        } catch (Exception $e) {
+            return response([
+                'success' => false,
+                'msg'     => 'Error : ' . $e->getMessage() . ' Line : ' . $e->getLine() . ' File : ' . $e->getFile()
+            ]);
+        }
+    }
+
+    // Show edit form for kelengkapan mutasi (role 1)
+    public function editInfo()
+    {
+        if (request()->user()->role != 1) {
+            abort(403);
+        }
+        $data['title'] = 'Edit Kelengkapan Mutasi';
+        return view('backend.mutasi.edit_info', $data);
+    }
+
+    // Update kelengkapan mutasi
+    public function updateInfo(Request $request)
+    {
+        if (request()->user()->role != 1) {
+            abort(403);
+        }
+        try {
+            $id = $request->id ?? 1;
+            $payload = [
+                'label_1' => strip_tags($request->input('label_1')) ?? '',
+                'label_2' => strip_tags($request->input('label_2')) ?? '',
+                // optional PDF link for mutasi
+                'link_mutasi' => filter_var($request->input('link_mutasi'), FILTER_SANITIZE_URL) ?? '',
+            ];
+
+            DB::table('aplikasi')->where('id', $id)->update([
+                'info_mutasi' => json_encode($payload),
+            ]);
+
+            $params['activity'] = 'Update Kelengkapan Mutasi';
+            $params['detail'] = 'User ' . request()->user()->id . ' updated info_mutasi';
+            \App\Providers\Helper::log_transaction($params);
+
+            Alert::success('Sukses', 'Kelengkapan Mutasi disimpan');
+            return redirect('/mutasi');
         } catch (Exception $e) {
             return response([
                 'success' => false,

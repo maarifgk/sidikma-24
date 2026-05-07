@@ -148,7 +148,7 @@
                                 </tr>
                                 <tr>
                                     <td>File Proposal PDF</td>
-                                    <td>: <a href="{{ asset('') }}storage/dokumen/proposal/{{ $proposal->proposal }}" class="btn btn-success" view="">View</a></td>
+                                    <td>: <a href="{{ route('proposal.file', $proposal->id) }}" class="btn btn-success" target="_blank">View</a></td>
                                 </tr>
                                 <tr>
                                     <td>Nominal diajukan</td>

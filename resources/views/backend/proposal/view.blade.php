@@ -20,80 +20,70 @@
                 </a>
                 <div class="collapse show" id="informasisiswa">
                     <div class="card-body">
-                        <table class="table table-striped">
-                            <tbody>   
-                                <tr>
-                                    <td>1. Dokumen Surat Permohonan Bantuan/Proposal dalam bentuk File PDF</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>2. Jenis Permohonan Bantuan/Proposal</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>3. Nominal yang diajukan</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>4. Nama Bank & Nomor Rekening</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="m-0 font-weight-bold text-danger">NB: Jika terdapat kendala atau error silahkan hubungi admin LP. Ma'arif NU PCNU Gunungkidul</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        @if (!empty(Helper::apk()->info_proposal))
+                            @php $raw = Helper::apk()->info_proposal; $decoded = json_decode($raw, true); @endphp
+                            @if (request()->user()->role == 1)
+                                <div class="mb-2">
+                                    <a href="/proposal/info/edit" class="btn btn-sm btn-warning">Edit</a>
+                                </div>
+                            @endif
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td>1.</td>
+                                        <td>{{ e($decoded['label_1'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2.</td>
+                                        <td>{{ e($decoded['label_2'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3.</td>
+                                        <td>{{ e($decoded['label_3'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4.</td>
+                                        <td>{{ e($decoded['label_4'] ?? '') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="m-0 font-weight-bold text-danger">NB:</td>
+                                        <td>{!! nl2br(e($decoded['nb'] ?? '')) !!}
+                                            @php $link = $decoded['link_proposal'] ?? null; @endphp
+                                            @if (!empty($link))
+                                                <div class="mt-2">
+                                                    <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">Download / Info</a>
+                                                </div>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        @else
+                            @if (request()->user()->role == 1)
+                                <div class="mb-2">
+                                    <a href="/proposal/info/edit" class="btn btn-sm btn-warning">Edit</a>
+                                </div>
+                            @endif
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td>1. Dokumen Surat Permohonan Bantuan/Proposal dalam bentuk File PDF</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2. Jenis Permohonan Bantuan/Proposal</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3. Nominal yang diajukan</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4. Nama Bank & Nomor Rekening</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="m-0 font-weight-bold text-danger">NB: Jika terdapat kendala atau error silahkan hubungi admin LP. Ma'arif NU PCNU Gunungkidul</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -222,7 +212,7 @@
                             @elseif ($t->kelas_id == 58)
                                 MI YAPPI Wiyoko
                             @elseif ($t->kelas_id == 60)
-                                MI Maarif Mulo 
+                                MI Maarif Mulo
                             @elseif ($t->kelas_id == 62)
                                 MI Maarif Wareng
                             @elseif ($t->kelas_id == 63)
@@ -250,14 +240,14 @@
                             @endif</td>
                             <td width="auto">{{ $t->jenis_proposal }}</td>
                             <td>
-                                <a href="{{ asset('') }}storage/dokumen/proposal/{{ $t->proposal }}" class="btn btn-primary" view=""><i class="fa-regular fa-file"></i></a>
+                                <a href="{{ route('proposal.file', $t->id) }}" class="btn btn-primary" target="_blank"><i class="fa-regular fa-file"></i></a>
                             </td>
                             <td width="auto">{{ $t->nominal }}</td>
                             <td width="auto">{{ $t->status }}</td>
                             <td width="auto">{{ $t->keterangan_ditolak }}</td>
                             <td width="auto">
                                 @if ($t->approve_proposal)
-                                <a href="{{ asset('') }}storage/dokumen/approve_proposal/{{ $t->approve_proposal }}" class="btn btn-primary" target="_blank"><i class="fa-regular fa-file"></i></a>
+                                <a href="{{ route('proposal.file.approved', $t->id) }}" class="btn btn-primary" target="_blank"><i class="fa-regular fa-file"></i></a>
                                 @endif
                             <td width="auto">{{ $t->nominal_acc }}</td>
                             @if (in_array(request()->user()->role, [1, 4,]))
@@ -425,7 +415,7 @@
                             @elseif ($t->kelas_id == 58)
                                 MI YAPPI Wiyoko
                             @elseif ($t->kelas_id == 60)
-                                MI Maarif Mulo 
+                                MI Maarif Mulo
                             @elseif ($t->kelas_id == 62)
                                 MI Maarif Wareng
                             @elseif ($t->kelas_id == 63)
@@ -453,14 +443,14 @@
                             @endif</td>
                             <td width="auto">{{ $t->jenis_proposal }}</td>
                             <td>
-                                <a href="{{ asset('') }}storage/dokumen/proposal/{{ $t->proposal }}" class="btn btn-primary" view=""><i class="fa-regular fa-file"></i></a>
+                                <a href="{{ route('proposal.file', $t->id) }}" class="btn btn-primary" target="_blank"><i class="fa-regular fa-file"></i></a>
                             </td>
                             <td width="auto">{{ $t->nominal }}</td>
                             <td width="auto">{{ $t->status }}</td>
                             <td width="auto">{{ $t->keterangan_ditolak }}</td>
                             <td width="auto">
                                 @if ($t->approve_proposal)
-                                <a href="{{ asset('') }}storage/dokumen/approve_proposal/{{ $t->approve_proposal }}" class="btn btn-primary" target="_blank"><i class="fa-regular fa-file"></i></a>
+                                <a href="{{ route('proposal.file.approved', $t->id) }}" class="btn btn-primary" target="_blank"><i class="fa-regular fa-file"></i></a>
                                 @endif
                             <td width="auto">{{ $t->nominal_acc }}</td>
                             @if (in_array(request()->user()->role, [1, 4,]))
@@ -470,7 +460,7 @@
                                 <a href="/proposal/open/{{ $t->id }}" type="button" class="btn btn-success">Proses</a>
                                 <button type="button" class="btn btn-danger btn-tolak" data-id="{{ $t->id }}">
                                     Tolak
-                                </button>                                
+                                </button>
                                 @endif
                                 @if (request()->user()->role == 1)
                                 <button type="button" class="btn btn-warning" data-bs-toggle="modal"
@@ -514,11 +504,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const buttons = document.querySelectorAll('.btn-tolak');
-    
+
             buttons.forEach(button => {
                 button.addEventListener('click', function () {
                     const proposalId = this.getAttribute('data-id');
-    
+
                     Swal.fire({
                         title: 'Keterangan Tidak Disetujui',
                         input: 'text',
@@ -560,5 +550,5 @@
             });
         });
     </script>
-    
+
 @endsection
