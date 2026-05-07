@@ -233,8 +233,8 @@ class SkTemplateController extends Controller
 
         $rendered = $this->renderTemplate($skTemplate, $user, ['nomor_sk' => $skNumber]);
 
-        // Remove header logo markup temporarily for preview (keep empty wrapper to preserve layout)
-        $renderedWithoutLogo = preg_replace('/(<div\s+class=["\\'\"]header-logo-wrap["\'\"][^>]*>).*?(<\/div>)/is', '$1$2', $rendered);
+    // Remove header logo markup temporarily for preview (keep empty wrapper to preserve layout)
+    $renderedWithoutLogo = preg_replace('/(<div[^>]*class=["\']?[^>"\']*header-logo-wrap[^>"\']*["\']?[^>]*>).*?(<\/div>)/is', '$1$2', $rendered);
 
         return view('backend.sk_templates.preview', [
             'title' => $this->renderText($skTemplate->document_title, $user, ['nomor_sk' => $skNumber]),
@@ -256,8 +256,8 @@ class SkTemplateController extends Controller
 
         $rendered = $this->renderTemplate($skTemplate, $user, ['nomor_sk' => $skNumber]);
 
-        // Remove header logo markup temporarily for PDF output (keep empty wrapper to preserve layout)
-        $renderedWithoutLogo = preg_replace('/(<div\s+class=["\\'\"]header-logo-wrap["\'\"][^>]*>).*?(<\/div>)/is', '$1$2', $rendered);
+    // Remove header logo markup temporarily for PDF output (keep empty wrapper to preserve layout)
+    $renderedWithoutLogo = preg_replace('/(<div[^>]*class=["\']?[^>"\']*header-logo-wrap[^>"\']*["\']?[^>]*>).*?(<\/div>)/is', '$1$2', $rendered);
 
         $pdf = Pdf::loadView('backend.sk_templates.pdf', [
             'title' => $documentTitle,
