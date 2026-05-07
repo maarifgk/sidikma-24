@@ -657,7 +657,7 @@ class SkTemplateController extends Controller
         <tr>
             <td class="header-logo-cell" style="width: __HEADER_LOGO_CELL_WIDTH__px;">
                 <div class="header-logo-wrap" style="width: __HEADER_LOGO_WRAP_WIDTH__px; height: __HEADER_LOGO_WRAP_HEIGHT__px;">
-                    <img src="__LOGO_URL__" alt="Logo" class="header-logo" style="width: __HEADER_LOGO_WIDTH__px; height: __HEADER_LOGO_HEIGHT__px;">
+                    __HEADER_LOGO_MARKUP__
                 </div>
             </td>
             <td class="header-text-cell">
@@ -771,7 +771,7 @@ HTML, [
             '__HEADER_LOGO_WRAP_HEIGHT__' => $this->numericValue($logoDimensions['wrap_height']),
             '__HEADER_LOGO_WIDTH__' => $this->numericValue($logoDimensions['image_width']),
             '__HEADER_LOGO_HEIGHT__' => $this->numericValue($logoDimensions['image_height']),
-            '__LOGO_URL__' => $this->attributeValue($builderData['logo_url']),
+            '__HEADER_LOGO_MARKUP__' => $this->renderHeaderLogoMarkup($builderData['logo_url'], $logoDimensions),
             '__HEADER_TOPLINE__' => $this->formatBuilderText($builderData['header_topline']),
             '__HEADER_TITLE__' => $this->formatBuilderText($builderData['header_title']),
             '__HEADER_ADDRESS__' => $this->formatBuilderText($builderData['header_address']),
@@ -1376,6 +1376,32 @@ CSS;
         }
 
         return [260, 260];
+    }
+
+    protected function renderHeaderLogoMarkup(string $source, array $logoDimensions): string
+    {
+        $width = $this->numericValue($logoDimensions['image_width']);
+        $height = $this->numericValue($logoDimensions['image_height']);
+
+        if (str_starts_with($source, 'data:image/svg+xml;base64,')) {
+            $svg = base64_decode(substr($source, strlen('data:image/svg+xml;base64,')), true) ?: '';
+            $svg = preg_replace('/<\?xml.*?\?>/i', '', $svg) ?? $svg;
+
+            if (preg_match('/<svg\b[^>]*>/i', $svg, $matches)) {
+                $originalTag = $matches[0];
+                $newTag = preg_replace('/\s(width|height|style|preserveAspectRatio)="[^"]*"/i', '', $originalTag) ?? $originalTag;
+                $newTag = rtrim(substr($newTag, 0, -1))
+                    . ' width="' . e($width) . '"'
+                    . ' height="' . e($height) . '"'
+                    . ' preserveAspectRatio="xMidYMid meet"'
+                    . ' style="display:block;margin:0 auto;"'
+                    . '>';
+
+                return preg_replace('/<svg\b[^>]*>/i', $newTag, $svg, 1) ?? $svg;
+            }
+        }
+
+        return '<img src="' . $this->attributeValue($source) . '" alt="Logo" class="header-logo" style="width: ' . e($width) . 'px; height: ' . e($height) . 'px;">';
     }
 
     protected function fontSizeValue($value, float $default): string
