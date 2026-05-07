@@ -163,6 +163,12 @@
                 </a>
             </li>
             <li class="menu-item">
+                <a href="{{ route('sk-templates.index') }}" class="menu-link ">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <div style="margin-left: 8px;">Template SK</div>
+                </a>
+            </li>
+            <li class="menu-item">
                 <a href="/batik_maarif" class="menu-link ">
                     <i class="fa-solid fa-vest"></i>
                     <div style="margin-left: 8px;">Batik Ma'arif</div>
