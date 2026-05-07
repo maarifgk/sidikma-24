@@ -832,7 +832,7 @@ body {
 }
 
 .header-logo-cell {
-    width: 160px;
+    width: 128px;
     text-align: center;
     vertical-align: middle;
 }
@@ -843,10 +843,10 @@ body {
 }
 
 .header-logo {
-    width: auto;
+    width: 112px;
     height: auto;
-    max-width: 145px;
-    max-height: 145px;
+    max-width: 112px;
+    max-height: none;
     display: inline-block;
 }
 
