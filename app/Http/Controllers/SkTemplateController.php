@@ -598,7 +598,7 @@ class SkTemplateController extends Controller
             'signature_date' => '{{tanggal_sk}}',
             'signature_body_top' => "Pengurus LP Ma'arif NU Kab. Gunungkidul",
             'signature_role' => 'Ketua,',
-            'signature_name' => 'Drs. H. SANGKIN, M.Pd.,,,,',
+            'signature_name' => 'Drs. H. SANGKIN, M.Pd.',
             'signature_font_size' => '11.5',
             'tembusan_title' => 'Tembusan Yth;',
             'tembusan_items' => "Kepala Kemenag Kab. Gunungkidul\nKepala {{nama_kelas}}\nArsip",
