@@ -46,7 +46,7 @@ class SkTemplateController extends Controller
             'placeholders' => $this->placeholderDefinitions(),
             'previewSamples' => $this->previewSamples(),
             'whatsappIconUrl' => $this->placeholderSvgDataUri('', '#16a34a', '#ffffff', 'whatsapp'),
-            'emailIconUrl' => $this->placeholderSvgDataUri('', '#0f766e', '#ffffff', 'email'),
+            'emailIconUrl' => $this->placeholderSvgDataUri('', '#000000ff', '#ffffff', 'email'),
             'presetTitle' => 'SK Yayasan - {{nama_lengkap}}',
             'presetContent' => $this->buildContentFromBuilderData($defaultBuilderData),
             'presetCss' => $this->defaultCss(),
