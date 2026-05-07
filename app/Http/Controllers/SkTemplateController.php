@@ -487,17 +487,17 @@ class SkTemplateController extends Controller
             <tr>
                 <td class="label">Menimbang</td>
                 <td class="colon">:</td>
-                <td>__MENIMBANG_TEXT__</td>
+                <td><div class="justified-text">__MENIMBANG_TEXT__</div></td>
             </tr>
             <tr>
                 <td class="label">Mengingat</td>
                 <td class="colon">:</td>
-                <td>__MENGINGAT_TEXT__</td>
+                <td><div class="justified-text">__MENGINGAT_TEXT__</div></td>
             </tr>
             <tr>
                 <td class="label">Memperhatikan</td>
                 <td class="colon">:</td>
-                <td>__MEMPERHATIKAN_TEXT__</td>
+                <td><div class="justified-text">__MEMPERHATIKAN_TEXT__</div></td>
             </tr>
         </table>
 
@@ -524,18 +524,18 @@ class SkTemplateController extends Controller
                         <tr><td class="num">7.</td><td class="field">Program Studi</td><td class="colon">:</td><td>{{p_studi}}</td></tr>
                         <tr><td class="num">8.</td><td class="field">Status Kepegawaian</td><td class="colon">:</td><td>{{nama_jurusan}}</td></tr>
                     </table>
-                    __PERTAMA_PENUTUP__
+                    <div class="justified-text">__PERTAMA_PENUTUP__</div>
                 </td>
             </tr>
             <tr>
                 <td class="label">Kedua</td>
                 <td class="colon">:</td>
-                <td>__KEDUA_TEXT__</td>
+                <td><div class="justified-text">__KEDUA_TEXT__</div></td>
             </tr>
             <tr>
                 <td class="label">Ketiga</td>
                 <td class="colon">:</td>
-                <td>__KETIGA_TEXT__</td>
+                <td><div class="justified-text">__KETIGA_TEXT__</div></td>
             </tr>
         </table>
 
@@ -722,6 +722,10 @@ body {
 .decision-number {
     margin-top: 3px;
     font-size: 12px;
+}
+
+.justified-text {
+    text-align: justify;
 }
 
 .opening-line {
