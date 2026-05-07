@@ -1338,9 +1338,10 @@ CSS;
     {
         [$sourceWidth, $sourceHeight] = $this->imageDimensionsFromSource($logoUrl);
 
-        // Use larger defaults for NU logo
-        $maxWidth = 150;
-        $maxHeight = 150;
+    // Prefer a rectangular (wider) display for kop logos in generated documents
+    // Increase max width and reduce max height so logos render wider rather than square.
+    $maxWidth = 220;
+    $maxHeight = 100;
 
         $ratio = min($maxWidth / $sourceWidth, $maxHeight / $sourceHeight);
 

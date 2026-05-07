@@ -590,8 +590,9 @@
 
     function computeLogoDisplayDimensions(src) {
         return new Promise((resolve) => {
-            const maxW = 150;
-            const maxH = 150;
+            // Match server-side preferences: prefer wider rectangular logo
+            const maxW = 220;
+            const maxH = 100;
             if (!src) {
                 resolve({ cell_width: 106, wrap_width: 96, wrap_height: 96, image_width: 96, image_height: 96 });
                 return;
