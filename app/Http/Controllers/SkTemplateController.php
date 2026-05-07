@@ -1392,19 +1392,21 @@ CSS;
 
             if (preg_match('/<svg\b[^>]*>/i', $svg, $matches)) {
                 $originalTag = $matches[0];
+                // remove existing width/height/style/preserveAspectRatio to re-insert controlled attributes
                 $newTag = preg_replace('/\s(width|height|style|preserveAspectRatio)="[^"]*"/i', '', $originalTag) ?? $originalTag;
+                // Set only width and preserve aspect ratio; omit explicit height to avoid squashing
                 $newTag = rtrim(substr($newTag, 0, -1))
-                    . ' width="' . $this->attributeValue($width) . '"'
-                    . ' height="' . $this->attributeValue($height) . '"'
+                    . ' width="' . $this->attributeValue($this->numericValue($width)) . '"'
                     . ' preserveAspectRatio="xMidYMid meet"'
-                    . ' style="display:block;margin:0 auto;"'
+                    . ' style="display:block;margin:0 auto;height:auto;"'
                     . '>';
 
                 return preg_replace('/<svg\b[^>]*>/i', $newTag, $svg, 1) ?? $svg;
             }
         }
 
-        return '<img src="' . $this->attributeValue($source) . '" alt="Logo" class="header-logo" style="width: ' . $this->attributeValue($this->numericValue($width)) . 'px; height: ' . $this->attributeValue($this->numericValue($height)) . 'px;">';
+        // For raster images, set width and let height be automatic to preserve original aspect ratio
+        return '<img src="' . $this->attributeValue($source) . '" alt="Logo" class="header-logo" style="width: ' . $this->attributeValue($this->numericValue($width)) . 'px; height: auto;">';
     }
 
     protected function fontSizeValue($value, float $default): string
