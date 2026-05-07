@@ -645,6 +645,7 @@ class SkTemplateController extends Controller
     protected function buildContentFromBuilderData(array $builderData): string
     {
         $builderData = $this->normalizeBuilderData($builderData);
+        $logoDimensions = $this->logoDisplayDimensions($builderData['logo_url']);
         $tembusanItems = array_values(array_filter(array_map('trim', preg_split("/\r\n|\n|\r/", $builderData['tembusan_items'])), fn ($item) => $item !== ''));
         $tembusanHtml = collect($tembusanItems)->map(function ($item) {
             return '<li>' . $this->formatBuilderText($item) . '</li>';
@@ -654,9 +655,9 @@ class SkTemplateController extends Controller
 <div class="document">
     <table class="header-table">
         <tr>
-            <td class="header-logo-cell">
-                <div class="header-logo-wrap">
-                    <img src="__LOGO_URL__" alt="Logo" class="header-logo">
+            <td class="header-logo-cell" style="width: __HEADER_LOGO_CELL_WIDTH__px;">
+                <div class="header-logo-wrap" style="width: __HEADER_LOGO_WRAP_WIDTH__px; height: __HEADER_LOGO_WRAP_HEIGHT__px;">
+                    <img src="__LOGO_URL__" alt="Logo" class="header-logo" style="width: __HEADER_LOGO_WIDTH__px; height: __HEADER_LOGO_HEIGHT__px;">
                 </div>
             </td>
             <td class="header-text-cell">
@@ -765,6 +766,11 @@ class SkTemplateController extends Controller
     </div>
 </div>
 HTML, [
+            '__HEADER_LOGO_CELL_WIDTH__' => $this->numericValue($logoDimensions['cell_width']),
+            '__HEADER_LOGO_WRAP_WIDTH__' => $this->numericValue($logoDimensions['wrap_width']),
+            '__HEADER_LOGO_WRAP_HEIGHT__' => $this->numericValue($logoDimensions['wrap_height']),
+            '__HEADER_LOGO_WIDTH__' => $this->numericValue($logoDimensions['image_width']),
+            '__HEADER_LOGO_HEIGHT__' => $this->numericValue($logoDimensions['image_height']),
             '__LOGO_URL__' => $this->attributeValue($builderData['logo_url']),
             '__HEADER_TOPLINE__' => $this->formatBuilderText($builderData['header_topline']),
             '__HEADER_TITLE__' => $this->formatBuilderText($builderData['header_title']),
@@ -834,7 +840,6 @@ body {
 }
 
 .header-logo-cell {
-    width: 118px;
     text-align: center;
     vertical-align: middle;
 }
@@ -845,17 +850,11 @@ body {
 }
 
 .header-logo-wrap {
-    width: 110px;
-    height: 110px;
     margin: 0 auto;
     text-align: center;
-    overflow: hidden;
 }
 
 .header-logo {
-    width: auto;
-    height: 100px;
-    max-width: 110px;
     display: block;
     margin: 0 auto;
 }
@@ -1320,6 +1319,63 @@ CSS;
     protected function attributeValue(string $value): string
     {
         return e($value);
+    }
+
+    protected function numericValue($value): string
+    {
+        return (string) max(1, (int) round((float) $value));
+    }
+
+    protected function logoDisplayDimensions(string $logoUrl): array
+    {
+        [$sourceWidth, $sourceHeight] = $this->imageDimensionsFromSource($logoUrl);
+
+        $maxWidth = 136;
+        $maxHeight = 110;
+        $ratio = min($maxWidth / $sourceWidth, $maxHeight / $sourceHeight);
+
+        $imageWidth = max(1, (int) round($sourceWidth * $ratio));
+        $imageHeight = max(1, (int) round($sourceHeight * $ratio));
+        $wrapWidth = max($imageWidth, 96);
+        $wrapHeight = max($imageHeight, 96);
+
+        return [
+            'cell_width' => $wrapWidth + 12,
+            'wrap_width' => $wrapWidth,
+            'wrap_height' => $wrapHeight,
+            'image_width' => $imageWidth,
+            'image_height' => $imageHeight,
+        ];
+    }
+
+    protected function imageDimensionsFromSource(string $source): array
+    {
+        if (str_starts_with($source, 'data:image/svg+xml;base64,')) {
+            $svg = base64_decode(substr($source, strlen('data:image/svg+xml;base64,')), true) ?: '';
+
+            if (preg_match('/viewBox="[^"]*\s(\d+(?:\.\d+)?)\s(\d+(?:\.\d+)?)"/i', $svg, $matches)) {
+                return [max(1, (float) $matches[1]), max(1, (float) $matches[2])];
+            }
+
+            if (
+                preg_match('/width="(\d+(?:\.\d+)?)"/i', $svg, $widthMatch) &&
+                preg_match('/height="(\d+(?:\.\d+)?)"/i', $svg, $heightMatch)
+            ) {
+                return [max(1, (float) $widthMatch[1]), max(1, (float) $heightMatch[1])];
+            }
+        }
+
+        if (preg_match('/^data:image\/[^;]+;base64,(.+)$/', $source, $matches)) {
+            $binary = base64_decode($matches[1], true);
+            if ($binary !== false) {
+                $imageSize = @getimagesizefromstring($binary);
+                if ($imageSize && !empty($imageSize[0]) && !empty($imageSize[1])) {
+                    return [max(1, (float) $imageSize[0]), max(1, (float) $imageSize[1])];
+                }
+            }
+        }
+
+        return [260, 260];
     }
 
     protected function fontSizeValue($value, float $default): string
