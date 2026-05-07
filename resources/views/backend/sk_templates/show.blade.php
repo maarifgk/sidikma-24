@@ -35,12 +35,12 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Filter Status Kepegawaian</label>
-                            <select id="status_filter" class="form-select">
-                                <option value="">-- Semua Status --</option>
+                            <select id="status_filter" class="form-select" multiple size="6">
                                 @foreach($statusOptions as $statusOption)
                                     <option value="{{ $statusOption }}">{{ $statusOption }}</option>
                                 @endforeach
                             </select>
+                            <small class="text-muted">Bisa pilih lebih dari satu status.</small>
                         </div>
                     </div>
 
@@ -167,10 +167,10 @@
         const optionPeriod = option.dataset.periode || '';
         const optionStatus = option.dataset.status || '';
         const selectedPeriod = periodFilter.value || '';
-        const selectedStatus = statusFilter.value || '';
+        const selectedStatuses = Array.from(statusFilter.selectedOptions).map((option) => option.value).filter(Boolean);
 
         return (!selectedPeriod || optionPeriod === selectedPeriod)
-            && (!selectedStatus || optionStatus === selectedStatus);
+            && (!selectedStatuses.length || selectedStatuses.includes(optionStatus));
     }
 
     function applyUserFilters() {
