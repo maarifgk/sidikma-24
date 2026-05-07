@@ -8,18 +8,20 @@
         body {
             margin: 0;
             padding: 24px;
-            background: #f4f6fb;
+            background: #e9eef6;
             color: #111827;
             font-family: Arial, sans-serif;
         }
 
         .preview-sheet {
-            max-width: 900px;
+            width: 794px;
+            min-height: 1123px;
             margin: 0 auto;
             padding: 36px 42px;
             background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 18px 48px rgba(15, 23, 42, .12);
+            border-radius: 0;
+            box-shadow: 0 12px 38px rgba(15, 23, 42, .15);
+            box-sizing: border-box;
         }
 
         {!! $customCss !!}
