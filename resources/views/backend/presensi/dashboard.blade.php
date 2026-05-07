@@ -67,44 +67,44 @@
     </div>
 
     <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Grafik Presensi 7 Hari</h5>
+                </div>
+                <div class="card-body">
+                    <div id="attendanceChart"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Aktivitas Terbaru</h5>
+                </div>
+                <div class="card-body">
+                    @forelse($latestActivities as $activity)
+                        <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
+                            <div>
+                                <div class="fw-semibold">{{ $activity->nama_lengkap ?? '-' }}</div>
+                                <small class="text-muted">
+                                    Masuk {{ $activity->check_in_time ? $activity->check_in_time->format('H:i') : '-' }}
+                                    • Pulang {{ $activity->check_out_time ? $activity->check_out_time->format('H:i') : '-' }}
+                                </small>
+                            </div>
+                            <span class="badge bg-label-{{ $activity->status === 'ditolak' ? 'danger' : ($activity->status === 'terlambat' ? 'warning' : 'success') }}">
+                                {{ ucfirst($activity->status) }}
+                            </span>
+                        </div>
+                    @empty
+                        <div class="text-muted">Belum ada aktivitas presensi hari ini.</div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
         <div class="col-12">
             <div class="card">
-                <div class="col-lg-8">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h5 class="mb-0">Grafik Presensi 7 Hari</h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="attendanceChart"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h5 class="mb-0">Aktivitas Terbaru</h5>
-                        </div>
-                        <div class="card-body">
-                            @forelse($latestActivities as $activity)
-                                <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
-                                    <div>
-                                        <div class="fw-semibold">{{ $activity->nama_lengkap ?? '-' }}</div>
-                                        <small class="text-muted">
-                                            Masuk {{ $activity->check_in_time ? $activity->check_in_time->format('H:i') : '-' }}
-                                            • Pulang {{ $activity->check_out_time ? $activity->check_out_time->format('H:i') : '-' }}
-                                        </small>
-                                    </div>
-                                    <span class="badge bg-label-{{ $activity->status === 'ditolak' ? 'danger' : ($activity->status === 'terlambat' ? 'warning' : 'success') }}">
-                                        {{ ucfirst($activity->status) }}
-                                    </span>
-                                </div>
-                            @empty
-                                <div class="text-muted">Belum ada aktivitas presensi hari ini.</div>
-                            @endforelse
-                        </div>
-                    </div>
-                </div>
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="mb-0">Peta Lokasi Presensi User</h5>
