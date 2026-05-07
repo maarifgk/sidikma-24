@@ -5,12 +5,13 @@
     <title>{{ $title }}</title>
     <style>
         @page {
-            margin: 24px 28px;
+            margin: 36px 42px;
         }
 
         body {
             margin: 0;
             color: #111827;
+            background: #ffffff;
         }
 
         {!! $customCss !!}
