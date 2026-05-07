@@ -397,50 +397,57 @@
     function renderPreview() {
         const renderedTitle = replacePlaceholders(titleInput.value || 'Preview Template SK');
         const customCss = presetCss || '';
-        const renderedContent = buildPreviewContent();
         cssInput.value = customCss;
-        contentInput.value = renderedContent;
+
+        // Update preview image element for the form side
         logoPreviewImage.src = logoUrlInput.value || previewSamples.logo_url || '';
 
-        const previewHtml = `
-            <!DOCTYPE html>
-            <html lang="id">
-            <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <title>${renderedTitle}</title>
-                <style>
-                    body {
-                        margin: 0;
-                        padding: 24px;
-                        background: #e9eef6;
-                        font-family: Arial, sans-serif;
-                        color: #111827;
-                    }
+        // Compute logo display dimensions client-side to mirror server logic
+        const logoSrc = logoUrlInput.value || previewSamples.logo_url || '';
+        computeLogoDisplayDimensions(logoSrc).then((logoDimensions) => {
+            const renderedContent = buildPreviewContent(logoDimensions);
+            contentInput.value = renderedContent;
 
-                    .preview-sheet {
-                        width: 794px;
-                        min-height: 1123px;
-                        margin: 0 auto;
-                        background: #fff;
-                        box-shadow: 0 12px 38px rgba(15, 23, 42, .15);
-                        padding: 36px 42px;
-                        box-sizing: border-box;
-                    }
+            const previewHtml = `
+                <!DOCTYPE html>
+                <html lang="id">
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>${renderedTitle}</title>
+                    <style>
+                        body {
+                            margin: 0;
+                            padding: 24px;
+                            background: #e9eef6;
+                            font-family: Arial, sans-serif;
+                            color: #111827;
+                        }
 
-                    ${customCss}
-                </style>
-            </head>
-            <body>
-                <div class="preview-sheet">
-                    ${renderedContent}
-                </div>
-            </body>
-            </html>
-        `;
+                        .preview-sheet {
+                            width: 794px;
+                            min-height: 1123px;
+                            margin: 0 auto;
+                            background: #fff;
+                            box-shadow: 0 12px 38px rgba(15, 23, 42, .15);
+                            padding: 36px 42px;
+                            box-sizing: border-box;
+                        }
 
-        previewFrame.srcdoc = previewHtml;
-        applyPreviewZoom();
+                        ${customCss}
+                    </style>
+                </head>
+                <body>
+                    <div class="preview-sheet">
+                        ${renderedContent}
+                    </div>
+                </body>
+                </html>
+            `;
+
+            previewFrame.srcdoc = previewHtml;
+            applyPreviewZoom();
+        });
     }
 
     function applyPreviewZoom() {
@@ -481,7 +488,7 @@
         return `${size}px`;
     }
 
-    function buildPreviewContent() {
+    function buildPreviewContent(logoDimensions) {
         const tembusanItems = (getFieldValue('tembusan_items') || '')
             .split(/\r\n|\n|\r/)
             .map(item => item.trim())
@@ -489,12 +496,17 @@
             .map(item => `<li>${formatText(item)}</li>`)
             .join('');
 
+        // Provide defaults if dimensions not computed yet
+        logoDimensions = logoDimensions || { cell_width: 106, wrap_width: 96, wrap_height: 96, image_width: 96, image_height: 96 };
+
         return `
             <div class="document">
                 <table class="header-table">
                     <tr>
-                        <td class="header-logo-cell">
-                            <img src="${formatAttr(logoUrlInput.value)}" alt="Logo" class="header-logo">
+                        <td class="header-logo-cell" style="width: ${logoDimensions.cell_width}px;">
+                            <div class="header-logo-wrap" style="width: ${logoDimensions.wrap_width}px; text-align:center;">
+                                <img src="${formatAttr(logoUrlInput.value)}" alt="Logo" style="display:block;margin:0 auto;width:${logoDimensions.image_width}px;height:${logoDimensions.image_height}px;">
+                            </div>
                         </td>
                         <td class="header-text-cell">
                             <div class="header-topline" style="font-size:${fontSizePx('header_topline_font_size', 13)};">${formatText(getFieldValue('header_topline'))}</div>
@@ -574,6 +586,46 @@
                 </div>
             </div>
         `;
+    }
+
+    function computeLogoDisplayDimensions(src) {
+        return new Promise((resolve) => {
+            const maxW = 150;
+            const maxH = 150;
+            if (!src) {
+                resolve({ cell_width: 106, wrap_width: 96, wrap_height: 96, image_width: 96, image_height: 96 });
+                return;
+            }
+
+            const img = new Image();
+            img.onload = function () {
+                const sourceWidth = img.naturalWidth || 96;
+                const sourceHeight = img.naturalHeight || 96;
+                const ratio = Math.min(maxW / sourceWidth, maxH / sourceHeight);
+                const imageWidth = Math.max(1, Math.round(sourceWidth * ratio));
+                const imageHeight = Math.max(1, Math.round(sourceHeight * ratio));
+                const wrapWidth = imageWidth;
+                const wrapHeight = imageHeight;
+                resolve({
+                    cell_width: wrapWidth + 10,
+                    wrap_width: wrapWidth,
+                    wrap_height: wrapHeight,
+                    image_width: imageWidth,
+                    image_height: imageHeight,
+                });
+            };
+
+            img.onerror = function () {
+                resolve({ cell_width: 106, wrap_width: 96, wrap_height: 96, image_width: 96, image_height: 96 });
+            };
+
+            // Ensure data URIs and same-origin images load
+            img.src = src;
+            // In case the image is cached and onload may not fire in some browsers, check dimensions
+            if (img.complete && img.naturalWidth) {
+                img.onload();
+            }
+        });
     }
 
     [...builderFields, titleInput].forEach((element) => {
