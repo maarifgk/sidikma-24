@@ -190,19 +190,32 @@ class SkTemplateController extends Controller
             'header_address' => 'required|string|max:500',
             'header_phone' => 'required|string|max:255',
             'header_email' => 'required|string|max:255',
+            'header_topline_font_size' => 'required|numeric|between:8,40',
+            'header_title_font_size' => 'required|numeric|between:8,40',
+            'header_address_font_size' => 'required|numeric|between:8,40',
+            'header_contact_font_size' => 'required|numeric|between:8,40',
             'decision_title' => 'required|string|max:255',
             'nomor_sk' => 'required|string|max:255',
             'opening_line' => 'required|string|max:255',
+            'decision_title_font_size' => 'required|numeric|between:8,40',
+            'decision_number_font_size' => 'required|numeric|between:8,40',
+            'opening_line_font_size' => 'required|numeric|between:8,40',
             'menimbang_text' => 'required|string',
             'mengingat_text' => 'required|string',
             'memperhatikan_text' => 'required|string',
+            'consideration_font_size' => 'required|numeric|between:8,40',
             'memutuskan_title' => 'required|string|max:255',
             'pertama_intro' => 'required|string|max:255',
             'pertama_penutup' => 'required|string',
             'kedua_text' => 'required|string',
             'ketiga_text' => 'required|string',
+            'memutuskan_title_font_size' => 'required|numeric|between:8,40',
+            'decision_body_font_size' => 'required|numeric|between:8,40',
+            'identity_table_font_size' => 'required|numeric|between:8,40',
             'tembusan_title' => 'required|string|max:255',
             'tembusan_items' => 'required|string',
+            'tembusan_title_font_size' => 'required|numeric|between:8,40',
+            'tembusan_items_font_size' => 'required|numeric|between:8,40',
             'logo_url' => 'nullable|string',
             'logo_file' => 'nullable|file|mimes:jpg,jpeg,png,webp,svg|max:4096',
         ]);
@@ -349,19 +362,32 @@ class SkTemplateController extends Controller
             'header_address' => 'Jln. Tentara Pelajar, Trimulyo I, Kepek, Wonosari, Gunungkidul-55813',
             'header_phone' => '08522947609',
             'header_email' => 'maarifgunungkidul@gmail.com',
+            'header_topline_font_size' => '13',
+            'header_title_font_size' => '26',
+            'header_address_font_size' => '11',
+            'header_contact_font_size' => '11',
             'decision_title' => "SURAT KEPUTUSAN KETUA LP MA'ARIF NU GUNUNGKIDUL",
             'nomor_sk' => '{{nomor_sk}}',
             'opening_line' => "Ketua Lembaga Pendidikan Ma'arif NU Kabupaten Gunungkidul",
+            'decision_title_font_size' => '13',
+            'decision_number_font_size' => '12',
+            'opening_line_font_size' => '11.5',
             'menimbang_text' => "Bahwa demi meningkatkan kualitas pelayanan pendidikan di {{nama_kelas}}, maka dipandang perlu mengangkat guru tetap yang memenuhi kualifikasi;\nBahwa guru tersebut di bawah ini memenuhi syarat untuk diangkat sebagai Guru Tetap di LP. Ma'arif NU PCNU Gunungkidul untuk {{nama_kelas}}, sesuai dengan kualifikasi tersebut;",
             'mengingat_text' => "1. Undang-undang Nomor 20 Tahun 2003 tentang Sisdiknas;\n2. Pedoman Penyelenggaraan LP Ma'arif NU DIY No 01 Tahun 2023;\n3. Aturan Kepegawaian LP Ma'arif NU DIY No 04 Tahun 2023;",
             'memperhatikan_text' => "Bahwa tenaga pendidik berikut, berstatus aktif di {{nama_kelas}} sesuai dengan verifikasi data di Aplikasi SiDIKMa-GK pada tahun ditetapkannya keputusan ini;",
+            'consideration_font_size' => '11.5',
             'memutuskan_title' => 'MEMUTUSKAN',
             'pertama_intro' => 'Guru tersebut di bawah ini :',
             'pertama_penutup' => "Diangkat kembali sebagai tenaga pendidik LP. Ma'arif NU PCNU Gunungkidul untuk {{nama_kelas}} tahun pelajaran 2025/2026 dengan ketugasan {{ketugasan}}, dan kepadanya diberikan gaji pokok serta tunjangan lain yang berlaku di {{nama_kelas}}.",
             'kedua_text' => 'Keputusan ini berlaku terhitung mulai tanggal {{tanggal_mulai}} sampai dengan {{tanggal_selesai}} yang apabila di kemudian hari terdapat kekeliruan di dalamnya, akan diadakan perbaikan dan perhitungan kembali sebagaimana mestinya.',
             'ketiga_text' => 'Asli surat keputusan ini diberikan kepada yang bersangkutan.',
+            'memutuskan_title_font_size' => '15',
+            'decision_body_font_size' => '11.5',
+            'identity_table_font_size' => '11.5',
             'tembusan_title' => 'Tembusan Yth;',
             'tembusan_items' => "Kepala Kemenag Kab. Gunungkidul\nKepala {{nama_kelas}}\nArsip",
+            'tembusan_title_font_size' => '11.5',
+            'tembusan_items_font_size' => '11.5',
             'logo_url' => '{{logo_url}}',
         ];
     }
@@ -416,16 +442,16 @@ class SkTemplateController extends Controller
                 <img src="__LOGO_URL__" alt="Logo" class="header-logo">
             </td>
             <td class="header-text-cell">
-                <div class="header-topline">__HEADER_TOPLINE__</div>
-                <div class="header-title">__HEADER_TITLE__</div>
-                <div class="header-address">__HEADER_ADDRESS__</div>
+                <div class="header-topline" style="font-size: __HEADER_TOPLINE_FONT_SIZE__px;">__HEADER_TOPLINE__</div>
+                <div class="header-title" style="font-size: __HEADER_TITLE_FONT_SIZE__px;">__HEADER_TITLE__</div>
+                <div class="header-address" style="font-size: __HEADER_ADDRESS_FONT_SIZE__px;">__HEADER_ADDRESS__</div>
                 <table class="header-contact-table">
                     <tr>
-                        <td class="header-contact-text">__HEADER_PHONE__</td>
+                        <td class="header-contact-text" style="font-size: __HEADER_CONTACT_FONT_SIZE__px;">__HEADER_PHONE__</td>
                         <td class="header-contact-icon-cell"><img src="__WHATSAPP_ICON_URL__" alt="WhatsApp" class="header-contact-icon"></td>
                     </tr>
                     <tr>
-                        <td class="header-contact-text">__HEADER_EMAIL__</td>
+                        <td class="header-contact-text" style="font-size: __HEADER_CONTACT_FONT_SIZE__px;">__HEADER_EMAIL__</td>
                         <td class="header-contact-icon-cell"><img src="__EMAIL_ICON_URL__" alt="Email" class="header-contact-icon"></td>
                     </tr>
                 </table>
@@ -436,14 +462,14 @@ class SkTemplateController extends Controller
     <div class="header-divider"></div>
 
     <div class="text-center decision-heading">
-        <div class="decision-title">__DECISION_TITLE__</div>
-        <div class="decision-number">Nomor : __NOMOR_SK__</div>
+        <div class="decision-title" style="font-size: __DECISION_TITLE_FONT_SIZE__px;">__DECISION_TITLE__</div>
+        <div class="decision-number" style="font-size: __DECISION_NUMBER_FONT_SIZE__px;">Nomor : __NOMOR_SK__</div>
     </div>
 
     <div class="content-block">
-        <p class="opening-line">__OPENING_LINE__</p>
+        <p class="opening-line" style="font-size: __OPENING_LINE_FONT_SIZE__px;">__OPENING_LINE__</p>
 
-        <table class="consideration-table">
+        <table class="consideration-table" style="font-size: __CONSIDERATION_FONT_SIZE__px;">
             <tr>
                 <td class="label">Menimbang</td>
                 <td class="colon">:</td>
@@ -461,9 +487,9 @@ class SkTemplateController extends Controller
             </tr>
         </table>
 
-        <div class="memutuskan-title">__MEMUTUSKAN_TITLE__</div>
+        <div class="memutuskan-title" style="font-size: __MEMUTUSKAN_TITLE_FONT_SIZE__px;">__MEMUTUSKAN_TITLE__</div>
 
-        <table class="decision-body-table">
+        <table class="decision-body-table" style="font-size: __DECISION_BODY_FONT_SIZE__px;">
             <tr>
                 <td class="label">Menetapkan</td>
                 <td class="colon">:</td>
@@ -474,7 +500,7 @@ class SkTemplateController extends Controller
                 <td class="colon">:</td>
                 <td>
                     __PERTAMA_INTRO__
-                    <table class="identity-table">
+                    <table class="identity-table" style="font-size: __IDENTITY_TABLE_FONT_SIZE__px;">
                         <tr><td class="num">1.</td><td class="field">Nama</td><td class="colon">:</td><td>{{nama_lengkap}}</td></tr>
                         <tr><td class="num">2.</td><td class="field">Tempat, tanggal lahir</td><td class="colon">:</td><td>{{tempat_lahir}}, {{tgl_lahir}}</td></tr>
                         <tr><td class="num">3.</td><td class="field">NUPTK/NPK</td><td class="colon">:</td><td>{{nuptk}}</td></tr>
@@ -501,8 +527,8 @@ class SkTemplateController extends Controller
 
         <div class="footer-section">
             <div class="tembusan-block">
-                <div>__TEMBUSAN_TITLE__</div>
-                <ol>
+                <div style="font-size: __TEMBUSAN_TITLE_FONT_SIZE__px;">__TEMBUSAN_TITLE__</div>
+                <ol style="font-size: __TEMBUSAN_ITEMS_FONT_SIZE__px;">
                     __TEMBUSAN_ITEMS__
                 </ol>
             </div>
@@ -516,21 +542,34 @@ HTML, [
             '__HEADER_ADDRESS__' => $this->formatBuilderText($builderData['header_address']),
             '__HEADER_PHONE__' => $this->formatBuilderText($builderData['header_phone']),
             '__HEADER_EMAIL__' => $this->formatBuilderText($builderData['header_email']),
+            '__HEADER_TOPLINE_FONT_SIZE__' => $this->fontSizeValue($builderData['header_topline_font_size'], 13),
+            '__HEADER_TITLE_FONT_SIZE__' => $this->fontSizeValue($builderData['header_title_font_size'], 26),
+            '__HEADER_ADDRESS_FONT_SIZE__' => $this->fontSizeValue($builderData['header_address_font_size'], 11),
+            '__HEADER_CONTACT_FONT_SIZE__' => $this->fontSizeValue($builderData['header_contact_font_size'], 11),
             '__WHATSAPP_ICON_URL__' => $this->attributeValue($this->placeholderSvgDataUri('', '#16a34a', '#ffffff', 'whatsapp')),
             '__EMAIL_ICON_URL__' => $this->attributeValue($this->placeholderSvgDataUri('', '#0f766e', '#ffffff', 'email')),
             '__DECISION_TITLE__' => $this->formatBuilderText($builderData['decision_title']),
             '__NOMOR_SK__' => $this->formatBuilderText($builderData['nomor_sk']),
             '__OPENING_LINE__' => $this->formatBuilderText($builderData['opening_line']),
+            '__DECISION_TITLE_FONT_SIZE__' => $this->fontSizeValue($builderData['decision_title_font_size'], 13),
+            '__DECISION_NUMBER_FONT_SIZE__' => $this->fontSizeValue($builderData['decision_number_font_size'], 12),
+            '__OPENING_LINE_FONT_SIZE__' => $this->fontSizeValue($builderData['opening_line_font_size'], 11.5),
             '__MENIMBANG_TEXT__' => $this->formatBuilderText($builderData['menimbang_text']),
             '__MENGINGAT_TEXT__' => $this->formatBuilderText($builderData['mengingat_text']),
             '__MEMPERHATIKAN_TEXT__' => $this->formatBuilderText($builderData['memperhatikan_text']),
+            '__CONSIDERATION_FONT_SIZE__' => $this->fontSizeValue($builderData['consideration_font_size'], 11.5),
             '__MEMUTUSKAN_TITLE__' => $this->formatBuilderText($builderData['memutuskan_title']),
             '__PERTAMA_INTRO__' => $this->formatBuilderText($builderData['pertama_intro']),
             '__PERTAMA_PENUTUP__' => $this->formatBuilderText($builderData['pertama_penutup']),
             '__KEDUA_TEXT__' => $this->formatBuilderText($builderData['kedua_text']),
             '__KETIGA_TEXT__' => $this->formatBuilderText($builderData['ketiga_text']),
+            '__MEMUTUSKAN_TITLE_FONT_SIZE__' => $this->fontSizeValue($builderData['memutuskan_title_font_size'], 15),
+            '__DECISION_BODY_FONT_SIZE__' => $this->fontSizeValue($builderData['decision_body_font_size'], 11.5),
+            '__IDENTITY_TABLE_FONT_SIZE__' => $this->fontSizeValue($builderData['identity_table_font_size'], 11.5),
             '__TEMBUSAN_TITLE__' => $this->formatBuilderText($builderData['tembusan_title']),
             '__TEMBUSAN_ITEMS__' => $tembusanHtml,
+            '__TEMBUSAN_TITLE_FONT_SIZE__' => $this->fontSizeValue($builderData['tembusan_title_font_size'], 11.5),
+            '__TEMBUSAN_ITEMS_FONT_SIZE__' => $this->fontSizeValue($builderData['tembusan_items_font_size'], 11.5),
         ]);
     }
 
@@ -865,5 +904,13 @@ CSS;
     protected function attributeValue(string $value): string
     {
         return e($value);
+    }
+
+    protected function fontSizeValue($value, float $default): string
+    {
+        $size = is_numeric($value) ? (float) $value : $default;
+        $size = max(8, min(40, $size));
+
+        return rtrim(rtrim(number_format($size, 1, '.', ''), '0'), '.');
     }
 }

@@ -68,13 +68,25 @@
                                 <label class="form-label">Baris Atas</label>
                                 <input type="text" name="header_topline" class="form-control builder-field" value="{{ old('header_topline', $builderData['header_topline']) }}" required>
                             </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Font Baris Atas</label>
+                                <input type="number" name="header_topline_font_size" class="form-control builder-field" value="{{ old('header_topline_font_size', $builderData['header_topline_font_size']) }}" min="8" max="40" step="0.5" required>
+                            </div>
                             <div class="col-md-12">
                                 <label class="form-label">Judul Lembaga</label>
                                 <input type="text" name="header_title" class="form-control builder-field" value="{{ old('header_title', $builderData['header_title']) }}" required>
                             </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Font Judul</label>
+                                <input type="number" name="header_title_font_size" class="form-control builder-field" value="{{ old('header_title_font_size', $builderData['header_title_font_size']) }}" min="8" max="40" step="0.5" required>
+                            </div>
                             <div class="col-md-8">
                                 <label class="form-label">Alamat</label>
                                 <input type="text" name="header_address" class="form-control builder-field" value="{{ old('header_address', $builderData['header_address']) }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Font Alamat</label>
+                                <input type="number" name="header_address_font_size" class="form-control builder-field" value="{{ old('header_address_font_size', $builderData['header_address_font_size']) }}" min="8" max="40" step="0.5" required>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Nomor WhatsApp</label>
@@ -83,6 +95,10 @@
                             <div class="col-md-4">
                                 <label class="form-label">Email Kop Surat</label>
                                 <input type="text" name="header_email" class="form-control builder-field" value="{{ old('header_email', $builderData['header_email']) }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Font Kontak</label>
+                                <input type="number" name="header_contact_font_size" class="form-control builder-field" value="{{ old('header_contact_font_size', $builderData['header_contact_font_size']) }}" min="8" max="40" step="0.5" required>
                             </div>
                             <div class="col-md-12">
                                 <label class="form-label">Upload Logo Kop Surat</label>
@@ -106,13 +122,25 @@
                                 <label class="form-label">Judul SK</label>
                                 <input type="text" name="decision_title" class="form-control builder-field" value="{{ old('decision_title', $builderData['decision_title']) }}" required>
                             </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Font Judul SK</label>
+                                <input type="number" name="decision_title_font_size" class="form-control builder-field" value="{{ old('decision_title_font_size', $builderData['decision_title_font_size']) }}" min="8" max="40" step="0.5" required>
+                            </div>
                             <div class="col-md-4">
                                 <label class="form-label">Nomor SK</label>
                                 <input type="text" name="nomor_sk" class="form-control builder-field" value="{{ old('nomor_sk', $builderData['nomor_sk']) }}" required>
                             </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Font Nomor SK</label>
+                                <input type="number" name="decision_number_font_size" class="form-control builder-field" value="{{ old('decision_number_font_size', $builderData['decision_number_font_size']) }}" min="8" max="40" step="0.5" required>
+                            </div>
                             <div class="col-12">
                                 <label class="form-label">Kalimat Pembuka</label>
                                 <input type="text" name="opening_line" class="form-control builder-field" value="{{ old('opening_line', $builderData['opening_line']) }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Font Pembuka</label>
+                                <input type="number" name="opening_line_font_size" class="form-control builder-field" value="{{ old('opening_line_font_size', $builderData['opening_line_font_size']) }}" min="8" max="40" step="0.5" required>
                             </div>
 
                             <div class="col-12"><hr class="my-2"></div>
@@ -132,6 +160,10 @@
                                 <label class="form-label">Memperhatikan</label>
                                 <textarea name="memperhatikan_text" rows="4" class="form-control builder-field" required>{{ old('memperhatikan_text', $builderData['memperhatikan_text']) }}</textarea>
                             </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Font Konsideran</label>
+                                <input type="number" name="consideration_font_size" class="form-control builder-field" value="{{ old('consideration_font_size', $builderData['consideration_font_size']) }}" min="8" max="40" step="0.5" required>
+                            </div>
 
                             <div class="col-12"><hr class="my-2"></div>
                             <div class="col-12">
@@ -140,6 +172,10 @@
                             <div class="col-12">
                                 <label class="form-label">Judul Tengah</label>
                                 <input type="text" name="memutuskan_title" class="form-control builder-field" value="{{ old('memutuskan_title', $builderData['memutuskan_title']) }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Font Judul Tengah</label>
+                                <input type="number" name="memutuskan_title_font_size" class="form-control builder-field" value="{{ old('memutuskan_title_font_size', $builderData['memutuskan_title_font_size']) }}" min="8" max="40" step="0.5" required>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Teks Pertama Sebelum Data Guru</label>
@@ -157,6 +193,14 @@
                                 <label class="form-label">Teks Ketiga</label>
                                 <textarea name="ketiga_text" rows="3" class="form-control builder-field" required>{{ old('ketiga_text', $builderData['ketiga_text']) }}</textarea>
                             </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Font Isi Keputusan</label>
+                                <input type="number" name="decision_body_font_size" class="form-control builder-field" value="{{ old('decision_body_font_size', $builderData['decision_body_font_size']) }}" min="8" max="40" step="0.5" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Font Data Guru</label>
+                                <input type="number" name="identity_table_font_size" class="form-control builder-field" value="{{ old('identity_table_font_size', $builderData['identity_table_font_size']) }}" min="8" max="40" step="0.5" required>
+                            </div>
 
                             <div class="col-12"><hr class="my-2"></div>
                             <div class="col-12">
@@ -166,10 +210,18 @@
                                 <label class="form-label">Judul Tembusan</label>
                                 <input type="text" name="tembusan_title" class="form-control builder-field" value="{{ old('tembusan_title', $builderData['tembusan_title']) }}" required>
                             </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Font Judul Tembusan</label>
+                                <input type="number" name="tembusan_title_font_size" class="form-control builder-field" value="{{ old('tembusan_title_font_size', $builderData['tembusan_title_font_size']) }}" min="8" max="40" step="0.5" required>
+                            </div>
                             <div class="col-12">
                                 <label class="form-label">Daftar Tembusan</label>
                                 <textarea name="tembusan_items" rows="4" class="form-control builder-field" required>{{ old('tembusan_items', $builderData['tembusan_items']) }}</textarea>
                                 <small class="text-muted">Satu baris untuk satu item tembusan.</small>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Font Isi Tembusan</label>
+                                <input type="number" name="tembusan_items_font_size" class="form-control builder-field" value="{{ old('tembusan_items_font_size', $builderData['tembusan_items_font_size']) }}" min="8" max="40" step="0.5" required>
                             </div>
                         </div>
 
@@ -331,6 +383,12 @@
         return field ? field.value : '';
     }
 
+    function fontSizePx(name, fallback) {
+        const raw = parseFloat(getFieldValue(name));
+        const size = Number.isFinite(raw) ? Math.min(40, Math.max(8, raw)) : fallback;
+        return `${size}px`;
+    }
+
     function buildPreviewContent() {
         const tembusanItems = (getFieldValue('tembusan_items') || '')
             .split(/\r\n|\n|\r/)
@@ -347,16 +405,16 @@
                             <img src="${formatAttr(logoUrlInput.value)}" alt="Logo" class="header-logo">
                         </td>
                         <td class="header-text-cell">
-                            <div class="header-topline">${formatText(getFieldValue('header_topline'))}</div>
-                            <div class="header-title">${formatText(getFieldValue('header_title'))}</div>
-                            <div class="header-address">${formatText(getFieldValue('header_address'))}</div>
+                            <div class="header-topline" style="font-size:${fontSizePx('header_topline_font_size', 13)};">${formatText(getFieldValue('header_topline'))}</div>
+                            <div class="header-title" style="font-size:${fontSizePx('header_title_font_size', 26)};">${formatText(getFieldValue('header_title'))}</div>
+                            <div class="header-address" style="font-size:${fontSizePx('header_address_font_size', 11)};">${formatText(getFieldValue('header_address'))}</div>
                             <table class="header-contact-table">
                                 <tr>
-                                    <td class="header-contact-text">${formatText(getFieldValue('header_phone'))}</td>
+                                    <td class="header-contact-text" style="font-size:${fontSizePx('header_contact_font_size', 11)};">${formatText(getFieldValue('header_phone'))}</td>
                                     <td class="header-contact-icon-cell"><img src="${formatAttr(whatsappIconUrl)}" alt="WhatsApp" class="header-contact-icon"></td>
                                 </tr>
                                 <tr>
-                                    <td class="header-contact-text">${formatText(getFieldValue('header_email'))}</td>
+                                    <td class="header-contact-text" style="font-size:${fontSizePx('header_contact_font_size', 11)};">${formatText(getFieldValue('header_email'))}</td>
                                     <td class="header-contact-icon-cell"><img src="${formatAttr(emailIconUrl)}" alt="Email" class="header-contact-icon"></td>
                                 </tr>
                             </table>
@@ -367,29 +425,29 @@
                 <div class="header-divider"></div>
 
                 <div class="text-center decision-heading">
-                    <div class="decision-title">${formatText(getFieldValue('decision_title'))}</div>
-                    <div class="decision-number">Nomor : ${formatText(getFieldValue('nomor_sk'))}</div>
+                    <div class="decision-title" style="font-size:${fontSizePx('decision_title_font_size', 13)};">${formatText(getFieldValue('decision_title'))}</div>
+                    <div class="decision-number" style="font-size:${fontSizePx('decision_number_font_size', 12)};">Nomor : ${formatText(getFieldValue('nomor_sk'))}</div>
                 </div>
 
                 <div class="content-block">
-                    <p class="opening-line">${formatText(getFieldValue('opening_line'))}</p>
+                    <p class="opening-line" style="font-size:${fontSizePx('opening_line_font_size', 11.5)};">${formatText(getFieldValue('opening_line'))}</p>
 
-                    <table class="consideration-table">
+                    <table class="consideration-table" style="font-size:${fontSizePx('consideration_font_size', 11.5)};">
                         <tr><td class="label">Menimbang</td><td class="colon">:</td><td>${formatText(getFieldValue('menimbang_text'))}</td></tr>
                         <tr><td class="label">Mengingat</td><td class="colon">:</td><td>${formatText(getFieldValue('mengingat_text'))}</td></tr>
                         <tr><td class="label">Memperhatikan</td><td class="colon">:</td><td>${formatText(getFieldValue('memperhatikan_text'))}</td></tr>
                     </table>
 
-                    <div class="memutuskan-title">${formatText(getFieldValue('memutuskan_title'))}</div>
+                    <div class="memutuskan-title" style="font-size:${fontSizePx('memutuskan_title_font_size', 15)};">${formatText(getFieldValue('memutuskan_title'))}</div>
 
-                    <table class="decision-body-table">
+                    <table class="decision-body-table" style="font-size:${fontSizePx('decision_body_font_size', 11.5)};">
                         <tr><td class="label">Menetapkan</td><td class="colon">:</td><td></td></tr>
                         <tr>
                             <td class="label">Pertama</td>
                             <td class="colon">:</td>
                             <td>
                                 ${formatText(getFieldValue('pertama_intro'))}
-                                <table class="identity-table">
+                                <table class="identity-table" style="font-size:${fontSizePx('identity_table_font_size', 11.5)};">
                                     <tr><td class="num">1.</td><td class="field">Nama</td><td class="colon">:</td><td>${formatText(placeholderToken('nama_lengkap'))}</td></tr>
                                     <tr><td class="num">2.</td><td class="field">Tempat, tanggal lahir</td><td class="colon">:</td><td>${formatText(placeholderToken('tempat_lahir') + ', ' + placeholderToken('tgl_lahir'))}</td></tr>
                                     <tr><td class="num">3.</td><td class="field">NUPTK/NPK</td><td class="colon">:</td><td>${formatText(placeholderToken('nuptk'))}</td></tr>
@@ -407,8 +465,8 @@
                     </table>
                     <div class="footer-section">
                         <div class="tembusan-block">
-                            <div>${formatText(getFieldValue('tembusan_title'))}</div>
-                            <ol>${tembusanItems}</ol>
+                            <div style="font-size:${fontSizePx('tembusan_title_font_size', 11.5)};">${formatText(getFieldValue('tembusan_title'))}</div>
+                            <ol style="font-size:${fontSizePx('tembusan_items_font_size', 11.5)};">${tembusanItems}</ol>
                         </div>
                     </div>
                 </div>
