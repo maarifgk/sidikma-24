@@ -332,31 +332,99 @@ if ($hour >= 0 && $hour <= 11) {
             $classCounts = collect(range(1, 9))->mapWithKeys(fn ($level) => [$level => (int) ($profile->{'kelas' . $level} ?? 0)]);
             $filledClasses = $classCounts->filter(fn ($count) => $count > 0)->count();
             $averageStudents = $filledClasses > 0 ? round($studentTotal / $filledClasses) : 0;
+            $largestClassNumber = $classCounts->sortDesc()->keys()->first();
+            $largestClassStudents = $largestClassNumber ? (int) $classCounts[$largestClassNumber] : 0;
+            $largestClassLabel = $largestClassStudents > 0 ? 'Kelas ' . $largestClassNumber : 'Belum ada data';
+            $classPeak = max((int) $classCounts->max(), 1);
             $profileImage = request()->user()->image
                 ? asset('storage/images/users/' . request()->user()->image)
                 : asset('storage/images/users/users.png');
+            $staffPreview = collect($temankelas ?? [])->take(6);
             $role3Stats = [
-                ['label' => 'Total Siswa', 'value' => number_format($studentTotal, 0, ',', '.'), 'icon' => 'fa-users', 'tone' => 'primary', 'caption' => $filledClasses . ' kelas terisi'],
+                ['label' => 'Total Siswa', 'value' => number_format($studentTotal, 0, ',', '.'), 'icon' => 'fa-users', 'tone' => 'primary', 'caption' => $filledClasses . ' kelas aktif'],
                 ['label' => 'Guru/Pegawai', 'value' => number_format($total_teachers ?? 0, 0, ',', '.'), 'icon' => 'fa-chalkboard-user', 'tone' => 'success', 'caption' => 'Tenaga aktif'],
-                ['label' => 'Total Staff', 'value' => number_format($total_staff ?? 0, 0, ',', '.'), 'icon' => 'fa-user-tie', 'tone' => 'info', 'caption' => 'Akun internal'],
+                ['label' => 'Total Akun Internal', 'value' => number_format($total_staff ?? 0, 0, ',', '.'), 'icon' => 'fa-user-tie', 'tone' => 'info', 'caption' => 'Guru dan operator'],
                 ['label' => 'Akreditasi', 'value' => $profile->akreditasi ?? '-', 'icon' => 'fa-certificate', 'tone' => 'warning', 'caption' => 'Status lembaga'],
             ];
             $schoolInfo = [
-                ['label' => 'Nama Institusi', 'value' => $profile->nama_lengkap ?? '-'],
-                ['label' => 'NPSN', 'value' => $profile->nis ?? '-'],
-                ['label' => 'Tahun Pelajaran', 'value' => $profile->thn_pelajaran ?? '-'],
-                ['label' => 'Email', 'value' => $profile->email ?? '-'],
-                ['label' => 'Status Tanah', 'value' => $profile->statustanah ?? '-'],
-                ['label' => 'Alamat', 'value' => $profile->alamat ?? '-'],
+                ['label' => 'Nama Institusi', 'value' => $profile->nama_lengkap ?? '-', 'icon' => 'fa-school'],
+                ['label' => 'NPSN', 'value' => $profile->nis ?? '-', 'icon' => 'fa-id-card'],
+                ['label' => 'Tahun Pelajaran', 'value' => $profile->thn_pelajaran ?? '-', 'icon' => 'fa-calendar-days'],
+                ['label' => 'Email', 'value' => $profile->email ?? '-', 'icon' => 'fa-envelope'],
+                ['label' => 'Status Tanah', 'value' => $profile->statustanah ?? '-', 'icon' => 'fa-map-location-dot'],
+                ['label' => 'Alamat', 'value' => $profile->alamat ?? '-', 'icon' => 'fa-location-dot'],
+            ];
+            $ketugasanLabels = [
+                1 => 'Mengajar Guru Kelas',
+                2 => 'Mengajar Guru Fikih',
+                3 => 'Mengajar PAI',
+                4 => 'Mengajar Mapel Bahasa Arab',
+                5 => 'Mengajar Mapel Akidah Akhlak',
+                6 => "Mengajar Mapel Qur'an Hadis",
+                7 => 'Mengajar Mapel Matematika',
+                8 => 'Mengajar Mapel Bahasa Indonesia',
+                9 => 'Mengajar Mapel SKI',
+                10 => 'Mengajar PJOK',
+                11 => 'Mengajar Bahasa Jawa',
+                12 => 'Mengajar Mapel Bahasa Inggris',
+                13 => 'Mengajar Mapel IPA',
+                14 => 'Mengajar Mapel IPS',
+                15 => 'Mengajar Mapel PKN',
+                16 => 'Mengajar Mapel SBK',
+                17 => 'Tenaga Administrasi',
+                18 => 'Kepala Madrasah/Sekolah',
+                19 => 'Penjaga Sekolah/Madrasah',
+                20 => 'Mengajar TIK/Prakarya',
+                21 => 'Mengajar Guru BK',
+                22 => 'Mengajar Ke NU an',
+            ];
+            $jurusanLabels = [
+                1 => 'Guru Tetap Yayasan',
+                2 => 'GTY Sertifikasi Inpassing',
+                3 => 'GTY Sertifikasi Non Inpassing',
+                4 => 'Guru Tidak Tetap',
+                5 => 'Pegawai Negeri Sipil',
+                6 => 'Pegawai Tetap Yayasan',
+                7 => 'Pegawai Tidak Tetap',
+                8 => 'PNS Non Sertifikasi',
             ];
         @endphp
 
         <style>
+            .role3-dashboard {
+                --role3-border: #e9eef6;
+                --role3-text-soft: #6f7d95;
+                --role3-surface: #f7f9fc;
+            }
+
+            .role3-dashboard .role3-panel {
+                border: 0;
+                border-radius: 24px;
+                box-shadow: 0 18px 40px rgba(15, 23, 42, .08);
+            }
+
+            .role3-dashboard .section-kicker {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 12px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+                color: var(--role3-text-soft);
+            }
+
             .role3-dashboard .role3-hero {
                 overflow: hidden;
                 border: 0;
-                background: linear-gradient(135deg, #0a48b3 0%, #11805e 100%);
+                position: relative;
+                background:
+                    radial-gradient(circle at top right, rgba(255, 255, 255, .18), transparent 26%),
+                    radial-gradient(circle at bottom left, rgba(255, 255, 255, .16), transparent 20%),
+                    linear-gradient(135deg, #0a48b3 0%, #0f6f9f 52%, #11805e 100%);
                 color: #fff;
+                border-radius: 28px;
+                box-shadow: 0 24px 50px rgba(10, 72, 179, .22);
             }
 
             .role3-dashboard .role3-hero .text-muted,
@@ -371,88 +439,230 @@ if ($hour >= 0 && $hour <= 11) {
                 border: 4px solid rgba(255, 255, 255, .55);
             }
 
+            .role3-dashboard .hero-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 9px 14px;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, .15);
+                border: 1px solid rgba(255, 255, 255, .18);
+                color: #fff;
+                font-weight: 600;
+                backdrop-filter: blur(10px);
+            }
+
+            .role3-dashboard .hero-mini-card {
+                border-radius: 18px;
+                padding: 18px;
+                background: rgba(255, 255, 255, .12);
+                border: 1px solid rgba(255, 255, 255, .18);
+                backdrop-filter: blur(10px);
+            }
+
             .role3-dashboard .quick-action {
                 display: inline-flex;
                 align-items: center;
                 gap: 8px;
-                border-radius: 8px;
-                padding: 10px 14px;
+                justify-content: center;
+                min-width: 154px;
+                border-radius: 14px;
+                padding: 12px 16px;
                 color: #0a48b3;
                 background: #fff;
                 font-weight: 700;
-                box-shadow: 0 8px 22px rgba(18, 38, 63, .12);
+                text-decoration: none;
+                box-shadow: 0 12px 28px rgba(18, 38, 63, .16);
+                transition: transform .2s ease, box-shadow .2s ease;
+            }
+
+            .role3-dashboard .quick-action:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 16px 32px rgba(18, 38, 63, .2);
+                color: #0a48b3;
             }
 
             .role3-dashboard .metric-card {
                 border: 0;
-                box-shadow: 0 8px 22px rgba(18, 38, 63, .08);
+                border-radius: 22px;
+                background: linear-gradient(180deg, #fff 0%, #fbfcfe 100%);
+                box-shadow: 0 14px 32px rgba(15, 23, 42, .06);
             }
 
             .role3-dashboard .metric-icon {
-                width: 44px;
-                height: 44px;
+                width: 52px;
+                height: 52px;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                border-radius: 8px;
-                font-size: 18px;
+                border-radius: 16px;
+                font-size: 20px;
+            }
+
+            .role3-dashboard .metric-label {
+                font-size: 12px;
+                letter-spacing: .08em;
             }
 
             .role3-dashboard .info-item,
             .role3-dashboard .class-row,
-            .role3-dashboard .activity-row {
-                border: 1px solid #edf0f5;
-                border-radius: 8px;
-                padding: 14px;
+            .role3-dashboard .activity-row,
+            .role3-dashboard .staff-row,
+            .role3-dashboard .insight-card {
+                border: 1px solid var(--role3-border);
+                border-radius: 18px;
+                padding: 16px;
                 background: #fff;
             }
 
+            .role3-dashboard .info-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 14px;
+            }
+
+            .role3-dashboard .info-icon {
+                width: 42px;
+                height: 42px;
+                flex: 0 0 42px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 12px;
+                background: #eef4ff;
+                color: #0a48b3;
+            }
+
             .role3-dashboard .class-track {
-                height: 8px;
+                height: 10px;
                 border-radius: 999px;
-                background: #edf0f5;
+                background: #edf2f8;
                 overflow: hidden;
             }
 
             .role3-dashboard .class-fill {
                 height: 100%;
                 border-radius: inherit;
-                background: #11805e;
+                background: linear-gradient(90deg, #0a48b3 0%, #11805e 100%);
+            }
+
+            .role3-dashboard .insight-card {
+                background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            }
+
+            .role3-dashboard .staff-row,
+            .role3-dashboard .activity-row {
+                transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+            }
+
+            .role3-dashboard .staff-row:hover,
+            .role3-dashboard .activity-row:hover {
+                border-color: #dce6f5;
+                box-shadow: 0 12px 30px rgba(15, 23, 42, .06);
+                transform: translateY(-1px);
+            }
+
+            .role3-dashboard .staff-avatar {
+                width: 46px;
+                height: 46px;
+                object-fit: cover;
+                border-radius: 14px;
+            }
+
+            .role3-dashboard .activity-row {
+                position: relative;
+                padding-left: 22px;
+            }
+
+            .role3-dashboard .activity-row::before {
+                content: '';
+                position: absolute;
+                top: 20px;
+                left: 10px;
+                width: 8px;
+                height: 8px;
+                border-radius: 999px;
+                background: #0a48b3;
+                box-shadow: 0 0 0 6px rgba(10, 72, 179, .10);
+            }
+
+            .role3-dashboard .activity-meta {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                color: var(--role3-text-soft);
+                font-size: 13px;
+            }
+
+            .role3-dashboard .soft-muted {
+                color: var(--role3-text-soft);
+            }
+
+            @media (max-width: 991.98px) {
+                .role3-dashboard .quick-action {
+                    width: 100%;
+                    min-width: 0;
+                }
             }
         </style>
 
         <div class="col-12 role3-dashboard">
             <div class="row g-4">
                 <div class="col-12">
-                    <div class="card role3-hero">
-                        <div class="card-body p-4">
+                    <div class="card role3-hero role3-panel">
+                        <div class="card-body p-4 p-lg-5">
                             <div class="row align-items-center g-4">
-                                <div class="col-lg-8">
-                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="col-lg-7">
+                                    <span class="section-kicker text-white mb-3">
+                                        <i class="fa-solid fa-chart-line"></i> Dashboard Kepala Madrasah/Sekolah
+                                    </span>
+                                    <div class="d-flex align-items-center gap-3 mb-4">
                                         <img src="{{ $profileImage }}" class="rounded-circle role3-profile" alt="Profile Image">
                                         <div>
                                             <small class="fw-semibold text-uppercase">{{ $congrat }}</small>
-                                            <h3 class="mb-1 text-white">{{ request()->user()->nama_lengkap }}</h3>
-                                            <p class="mb-0">{{ $profile->nama_lengkap ?? 'Madrasah/Sekolah' }}</p>
+                                            <h2 class="mb-1 text-white">{{ request()->user()->nama_lengkap }}</h2>
+                                            <p class="mb-1 fs-5">{{ $profile->nama_lengkap ?? 'Madrasah/Sekolah' }}</p>
+                                            <div class="activity-meta text-white-50">
+                                                <span><i class="fa-solid fa-id-card me-1"></i>NPSN {{ $profile->nis ?? '-' }}</span>
+                                                <span><i class="fa-solid fa-calendar-days me-1"></i>{{ $profile->thn_pelajaran ?? 'Tahun pelajaran belum diisi' }}</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="d-flex flex-wrap gap-2">
-                                        <span class="badge bg-white text-primary">NPSN {{ $profile->nis ?? '-' }}</span>
-                                        <span class="badge bg-white text-success">{{ $profile->thn_pelajaran ?? 'Tahun pelajaran belum diisi' }}</span>
-                                        <span class="badge bg-white text-warning">Akreditasi {{ $profile->akreditasi ?? '-' }}</span>
+                                        <span class="hero-chip"><i class="fa-solid fa-certificate"></i> Akreditasi {{ $profile->akreditasi ?? '-' }}</span>
+                                        <span class="hero-chip"><i class="fa-solid fa-users"></i> {{ number_format($studentTotal, 0, ',', '.') }} siswa aktif</span>
+                                        <span class="hero-chip"><i class="fa-solid fa-user-tie"></i> {{ number_format($total_teachers ?? 0, 0, ',', '.') }} guru/pegawai</span>
                                     </div>
                                 </div>
-                                <div class="col-lg-4">
-                                    <div class="d-flex flex-wrap justify-content-lg-end gap-2">
-                                        <a href="{{ route('siswa') }}" class="quick-action">
-                                            <i class="fa-solid fa-users"></i> Guru/Pegawai
-                                        </a>
-                                        <a href="{{ route('presensi.dashboard') }}" class="quick-action">
-                                            <i class="fa-solid fa-calendar-check"></i> Presensi
-                                        </a>
-                                        <a href="{{ route('admin.edit', $profile->id) }}" class="quick-action">
-                                            <i class="fa-solid fa-pen-to-square"></i> Profil
-                                        </a>
+                                <div class="col-lg-5">
+                                    <div class="row g-3">
+                                        <div class="col-sm-6">
+                                            <div class="hero-mini-card h-100">
+                                                <small class="text-uppercase fw-semibold">Distribusi Kelas</small>
+                                                <h3 class="text-white mt-2 mb-1">{{ $filledClasses }}</h3>
+                                                <div class="soft-muted text-white-50">kelas aktif dari data rombel</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="hero-mini-card h-100">
+                                                <small class="text-uppercase fw-semibold">Kelas Terpadat</small>
+                                                <h3 class="text-white mt-2 mb-1">{{ $largestClassLabel }}</h3>
+                                                <div class="soft-muted text-white-50">{{ number_format($largestClassStudents, 0, ',', '.') }} siswa</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="d-flex flex-wrap justify-content-lg-end gap-2">
+                                                <a href="{{ route('siswa') }}" class="quick-action">
+                                                    <i class="fa-solid fa-users"></i> Guru/Pegawai
+                                                </a>
+                                                <a href="{{ route('presensi.dashboard') }}" class="quick-action">
+                                                    <i class="fa-solid fa-calendar-check"></i> Presensi
+                                                </a>
+                                                <a href="{{ route('admin.edit', $profile->id) }}" class="quick-action">
+                                                    <i class="fa-solid fa-pen-to-square"></i> Profil
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -462,13 +672,13 @@ if ($hour >= 0 && $hour <= 11) {
 
                 @foreach($role3Stats as $stat)
                     <div class="col-xl-3 col-md-6">
-                        <div class="card metric-card h-100">
+                        <div class="card metric-card h-100 role3-panel">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <small class="text-muted text-uppercase fw-semibold">{{ $stat['label'] }}</small>
-                                        <h3 class="mb-1 mt-2">{{ $stat['value'] }}</h3>
-                                        <span class="text-muted">{{ $stat['caption'] }}</span>
+                                        <small class="text-muted text-uppercase fw-semibold metric-label">{{ $stat['label'] }}</small>
+                                        <h3 class="mb-1 mt-2 fw-bold">{{ $stat['value'] }}</h3>
+                                        <span class="soft-muted">{{ $stat['caption'] }}</span>
                                     </div>
                                     <span class="metric-icon bg-label-{{ $stat['tone'] }} text-{{ $stat['tone'] }}">
                                         <i class="fa-solid {{ $stat['icon'] }}"></i>
@@ -480,9 +690,12 @@ if ($hour >= 0 && $hour <= 11) {
                 @endforeach
 
                 <div class="col-xl-7">
-                    <div class="card h-100">
+                    <div class="card h-100 role3-panel">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div>
+                                <span class="section-kicker mb-2">
+                                    <i class="fa-solid fa-building-columns"></i> Profil Lembaga
+                                </span>
                                 <h5 class="mb-0">Informasi Madrasah/Sekolah</h5>
                                 <small class="text-muted">Ringkasan identitas lembaga</small>
                             </div>
@@ -495,8 +708,13 @@ if ($hour >= 0 && $hour <= 11) {
                                 @foreach($schoolInfo as $info)
                                     <div class="{{ $info['label'] === 'Alamat' ? 'col-12' : 'col-md-6' }}">
                                         <div class="info-item h-100">
-                                            <small class="text-muted">{{ $info['label'] }}</small>
-                                            <div class="fw-semibold mt-1">{{ $info['value'] }}</div>
+                                            <span class="info-icon">
+                                                <i class="fa-solid {{ $info['icon'] }}"></i>
+                                            </span>
+                                            <div>
+                                                <small class="text-muted">{{ $info['label'] }}</small>
+                                                <div class="fw-semibold mt-1">{{ $info['value'] }}</div>
+                                            </div>
                                         </div>
                                     </div>
                                 @endforeach
@@ -506,30 +724,42 @@ if ($hour >= 0 && $hour <= 11) {
                 </div>
 
                 <div class="col-xl-5">
-                    <div class="card h-100">
+                    <div class="card h-100 role3-panel">
                         <div class="card-header">
+                            <span class="section-kicker mb-2">
+                                <i class="fa-solid fa-layer-group"></i> Insight Akademik
+                            </span>
                             <h5 class="mb-0">Ringkasan Rombel</h5>
                             <small class="text-muted">Total dan rata-rata siswa per kelas</small>
                         </div>
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div>
-                                    <small class="text-muted">Total Siswa</small>
-                                    <h3 class="mb-0">{{ number_format($studentTotal, 0, ',', '.') }}</h3>
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6">
+                                    <div class="insight-card h-100">
+                                        <small class="text-muted">Rata-rata per kelas</small>
+                                        <h3 class="mb-1 mt-2">{{ $averageStudents }}</h3>
+                                        <div class="soft-muted">siswa per kelas aktif</div>
+                                    </div>
                                 </div>
-                                <div class="text-end">
-                                    <small class="text-muted">Rata-rata</small>
-                                    <h3 class="mb-0">{{ $averageStudents }}</h3>
+                                <div class="col-sm-6">
+                                    <div class="insight-card h-100">
+                                        <small class="text-muted">Kelas terpadat</small>
+                                        <h3 class="mb-1 mt-2">{{ $largestClassLabel }}</h3>
+                                        <div class="soft-muted">{{ number_format($largestClassStudents, 0, ',', '.') }} siswa</div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="d-grid gap-2">
                                 @foreach($classCounts as $level => $count)
                                     @php
-                                        $percentage = $studentTotal > 0 ? min(100, round(($count / $studentTotal) * 100)) : 0;
+                                        $percentage = $classPeak > 0 ? min(100, round(($count / $classPeak) * 100)) : 0;
                                     @endphp
                                     <div class="class-row">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span class="fw-semibold">Kelas {{ $level }}</span>
+                                            <div>
+                                                <span class="fw-semibold">Kelas {{ $level }}</span>
+                                                <div class="soft-muted small">{{ $percentage }}% dari kelas terpadat</div>
+                                            </div>
                                             <span class="text-muted">{{ $count }} siswa</span>
                                         </div>
                                         <div class="class-track">
@@ -542,10 +772,52 @@ if ($hour >= 0 && $hour <= 11) {
                     </div>
                 </div>
 
-                <div class="col-12">
-                    <div class="card">
+                <div class="col-xl-5">
+                    <div class="card h-100 role3-panel">
+                        <div class="card-header">
+                            <span class="section-kicker mb-2">
+                                <i class="fa-solid fa-user-group"></i> Tim Internal
+                            </span>
+                            <h5 class="mb-0">Guru/Pegawai Se-Madrasah</h5>
+                            <small class="text-muted">Snapshot tenaga aktif di lembaga</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-3">
+                                @forelse($staffPreview as $staff)
+                                    @php
+                                        $staffImage = $staff->image
+                                            ? asset('storage/images/users/' . $staff->image)
+                                            : asset('storage/images/users/users.png');
+                                    @endphp
+                                    <div class="staff-row">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <img src="{{ $staffImage }}" class="staff-avatar" alt="{{ $staff->nama_lengkap }}">
+                                            <div class="flex-grow-1 min-width-0">
+                                                <div class="fw-semibold">{{ $staff->nama_lengkap }}</div>
+                                                <div class="small soft-muted">
+                                                    {{ $ketugasanLabels[$staff->ketugasan] ?? 'Ketugasan belum diatur' }}
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-label-primary">
+                                                {{ $jurusanLabels[$staff->jurusan_id] ?? 'Status belum diatur' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="text-center text-muted py-4">Belum ada data guru/pegawai.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-7">
+                    <div class="card h-100 role3-panel">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div>
+                                <span class="section-kicker mb-2">
+                                    <i class="fa-solid fa-bolt"></i> Aktivitas
+                                </span>
                                 <h5 class="mb-0">Aktivitas Terbaru</h5>
                                 <small class="text-muted">Usulan terbaru dari lembaga</small>
                             </div>
@@ -554,25 +826,24 @@ if ($hour >= 0 && $hour <= 11) {
                             </a>
                         </div>
                         <div class="card-body">
-                            <div class="row g-3">
+                            <div class="d-grid gap-3">
                                 @forelse($recent_activities ?? [] as $activity)
-                                    <div class="col-lg-4 col-md-6">
-                                        <div class="activity-row h-100">
-                                            <div class="d-flex justify-content-between align-items-start gap-3">
-                                                <div>
-                                                    <div class="fw-semibold">{{ $activity->nama ?? $activity->nama_lengkap ?? 'Usulan SK Baru' }}</div>
-                                                    <small class="text-muted">
-                                                        {{ $activity->created_at ? \Carbon\Carbon::parse($activity->created_at)->translatedFormat('d M Y H:i') : '-' }}
-                                                    </small>
+                                    <div class="activity-row">
+                                        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                                            <div>
+                                                <div class="fw-semibold mb-1">{{ $activity->nama ?? $activity->nama_lengkap ?? 'Usulan SK Baru' }}</div>
+                                                <div class="activity-meta">
+                                                    <span><i class="fa-regular fa-clock me-1"></i>{{ $activity->created_at ? \Carbon\Carbon::parse($activity->created_at)->translatedFormat('d M Y H:i') : '-' }}</span>
+                                                    <span><i class="fa-solid fa-building me-1"></i>{{ $profile->nama_lengkap ?? 'Madrasah/Sekolah' }}</span>
                                                 </div>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2">
                                                 <span class="badge bg-label-primary">{{ $activity->s_pengajuan ?? $activity->status ?? 'Baru' }}</span>
                                             </div>
                                         </div>
                                     </div>
                                 @empty
-                                    <div class="col-12">
-                                        <div class="text-center text-muted py-4">Belum ada aktivitas terbaru.</div>
-                                    </div>
+                                    <div class="text-center text-muted py-4">Belum ada aktivitas terbaru.</div>
                                 @endforelse
                             </div>
                         </div>
