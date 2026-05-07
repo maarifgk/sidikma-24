@@ -523,9 +523,9 @@
                     <p class="opening-line" style="font-size:${fontSizePx('opening_line_font_size', 11.5)};">${formatText(getFieldValue('opening_line'))}</p>
 
                     <table class="consideration-table" style="font-size:${fontSizePx('consideration_font_size', 11.5)};">
-                        <tr><td class="label">Menimbang</td><td class="colon">:</td><td>${formatText(getFieldValue('menimbang_text'))}</td></tr>
-                        <tr><td class="label">Mengingat</td><td class="colon">:</td><td>${formatText(getFieldValue('mengingat_text'))}</td></tr>
-                        <tr><td class="label">Memperhatikan</td><td class="colon">:</td><td>${formatText(getFieldValue('memperhatikan_text'))}</td></tr>
+                        <tr><td class="label">Menimbang</td><td class="colon">:</td><td><div class="justified-text">${formatText(getFieldValue('menimbang_text'))}</div></td></tr>
+                        <tr><td class="label">Mengingat</td><td class="colon">:</td><td><div class="justified-text">${formatText(getFieldValue('mengingat_text'))}</div></td></tr>
+                        <tr><td class="label">Memperhatikan</td><td class="colon">:</td><td><div class="justified-text">${formatText(getFieldValue('memperhatikan_text'))}</div></td></tr>
                     </table>
 
                     <div class="memutuskan-title" style="font-size:${fontSizePx('memutuskan_title_font_size', 15)};">${formatText(getFieldValue('memutuskan_title'))}</div>
@@ -547,11 +547,11 @@
                                     <tr><td class="num">7.</td><td class="field">Program Studi</td><td class="colon">:</td><td>${formatText(placeholderToken('p_studi'))}</td></tr>
                                     <tr><td class="num">8.</td><td class="field">Status Kepegawaian</td><td class="colon">:</td><td>${formatText(placeholderToken('nama_jurusan'))}</td></tr>
                                 </table>
-                                ${formatText(getFieldValue('pertama_penutup'))}
+                                <div class="justified-text">${formatText(getFieldValue('pertama_penutup'))}</div>
                             </td>
                         </tr>
-                        <tr><td class="label">Kedua</td><td class="colon">:</td><td>${formatText(getFieldValue('kedua_text'))}</td></tr>
-                        <tr><td class="label">Ketiga</td><td class="colon">:</td><td>${formatText(getFieldValue('ketiga_text'))}</td></tr>
+                        <tr><td class="label">Kedua</td><td class="colon">:</td><td><div class="justified-text">${formatText(getFieldValue('kedua_text'))}</div></td></tr>
+                        <tr><td class="label">Ketiga</td><td class="colon">:</td><td><div class="justified-text">${formatText(getFieldValue('ketiga_text'))}</div></td></tr>
                     </table>
                     <div class="signature-section" style="font-size:${fontSizePx('signature_font_size', 11.5)};">
                         <table class="signature-table">

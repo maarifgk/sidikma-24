@@ -726,6 +726,8 @@ body {
 
 .justified-text {
     text-align: justify;
+    text-justify: inter-word;
+    width: 100%;
 }
 
 .opening-line {
