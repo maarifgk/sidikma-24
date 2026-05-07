@@ -42,6 +42,7 @@ class AttendanceAdminController extends Controller
         $this->ensureRoleThree();
 
         $today = today()->toDateString();
+        $setting = $this->validator->settingForKelas($this->kelasId());
         $todayAttendances = Attendance::where('kelas_id', $this->kelasId())
             ->whereDate('attendance_date', $today)
             ->where('status', '!=', 'ditolak');
@@ -81,8 +82,61 @@ class AttendanceAdminController extends Controller
             ->limit(8)
             ->get();
 
+        $attendanceMapPoints = Attendance::query()
+            ->select('attendances.*', 'users.nama_lengkap')
+            ->leftJoin('users', 'users.id', '=', 'attendances.user_id')
+            ->where('attendances.kelas_id', $this->kelasId())
+            ->whereDate('attendances.attendance_date', $today)
+            ->where(function ($query) {
+                $query
+                    ->whereNotNull('attendances.check_out_latitude')
+                    ->whereNotNull('attendances.check_out_longitude')
+                    ->orWhere(function ($subQuery) {
+                        $subQuery
+                            ->whereNotNull('attendances.check_in_latitude')
+                            ->whereNotNull('attendances.check_in_longitude');
+                    })
+                    ->orWhere(function ($subQuery) {
+                        $subQuery
+                            ->whereNotNull('attendances.latitude')
+                            ->whereNotNull('attendances.longitude');
+                    });
+            })
+            ->orderByRaw('COALESCE(attendances.check_out_at, attendances.check_in_at, attendances.checked_at) DESC')
+            ->get()
+            ->unique('user_id')
+            ->values()
+            ->map(function (Attendance $attendance) {
+                $latitude = $attendance->check_out_latitude
+                    ?? $attendance->check_in_latitude
+                    ?? $attendance->latitude;
+                $longitude = $attendance->check_out_longitude
+                    ?? $attendance->check_in_longitude
+                    ?? $attendance->longitude;
+                $gpsAccuracy = $attendance->check_out_gps_accuracy
+                    ?? $attendance->check_in_gps_accuracy
+                    ?? $attendance->gps_accuracy;
+                $checkedAt = $attendance->check_out_at
+                    ?? $attendance->check_in_at
+                    ?? $attendance->checked_at;
+                $checkLabel = $attendance->check_out_at
+                    ? 'Presensi pulang'
+                    : ($attendance->check_in_at || $attendance->check_type === 'datang' ? 'Presensi datang' : 'Presensi');
+
+                return [
+                    'user_id' => $attendance->user_id,
+                    'name' => $attendance->nama_lengkap ?? '-',
+                    'status' => $attendance->status,
+                    'check_label' => $checkLabel,
+                    'checked_at' => $checkedAt ? $checkedAt->format('H:i') : '-',
+                    'latitude' => (float) $latitude,
+                    'longitude' => (float) $longitude,
+                    'gps_accuracy' => $gpsAccuracy !== null ? (float) $gpsAccuracy : null,
+                ];
+            });
+
         return view('backend.presensi.dashboard', [
-            'setting' => $this->validator->settingForKelas($this->kelasId()),
+            'setting' => $setting,
             'stats' => [
                 'total_hadir' => $presentUserCount,
                 'hadir' => (clone $todayAttendances)->where('status', 'hadir')->distinct('user_id')->count('user_id'),
@@ -94,6 +148,8 @@ class AttendanceAdminController extends Controller
             ],
             'chart' => $chart,
             'latestActivities' => $latestActivities,
+            'attendanceMapPoints' => $attendanceMapPoints,
+            'geofencePolygon' => $this->validator->normalizePolygon($setting->geofence_polygon),
         ]);
     }
 

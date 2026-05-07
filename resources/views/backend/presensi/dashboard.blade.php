@@ -1,6 +1,29 @@
 @extends('backend.layout.base')
 
 @section('content')
+    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/leaflet/leaflet.css') }}">
+    <style>
+        #attendanceUsersMap {
+            width: 100%;
+            height: 460px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(67, 89, 113, .14);
+        }
+
+        .attendance-map-summary {
+            max-height: 460px;
+            overflow-y: auto;
+        }
+
+        .attendance-map-summary .list-group-item {
+            border-left: 0;
+            border-right: 0;
+            padding-left: 0;
+            padding-right: 0;
+        }
+    </style>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 text-white"><b>Dashboard Presensi</b></h4>
@@ -44,6 +67,51 @@
     </div>
 
     <div class="row g-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">Peta Lokasi Presensi User</h5>
+                        <small class="text-muted">Menampilkan titik lokasi presensi terakhir user hari ini.</small>
+                    </div>
+                    <span class="badge bg-label-primary">{{ collect($attendanceMapPoints)->count() }} titik</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-8">
+                            <div id="attendanceUsersMap"></div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="attendance-map-summary">
+                                <div class="list-group list-group-flush">
+                                    @forelse($attendanceMapPoints as $point)
+                                        <div class="list-group-item">
+                                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                                <div>
+                                                    <div class="fw-semibold">{{ $point['name'] }}</div>
+                                                    <small class="text-muted">
+                                                        {{ $point['check_label'] }} • {{ $point['checked_at'] }}
+                                                    </small>
+                                                    <div class="small text-muted mt-1">
+                                                        {{ number_format($point['latitude'], 6) }}, {{ number_format($point['longitude'], 6) }}
+                                                    </div>
+                                                </div>
+                                                <span class="badge bg-label-{{ $point['status'] === 'terlambat' ? 'warning' : ($point['status'] === 'ditolak' ? 'danger' : 'success') }}">
+                                                    {{ ucfirst($point['status']) }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="text-muted">Belum ada lokasi presensi yang dapat ditampilkan hari ini.</div>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="col-lg-8">
             <div class="card h-100">
                 <div class="card-header">
@@ -84,6 +152,7 @@
 @endsection
 
 @section('js')
+<script src="{{ asset('assets/vendor/libs/leaflet/leaflet.js') }}"></script>
 <script>
     new ApexCharts(document.querySelector('#attendanceChart'), {
         chart: { type: 'area', height: 320, toolbar: { show: false } },
@@ -96,5 +165,71 @@
         dataLabels: { enabled: false },
         colors: ['#0a48b3', '#11805e']
     }).render();
+
+    const attendanceMapPoints = @json($attendanceMapPoints);
+    const geofencePolygon = @json($geofencePolygon);
+    const fallbackCenter = [-7.9656, 110.6036];
+
+    const attendanceMap = L.map('attendanceUsersMap', {
+        center: fallbackCenter,
+        zoom: 15,
+        scrollWheelZoom: true,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 22,
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(attendanceMap);
+
+    const boundsPoints = [];
+
+    if (Array.isArray(geofencePolygon) && geofencePolygon.length >= 3) {
+        const geofenceLatLngs = geofencePolygon.map(point => [Number(point.lat), Number(point.lng)]);
+        L.polygon(geofenceLatLngs, {
+            color: '#0a48b3',
+            weight: 2,
+            fillColor: '#0a48b3',
+            fillOpacity: 0.08,
+        }).addTo(attendanceMap).bindPopup('Area geofence sekolah');
+        boundsPoints.push(...geofenceLatLngs);
+    }
+
+    attendanceMapPoints.forEach(point => {
+        const lat = Number(point.latitude);
+        const lng = Number(point.longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+            return;
+        }
+
+        const color = point.status === 'terlambat'
+            ? '#ff9f43'
+            : (point.status === 'ditolak' ? '#ea5455' : '#28c76f');
+
+        const marker = L.circleMarker([lat, lng], {
+            radius: 9,
+            color,
+            fillColor: color,
+            fillOpacity: 0.92,
+            weight: 2,
+        }).addTo(attendanceMap);
+
+        marker.bindPopup(`
+            <div style="min-width: 180px;">
+                <div style="font-weight: 700; margin-bottom: 4px;">${point.name ?? '-'}</div>
+                <div style="font-size: 12px; color: #6c757d; margin-bottom: 6px;">${point.check_label ?? 'Presensi'} • ${point.checked_at ?? '-'}</div>
+                <div>Status: ${point.status ?? '-'}</div>
+                <div>Akurasi: ${point.gps_accuracy !== null ? point.gps_accuracy + ' m' : '-'}</div>
+                <div style="margin-top: 6px;">${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
+            </div>
+        `);
+
+        boundsPoints.push([lat, lng]);
+    });
+
+    if (boundsPoints.length) {
+        attendanceMap.fitBounds(boundsPoints, { padding: [30, 30], maxZoom: 18 });
+    }
+
+    setTimeout(() => attendanceMap.invalidateSize(), 250);
 </script>
 @endsection
