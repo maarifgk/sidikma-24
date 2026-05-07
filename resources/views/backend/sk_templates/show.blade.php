@@ -18,17 +18,69 @@
             background: #eef2f8;
         }
 
-        .status-filter-panel {
+        .status-filter-dropdown {
+            position: relative;
+        }
+
+        .status-filter-dropdown summary {
+            list-style: none;
+        }
+
+        .status-filter-dropdown summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .status-filter-toggle {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px;
             border: 1px solid rgba(67, 89, 113, .16);
             border-radius: 12px;
-            padding: 12px;
             background: #f9fafc;
+            color: #566274;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .status-filter-summary {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .status-filter-caret {
+            flex-shrink: 0;
+            transition: transform .18s ease;
+        }
+
+        .status-filter-dropdown[open] .status-filter-caret {
+            transform: rotate(180deg);
+        }
+
+        .status-filter-panel {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            z-index: 20;
+            border: 1px solid rgba(67, 89, 113, .16);
+            border-radius: 14px;
+            padding: 12px;
+            background: #ffffff;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, .12);
         }
 
         .status-filter-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
+            max-height: 150px;
+            overflow: auto;
         }
 
         .status-filter-option input {
@@ -38,12 +90,12 @@
         .status-filter-chip {
             display: inline-flex;
             align-items: center;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 999px;
             border: 1px solid rgba(67, 89, 113, .18);
             background: #fff;
             color: #566274;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             transition: .18s ease;
@@ -86,20 +138,26 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Filter Status Kepegawaian</label>
-                            <div class="status-filter-panel">
-                                <div class="status-filter-grid" id="status_filter">
-                                    @foreach($statusOptions as $statusOption)
-                                        <label class="status-filter-option">
-                                            <input type="checkbox" value="{{ $statusOption }}">
-                                            <span class="status-filter-chip">{{ $statusOption }}</span>
-                                        </label>
-                                    @endforeach
+                            <details class="status-filter-dropdown">
+                                <summary class="status-filter-toggle">
+                                    <span class="status-filter-summary" id="status_filter_summary">Semua status kepegawaian</span>
+                                    <span class="status-filter-caret">▾</span>
+                                </summary>
+                                <div class="status-filter-panel">
+                                    <div class="status-filter-grid" id="status_filter">
+                                        @foreach($statusOptions as $statusOption)
+                                            <label class="status-filter-option">
+                                                <input type="checkbox" value="{{ $statusOption }}">
+                                                <span class="status-filter-chip">{{ $statusOption }}</span>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                    <div class="status-filter-actions">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" id="select_all_status">Pilih Semua</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="reset_status_filter">Reset</button>
+                                    </div>
                                 </div>
-                                <div class="status-filter-actions">
-                                    <button type="button" class="btn btn-sm btn-outline-primary" id="select_all_status">Pilih Semua</button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="reset_status_filter">Reset</button>
-                                </div>
-                            </div>
+                            </details>
                             <small class="text-muted">Bisa pilih lebih dari satu status.</small>
                         </div>
                     </div>
@@ -212,6 +270,7 @@
 <script>
     const periodFilter = document.getElementById('period_filter');
     const statusFilter = document.getElementById('status_filter');
+    const statusFilterSummary = document.getElementById('status_filter_summary');
     const statusFilterInputs = Array.from(statusFilter.querySelectorAll('input[type="checkbox"]'));
     const selectAllStatusButton = document.getElementById('select_all_status');
     const resetStatusFilterButton = document.getElementById('reset_status_filter');
@@ -239,7 +298,25 @@
             && (!selectedStatuses.length || selectedStatuses.includes(optionStatus));
     }
 
+    function updateStatusSummary() {
+        const selectedStatuses = statusFilterInputs.filter((input) => input.checked).map((input) => input.value);
+
+        if (!selectedStatuses.length) {
+            statusFilterSummary.textContent = 'Semua status kepegawaian';
+            return;
+        }
+
+        if (selectedStatuses.length === 1) {
+            statusFilterSummary.textContent = selectedStatuses[0];
+            return;
+        }
+
+        statusFilterSummary.textContent = `${selectedStatuses.length} status dipilih`;
+    }
+
     function applyUserFilters() {
+        updateStatusSummary();
+
         Array.from(userSelect.options).forEach((option) => {
             const visible = matchesFilters(option);
             option.hidden = !visible;
