@@ -78,6 +78,7 @@
 
                         <div class="mt-4">
                             <button type="submit" class="btn btn-primary">{{ $submitLabel }}</button>
+                            <button type="button" class="btn btn-outline-primary" id="apply_standard_template">Gunakan Format SK Standar</button>
                             <a href="{{ route('sk-templates.index') }}" class="btn btn-success">Kembali</a>
                             @if ($isEdit)
                                 <a href="{{ route('sk-templates.show', $template) }}" class="btn btn-outline-primary">Buka Generator</a>
@@ -125,6 +126,10 @@
     const cssInput = document.getElementById('custom_css');
     const titleInput = document.getElementById('document_title');
     const previewSamples = @json($previewSamples);
+    const applyStandardTemplateButton = document.getElementById('apply_standard_template');
+    const presetTitle = @json($presetTitle);
+    const presetContent = @json($presetContent);
+    const presetCss = @json($presetCss);
 
     function replacePlaceholders(template) {
         let output = template || '';
@@ -186,6 +191,13 @@
 
     [contentInput, cssInput, titleInput].forEach((element) => {
         element.addEventListener('input', renderPreview);
+    });
+
+    applyStandardTemplateButton.addEventListener('click', function () {
+        titleInput.value = presetTitle;
+        contentInput.value = presetContent;
+        cssInput.value = presetCss;
+        renderPreview();
     });
 
     renderPreview();
