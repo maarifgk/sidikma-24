@@ -834,7 +834,7 @@ body {
 }
 
 .header-logo-cell {
-    width: 100%;
+    width: 118px;
     text-align: center;
     vertical-align: middle;
 }
@@ -1186,7 +1186,15 @@ CSS;
         $pattern = $setting->nomor_pattern ?: $this->defaultSkNumberPattern($periodName);
         $paddedNumber = str_pad((string) $number, max(1, (int) $setting->digit_nomor), '0', STR_PAD_LEFT);
         $year = $yearOverride ?: (int) now()->format('Y');
-        $nomorText = $nomorTextOverride ?: (string) ($setting->nomor_text ?: 'SK.01/LPM.GK');
+        $nomorText = trim((string) ($nomorTextOverride ?: ''));
+
+        // Jika text setelah nomor SK diisi manual saat generate dan bukan default,
+        // gunakan apa adanya agar tidak dobel dengan pola periode/tahun.
+        if ($nomorText !== '' && $nomorText !== 'SK.01/LPM.GK') {
+            return $paddedNumber . '/' . trim($nomorText, '/');
+        }
+
+        $nomorText = (string) ($setting->nomor_text ?: 'SK.01/LPM.GK');
 
         return strtr($pattern, [
             '{{nomor_urut}}' => $paddedNumber,

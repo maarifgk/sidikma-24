@@ -15,6 +15,21 @@
         }
 
         {!! $customCss !!}
+
+        .header-logo-cell {
+            width: 148px !important;
+        }
+
+        .header-logo-wrap {
+            width: 136px !important;
+            height: 136px !important;
+        }
+
+        .header-logo {
+            height: 122px !important;
+            width: auto !important;
+            max-width: 136px !important;
+        }
     </style>
 </head>
 <body>
