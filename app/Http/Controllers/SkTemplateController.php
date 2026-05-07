@@ -837,9 +837,11 @@ body {
 }
 
 .header-logo {
-    width: 145px;
-    height: 145px;
-    object-fit: contain;
+    width: auto;
+    height: auto;
+    max-width: 145px;
+    max-height: 145px;
+    display: inline-block;
 }
 
 .header-topline {
