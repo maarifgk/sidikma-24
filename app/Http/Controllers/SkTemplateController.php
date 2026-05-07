@@ -42,6 +42,8 @@ class SkTemplateController extends Controller
             'builderData' => $defaultBuilderData,
             'placeholders' => $this->placeholderDefinitions(),
             'previewSamples' => $this->previewSamples(),
+            'whatsappIconUrl' => $this->placeholderSvgDataUri('', '#16a34a', '#ffffff', 'whatsapp'),
+            'emailIconUrl' => $this->placeholderSvgDataUri('', '#0f766e', '#ffffff', 'email'),
             'presetTitle' => 'SK Yayasan - {{nama_lengkap}}',
             'presetContent' => $this->buildContentFromBuilderData($defaultBuilderData),
             'presetCss' => $this->defaultCss(),
@@ -100,6 +102,8 @@ class SkTemplateController extends Controller
             'builderData' => $builderData,
             'placeholders' => $this->placeholderDefinitions(),
             'previewSamples' => $this->previewSamples(),
+            'whatsappIconUrl' => $this->placeholderSvgDataUri('', '#16a34a', '#ffffff', 'whatsapp'),
+            'emailIconUrl' => $this->placeholderSvgDataUri('', '#0f766e', '#ffffff', 'email'),
             'presetTitle' => 'SK Yayasan - {{nama_lengkap}}',
             'presetContent' => $this->buildContentFromBuilderData($this->defaultBuilderData()),
             'presetCss' => $this->defaultCss(),
@@ -184,7 +188,8 @@ class SkTemplateController extends Controller
             'header_topline' => 'required|string|max:255',
             'header_title' => 'required|string|max:255',
             'header_address' => 'required|string|max:500',
-            'header_contact' => 'required|string|max:255',
+            'header_phone' => 'required|string|max:255',
+            'header_email' => 'required|string|max:255',
             'decision_title' => 'required|string|max:255',
             'nomor_sk' => 'required|string|max:255',
             'opening_line' => 'required|string|max:255',
@@ -342,7 +347,8 @@ class SkTemplateController extends Controller
             'header_topline' => 'PENGURUS CABANG NAHDLATUL ULAMA GUNUNGKIDUL',
             'header_title' => "LEMBAGA PENDIDIKAN MA'ARIF NU",
             'header_address' => 'Jln. Tentara Pelajar, Trimulyo I, Kepek, Wonosari, Gunungkidul-55813',
-            'header_contact' => '08522947609    maarifgunungkidul@gmail.com',
+            'header_phone' => '08522947609',
+            'header_email' => 'maarifgunungkidul@gmail.com',
             'decision_title' => "SURAT KEPUTUSAN KETUA LP MA'ARIF NU GUNUNGKIDUL",
             'nomor_sk' => '{{nomor_sk}}',
             'opening_line' => "Ketua Lembaga Pendidikan Ma'arif NU Kabupaten Gunungkidul",
@@ -364,11 +370,26 @@ class SkTemplateController extends Controller
     {
         $defaults = $this->defaultBuilderData();
         $normalized = [];
+        $legacyHeaderContact = isset($data['header_contact']) ? (string) $data['header_contact'] : '';
+        [$legacyPhone, $legacyEmail] = $this->splitLegacyHeaderContact($legacyHeaderContact);
 
         foreach ($defaults as $key => $defaultValue) {
-            $normalized[$key] = array_key_exists($key, $data) && $data[$key] !== null
-                ? (string) $data[$key]
-                : $defaultValue;
+            if (array_key_exists($key, $data) && $data[$key] !== null) {
+                $normalized[$key] = (string) $data[$key];
+                continue;
+            }
+
+            if ($key === 'header_phone' && $legacyPhone !== '') {
+                $normalized[$key] = $legacyPhone;
+                continue;
+            }
+
+            if ($key === 'header_email' && $legacyEmail !== '') {
+                $normalized[$key] = $legacyEmail;
+                continue;
+            }
+
+            $normalized[$key] = $defaultValue;
         }
 
         return $normalized;
@@ -398,7 +419,16 @@ class SkTemplateController extends Controller
                 <div class="header-topline">__HEADER_TOPLINE__</div>
                 <div class="header-title">__HEADER_TITLE__</div>
                 <div class="header-address">__HEADER_ADDRESS__</div>
-                <div class="header-contact">__HEADER_CONTACT__</div>
+                <table class="header-contact-table">
+                    <tr>
+                        <td class="header-contact-text">__HEADER_PHONE__</td>
+                        <td class="header-contact-icon-cell"><img src="__WHATSAPP_ICON_URL__" alt="WhatsApp" class="header-contact-icon"></td>
+                    </tr>
+                    <tr>
+                        <td class="header-contact-text">__HEADER_EMAIL__</td>
+                        <td class="header-contact-icon-cell"><img src="__EMAIL_ICON_URL__" alt="Email" class="header-contact-icon"></td>
+                    </tr>
+                </table>
             </td>
         </tr>
     </table>
@@ -484,7 +514,10 @@ HTML, [
             '__HEADER_TOPLINE__' => $this->formatBuilderText($builderData['header_topline']),
             '__HEADER_TITLE__' => $this->formatBuilderText($builderData['header_title']),
             '__HEADER_ADDRESS__' => $this->formatBuilderText($builderData['header_address']),
-            '__HEADER_CONTACT__' => $this->formatBuilderText($builderData['header_contact']),
+            '__HEADER_PHONE__' => $this->formatBuilderText($builderData['header_phone']),
+            '__HEADER_EMAIL__' => $this->formatBuilderText($builderData['header_email']),
+            '__WHATSAPP_ICON_URL__' => $this->attributeValue($this->placeholderSvgDataUri('', '#16a34a', '#ffffff', 'whatsapp')),
+            '__EMAIL_ICON_URL__' => $this->attributeValue($this->placeholderSvgDataUri('', '#0f766e', '#ffffff', 'email')),
             '__DECISION_TITLE__' => $this->formatBuilderText($builderData['decision_title']),
             '__NOMOR_SK__' => $this->formatBuilderText($builderData['nomor_sk']),
             '__OPENING_LINE__' => $this->formatBuilderText($builderData['opening_line']),
@@ -561,13 +594,43 @@ body {
     margin: 6px 0 4px;
 }
 
-.header-address,
-.header-contact {
+.header-address {
     font-family: "Bodoni MT", Didot, "Times New Roman", serif;
     color: #159947;
     font-size: 11px;
     font-weight: 700;
     text-align: right;
+}
+
+.header-contact-table {
+    margin-left: auto;
+    margin-top: 2px;
+    border-collapse: collapse;
+}
+
+.header-contact-table td {
+    padding: 0;
+    vertical-align: middle;
+}
+
+.header-contact-text {
+    font-family: "Bodoni MT", Didot, "Times New Roman", serif;
+    color: #159947;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: right;
+    padding-right: 6px;
+}
+
+.header-contact-icon-cell {
+    width: 16px;
+    text-align: right;
+}
+
+.header-contact-icon {
+    width: 12px;
+    height: 12px;
+    object-fit: contain;
 }
 
 .header-divider {
@@ -746,6 +809,17 @@ CSS;
     protected function placeholderSvgDataUri(string $text, string $primaryColor, string $secondaryColor, string $type): string
     {
         $svg = match ($type) {
+            'whatsapp' => '
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+                    <circle cx="32" cy="32" r="30" fill="' . $primaryColor . '"/>
+                    <path d="M21 18c-1 0-2 .5-2.8 1.7c-1.6 2.2-2.3 4.8-2 7.8c.6 6.7 5.2 13 11.5 17.5c5.7 4.1 12.1 5.6 16.6 4c2.3-.8 3.9-2.1 4.7-3.7l1.1-2.4c.4-.9 0-2-1-2.4l-5.8-2.4c-.8-.3-1.7 0-2.2.6l-2 2.6c-.5.6-1.3.8-2 .5c-2.8-1.2-6.2-4.2-8-6.7c-.5-.6-.5-1.4-.1-2l1.7-2.4c.4-.6.5-1.4.1-2l-3.2-6.1c-.4-.7-1.1-1.1-1.8-1.1z" fill="' . $secondaryColor . '"/>
+                </svg>',
+            'email' => '
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+                    <rect x="6" y="14" width="52" height="36" rx="6" fill="' . $primaryColor . '"/>
+                    <path d="M12 22l20 14l20-14" fill="none" stroke="' . $secondaryColor . '" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 44l14-12M52 44L38 32" fill="none" stroke="' . $secondaryColor . '" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>',
             default => '
                 <svg xmlns="http://www.w3.org/2000/svg" width="260" height="260" viewBox="0 0 260 260">
                     <circle cx="130" cy="130" r="108" fill="' . $secondaryColor . '" stroke="' . $primaryColor . '" stroke-width="10"/>
@@ -757,6 +831,23 @@ CSS;
         };
 
         return 'data:image/svg+xml;base64,' . base64_encode($svg);
+    }
+
+    protected function splitLegacyHeaderContact(string $value): array
+    {
+        $trimmed = trim($value);
+
+        if ($trimmed === '') {
+            return ['', ''];
+        }
+
+        preg_match('/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i', $trimmed, $emailMatch);
+        preg_match('/(?:\+?\d[\d\s.-]{7,}\d)/', $trimmed, $phoneMatch);
+
+        return [
+            isset($phoneMatch[0]) ? trim($phoneMatch[0]) : '',
+            isset($emailMatch[0]) ? trim($emailMatch[0]) : '',
+        ];
     }
 
     protected function formatBuilderText(string $value): string

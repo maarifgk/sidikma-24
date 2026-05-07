@@ -77,8 +77,12 @@
                                 <input type="text" name="header_address" class="form-control builder-field" value="{{ old('header_address', $builderData['header_address']) }}" required>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Kontak</label>
-                                <input type="text" name="header_contact" class="form-control builder-field" value="{{ old('header_contact', $builderData['header_contact']) }}" required>
+                                <label class="form-label">Nomor WhatsApp</label>
+                                <input type="text" name="header_phone" class="form-control builder-field" value="{{ old('header_phone', $builderData['header_phone']) }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Email Kop Surat</label>
+                                <input type="text" name="header_email" class="form-control builder-field" value="{{ old('header_email', $builderData['header_email']) }}" required>
                             </div>
                             <div class="col-md-12">
                                 <label class="form-label">Upload Logo Kop Surat</label>
@@ -237,6 +241,8 @@
     const presetTitle = @json($presetTitle);
     const presetCss = @json($presetCss);
     const presetBuilderData = @json($presetBuilderData);
+    const whatsappIconUrl = @json($whatsappIconUrl);
+    const emailIconUrl = @json($emailIconUrl);
 
     function replacePlaceholders(template) {
         let output = template || '';
@@ -344,7 +350,16 @@
                             <div class="header-topline">${formatText(getFieldValue('header_topline'))}</div>
                             <div class="header-title">${formatText(getFieldValue('header_title'))}</div>
                             <div class="header-address">${formatText(getFieldValue('header_address'))}</div>
-                            <div class="header-contact">${formatText(getFieldValue('header_contact'))}</div>
+                            <table class="header-contact-table">
+                                <tr>
+                                    <td class="header-contact-text">${formatText(getFieldValue('header_phone'))}</td>
+                                    <td class="header-contact-icon-cell"><img src="${formatAttr(whatsappIconUrl)}" alt="WhatsApp" class="header-contact-icon"></td>
+                                </tr>
+                                <tr>
+                                    <td class="header-contact-text">${formatText(getFieldValue('header_email'))}</td>
+                                    <td class="header-contact-icon-cell"><img src="${formatAttr(emailIconUrl)}" alt="Email" class="header-contact-icon"></td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                 </table>
