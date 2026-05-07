@@ -93,21 +93,28 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Jam Masuk</label>
-                                <input type="time" name="check_in_time" class="form-control" value="{{ old('check_in_time', substr($setting->check_in_time, 0, 5)) }}" required>
+                                <input type="time" name="check_in_time" class="form-control" value="{{ old('check_in_time', $setting->check_in_time ? substr($setting->check_in_time, 0, 5) : '07:00') }}" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Jam Pulang</label>
-                                <input type="time" name="check_out_time" class="form-control" value="{{ old('check_out_time', substr($setting->check_out_time, 0, 5)) }}" required>
+                                <input type="time" name="check_out_time" class="form-control" value="{{ old('check_out_time', $setting->check_out_time ? substr($setting->check_out_time, 0, 5) : '14:00') }}" required>
                             </div>
-                            {{-- <div class="col-md-6">
+                            <div class="col-md-6">
                                 <label class="form-label">Toleransi Terlambat</label>
-                                <input type="number" name="late_tolerance_minutes" class="form-control" min="0" max="240" value="{{ old('late_tolerance_minutes', $setting->late_tolerance_minutes) }}" required>
-                            </div> --}}
-                            {{-- <div class="col-md-6">
+                                <div class="input-group">
+                                    <input type="number" name="late_tolerance_minutes" class="form-control" min="0" max="240" value="{{ old('late_tolerance_minutes', $setting->late_tolerance_minutes ?? 10) }}" required>
+                                    <span class="input-group-text">menit</span>
+                                </div>
+                                <small class="text-muted">Batas toleransi keterlambatan dari jam masuk.</small>
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label">Batas Minimal Akurasi GPS</label>
-                                <input type="number" name="max_gps_accuracy" class="form-control" min="1" max="100" step="0.1" value="{{ old('max_gps_accuracy', $setting->max_gps_accuracy ?: 2) }}">
+                                <div class="input-group">
+                                    <input type="number" name="max_gps_accuracy" class="form-control" min="1" max="100" step="0.1" value="{{ old('max_gps_accuracy', $setting->max_gps_accuracy ?: 2) }}">
+                                    <span class="input-group-text">meter</span>
+                                </div>
                                 <small class="text-muted">Presensi ditolak jika nilai akurasi GPS di bawah batas ini.</small>
-                            </div> --}}
+                            </div>
                         </div>
                     </div>
                 </div>
