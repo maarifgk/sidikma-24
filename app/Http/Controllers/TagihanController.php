@@ -5,22 +5,61 @@ namespace App\Http\Controllers;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class TagihanController extends Controller
 {
     public function view()
     {
         $data['title'] = "Tagihan";
-        $data['tagihan'] = DB::select("
-            SELECT t.*, k.nama_kelas, ta.tahun, jp.pembayaran, u.nama_lengkap 
-            FROM tagihan t 
-            LEFT JOIN tahun_ajaran ta ON t.thajaran_id = ta.id 
-            LEFT JOIN jenis_pembayaran jp ON jp.id = t.jenis_pembayaran 
-            LEFT JOIN users u ON u.id = t.user_id 
-            LEFT JOIN kelas k ON k.id = t.kelas_id 
-            ORDER BY t.id DESC
-        ");
+        $data['tagihan'] = $this->tagihanList();
         return view('backend.tagihan.view', $data);
+    }
+
+    public function exportExcel()
+    {
+        $tagihan = $this->tagihanList();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Tagihan');
+
+        $headers = ['No', 'User', 'Asal Madrasah', 'Tahun Ajaran', 'Jenis Pembayaran', 'Nilai', 'Status', 'Created'];
+        $sheet->fromArray([$headers], null, 'A1');
+
+        $row = 2;
+        foreach ($tagihan as $index => $item) {
+            $sheet->fromArray([[
+                $index + 1,
+                $item->nama_lengkap,
+                $item->nama_kelas,
+                $item->tahun,
+                $item->pembayaran,
+                (float) $item->nilai,
+                $item->status,
+                $item->created_at,
+            ]], null, 'A' . $row);
+            $row++;
+        }
+
+        $sheet->getStyle('A1:H1')->getFont()->setBold(true);
+        $sheet->getStyle('F2:F' . max($row - 1, 2))
+            ->getNumberFormat()
+            ->setFormatCode('#,##0');
+
+        foreach (range('A', 'H') as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        $fileName = 'tagihan-' . now()->format('Y-m-d-His') . '.xlsx';
+        $writer = new Xlsx($spreadsheet);
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
     }
     public function add()
     {
@@ -183,6 +222,19 @@ class TagihanController extends Controller
 
         DB::table('tagihan')->where('id', $id)->update($data);
         return redirect("tagihan");
+    }
+
+    protected function tagihanList(): array
+    {
+        return DB::select("
+            SELECT t.*, k.nama_kelas, ta.tahun, jp.pembayaran, u.nama_lengkap 
+            FROM tagihan t 
+            LEFT JOIN tahun_ajaran ta ON t.thajaran_id = ta.id 
+            LEFT JOIN jenis_pembayaran jp ON jp.id = t.jenis_pembayaran 
+            LEFT JOIN users u ON u.id = t.user_id 
+            LEFT JOIN kelas k ON k.id = t.kelas_id 
+            ORDER BY t.id DESC
+        ");
     }
 
 }

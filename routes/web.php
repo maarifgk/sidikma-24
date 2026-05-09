@@ -208,6 +208,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tahun/delete/{id}', [TahunController::class, 'delete'])->name('tahun.delete');
     //tagihan
     Route::get('/tagihan', [TagihanController::class, 'view'])->name('tagihan');
+    Route::get('/tagihan/export-excel', [TagihanController::class, 'exportExcel'])->name('tagihan.export-excel');
     Route::get('/tagihanAdd', [TagihanController::class, 'add'])->name('tagihan.add');
     Route::post('/tagihan/add', [TagihanController::class, 'addProses'])->name('tagihan.addproses');
     Route::get('/tagihan/edit/{id}', [TagihanController::class, 'edit'])->name('tagihan.edit');

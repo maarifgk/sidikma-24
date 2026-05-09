@@ -6,8 +6,14 @@
             <h5 class="mb-0" style="font-size: 40px">
                 <b>{{ $title }}</b>
             </h5>
-            <a href="/tagihanAdd" type="button" class="btn rounded-pill btn-primary justify-content-end"
-                style="margin-left: 70%;">Add</a>
+            <div class="d-flex gap-2">
+                <a href="{{ route('tagihan.export-excel') }}" type="button" class="btn rounded-pill btn-success">
+                    Export Excel
+                </a>
+                <a href="/tagihanAdd" type="button" class="btn rounded-pill btn-primary justify-content-end">
+                    Add
+                </a>
+            </div>
         </div>
         <div class="container mt-4 ">
             <table id="datatable" class="table table-striped ">
