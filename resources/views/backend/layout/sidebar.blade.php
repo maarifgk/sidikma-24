@@ -37,11 +37,6 @@
                             <div>Template SK</div>
                         </a>
                     </li>
-                    <li class="menu-item">
-                        <a href="{{ route('sk-templates.settings') }}" class="menu-link">
-                            <div>Pengaturan Nomor SK</div>
-                        </a>
-                    </li>
                 </ul>
             </li>
             <li class="menu-item">

@@ -147,6 +147,80 @@ class SkYayasanDashboardController extends Controller
         return Storage::disk('public')->download($document->file_path, $document->original_filename);
     }
 
+    public function updateDocument(Request $request, SkYayasanDocument $document)
+    {
+        $this->ensureRoleOne();
+
+        $validated = $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'tahun_sk' => 'required|integer|min:2000|max:2100',
+            'sk_template_id' => 'nullable|integer|exists:sk_templates,id',
+            'file_sk' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        $user = $this->usersQuery()->where('users.id', (int) $validated['user_id'])->first();
+        abort_if(!$user, 404);
+
+        $templateId = isset($validated['sk_template_id']) ? (int) $validated['sk_template_id'] : null;
+        $year = (int) $validated['tahun_sk'];
+
+        $duplicate = SkYayasanDocument::query()
+            ->where('id', '!=', $document->id)
+            ->where('user_id', (int) $validated['user_id'])
+            ->where('tahun_sk', $year)
+            ->when(
+                $templateId === null,
+                fn ($query) => $query->whereNull('sk_template_id'),
+                fn ($query) => $query->where('sk_template_id', $templateId)
+            )
+            ->exists();
+
+        if ($duplicate) {
+            Alert::warning('Sudah ada dokumen SK lain untuk user, tahun, dan template tersebut.');
+            return redirect()->route('sk-yayasan.index');
+        }
+
+        $payload = [
+            'user_id' => (int) $validated['user_id'],
+            'sk_template_id' => $templateId,
+            'tahun_sk' => $year,
+            'uploaded_by' => (int) request()->user()->id,
+        ];
+
+        if ($request->hasFile('file_sk')) {
+            if (Storage::disk('public')->exists($document->file_path)) {
+                Storage::disk('public')->delete($document->file_path);
+            }
+
+            $storedFile = $this->storeUploadedFile($user, $request->file('file_sk'), $year);
+            $payload = array_merge($payload, $storedFile, [
+                'source_type' => 'edited',
+                'matched_by' => 'manual_edit',
+            ]);
+        }
+
+        $document->update($payload);
+
+        Alert::success('Dokumen SK berhasil diperbarui.');
+
+        return redirect()->route('sk-yayasan.index');
+    }
+
+    public function deleteDocument(SkYayasanDocument $document)
+    {
+        $this->ensureRoleOne();
+
+        if (Storage::disk('public')->exists($document->file_path)) {
+            Storage::disk('public')->delete($document->file_path);
+        }
+
+        $document->delete();
+
+        Alert::success('Dokumen SK berhasil dihapus.');
+
+        return redirect()->route('sk-yayasan.index');
+    }
+
     protected function storeDocumentForUser($user, UploadedFile $file, int $year, ?int $templateId, string $sourceType, string $matchedBy): string
     {
         $existing = SkYayasanDocument::query()
@@ -163,24 +237,14 @@ class SkYayasanDashboardController extends Controller
             Storage::disk('public')->delete($existing->file_path);
         }
 
-        $extension = strtolower((string) $file->getClientOriginalExtension());
-        $storedFilename = Str::slug((string) ($user->nama_lengkap ?? 'user')) . '-' . $year . '-' . Str::random(8) . '.' . $extension;
-        $relativePath = 'sk_yayasan/' . $year . '/' . $storedFilename;
-        Storage::disk('public')->putFileAs('sk_yayasan/' . $year, $file, $storedFilename);
-
-        $payload = [
+        $payload = array_merge($this->storeUploadedFile($user, $file, $year), [
             'user_id' => (int) $user->id,
             'sk_template_id' => $templateId,
             'tahun_sk' => $year,
-            'original_filename' => $file->getClientOriginalName(),
-            'stored_filename' => $storedFilename,
-            'file_path' => $relativePath,
-            'mime_type' => $file->getClientMimeType(),
-            'file_size' => $file->getSize(),
             'source_type' => $sourceType,
             'matched_by' => $matchedBy,
             'uploaded_by' => (int) request()->user()->id,
-        ];
+        ]);
 
         if ($existing) {
             $existing->update($payload);
@@ -189,6 +253,22 @@ class SkYayasanDashboardController extends Controller
 
         SkYayasanDocument::query()->create($payload);
         return 'created';
+    }
+
+    protected function storeUploadedFile($user, UploadedFile $file, int $year): array
+    {
+        $extension = strtolower((string) $file->getClientOriginalExtension());
+        $storedFilename = Str::slug((string) ($user->nama_lengkap ?? 'user')) . '-' . $year . '-' . Str::random(8) . '.' . $extension;
+        $relativePath = 'sk_yayasan/' . $year . '/' . $storedFilename;
+        Storage::disk('public')->putFileAs('sk_yayasan/' . $year, $file, $storedFilename);
+
+        return [
+            'original_filename' => $file->getClientOriginalName(),
+            'stored_filename' => $storedFilename,
+            'file_path' => $relativePath,
+            'mime_type' => $file->getClientMimeType(),
+            'file_size' => $file->getSize(),
+        ];
     }
 
     protected function matchUploadedFileToUser(UploadedFile $file, Collection $users): array

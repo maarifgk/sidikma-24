@@ -189,6 +189,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/sk-yayasan', [SkYayasanDashboardController::class, 'index'])->name('sk-yayasan.index');
     Route::post('/sk-yayasan/upload-single', [SkYayasanDashboardController::class, 'uploadSingle'])->name('sk-yayasan.upload-single');
     Route::post('/sk-yayasan/import', [SkYayasanDashboardController::class, 'import'])->name('sk-yayasan.import');
+    Route::post('/sk-yayasan/documents/{document}/update', [SkYayasanDashboardController::class, 'updateDocument'])->name('sk-yayasan.documents.update');
+    Route::post('/sk-yayasan/documents/{document}/delete', [SkYayasanDashboardController::class, 'deleteDocument'])->name('sk-yayasan.documents.delete');
     Route::get('/sk-yayasan/documents/{document}/download', [SkYayasanDashboardController::class, 'download'])->name('sk-yayasan.documents.download');
     //sarpras
     Route::get('/sarpras', [SarprasController::class, 'view'])->name('sarpras');

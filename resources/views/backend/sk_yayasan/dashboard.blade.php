@@ -11,7 +11,6 @@
                     </div>
                     <div class="d-flex gap-2 flex-wrap">
                         <a href="{{ route('sk-templates.create') }}" class="btn btn-primary">Buat Template</a>
-                        <a href="{{ route('sk-templates.settings') }}" class="btn btn-outline-primary">Pengaturan Nomor SK</a>
                     </div>
                 </div>
             </div>
@@ -219,6 +218,7 @@
                                     <th>Template</th>
                                     <th>Sumber</th>
                                     <th>File</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -234,10 +234,78 @@
                                                 {{ $document->original_filename }}
                                             </a>
                                         </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editSkDocument{{ $document->id }}">
+                                                Edit / Ganti File
+                                            </button>
+                                        </td>
                                     </tr>
+                                    <div class="modal fade" id="editSkDocument{{ $document->id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <form action="{{ route('sk-yayasan.documents.update', $document->id) }}" method="POST" enctype="multipart/form-data">
+                                                    @csrf
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Edit Dokumen SK</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row g-3">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">User</label>
+                                                                <select name="user_id" class="form-select" required>
+                                                                    @foreach($users as $user)
+                                                                        <option value="{{ $user->id }}" {{ (int) $user->id === (int) $document->user_id ? 'selected' : '' }}>
+                                                                            {{ $user->nama_lengkap }} - {{ $user->nama_kelas ?? '-' }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="form-label">Tahun SK</label>
+                                                                <input type="number" name="tahun_sk" class="form-control" min="2000" max="2100" value="{{ $document->tahun_sk }}" required>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="form-label">Template SK</label>
+                                                                <select name="sk_template_id" class="form-select">
+                                                                    <option value="">Tanpa Template</option>
+                                                                    @foreach($templates as $template)
+                                                                        <option value="{{ $template->id }}" {{ (int) ($document->sk_template_id ?? 0) === (int) $template->id ? 'selected' : '' }}>
+                                                                            {{ $template->name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <label class="form-label">File Saat Ini</label>
+                                                                <div>
+                                                                    <a href="{{ route('sk-yayasan.documents.download', $document->id) }}" class="btn btn-sm btn-outline-primary">
+                                                                        {{ $document->original_filename }}
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <label class="form-label">Ganti File Baru</label>
+                                                                <input type="file" name="file_sk" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                                                <small class="text-muted">Opsional. Kosongkan jika hanya ingin mengubah data user, tahun, atau template.</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <form action="{{ route('sk-yayasan.documents.delete', $document->id) }}" method="POST" onsubmit="return confirm('Hapus dokumen SK ini?')" class="me-auto">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-outline-danger">Hapus Dokumen</button>
+                                                        </form>
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                                                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center text-muted py-4">Belum ada dokumen SK yang diupload.</td>
+                                        <td colspan="7" class="text-center text-muted py-4">Belum ada dokumen SK yang diupload.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
