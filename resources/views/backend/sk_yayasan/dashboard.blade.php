@@ -75,7 +75,7 @@
                                     <tr>
                                         <td>
                                             <div class="fw-semibold">{{ $template->name }}</div>
-                                            <small class="text-muted">{{ $template->description ?: '-' }}</small>
+                                            {{-- <small class="text-muted">{{ $template->description ?: '-' }}</small> --}}
                                         </td>
                                         <td>{!! $template->is_active ? '<span class="badge bg-success">Aktif</span>' : '<span class="badge bg-secondary">Nonaktif</span>' !!}</td>
                                         <td>{{ strtoupper($template->paper_size ?: 'A4') }} / {{ ucfirst($template->orientation ?: 'portrait') }}</td>
