@@ -145,7 +145,7 @@
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">Import Banyak File SK</h5>
-                    <small class="text-muted">Sistem akan mencocokkan nama file ke user berdasarkan nama lengkap, NIP, NUPTK, atau NIS yang ada di nama file.</small>
+                    <small class="text-muted">Sistem akan mencocokkan nama file ke user berdasarkan nama user, EWANUGK/NIS, NIP, atau NUPTK yang ada di nama file.</small>
                 </div>
                 <div class="card-body">
                     @if($importResult)
@@ -192,7 +192,7 @@
                             <div class="col-12">
                                 <label class="form-label">File SK Banyak User</label>
                                 <input type="file" name="files[]" class="form-control" accept=".pdf,.jpg,.jpeg,.png" multiple required>
-                                <small class="text-muted">Contoh nama file yang mudah dicocokkan: <code>sk-heru-agung-nugroho-2026.pdf</code> atau mengandung NIP/NUPTK/NIS.</small>
+                                <small class="text-muted">Contoh nama file yang mudah dicocokkan: <code>sk-heru-agung-nugroho-2026.pdf</code> atau <code>sk-3403880330200200.pdf</code> jika nama file memakai EWANUGK/NIS.</small>
                             </div>
                         </div>
                         <div class="mt-3">

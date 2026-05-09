@@ -197,16 +197,15 @@ class SkYayasanDashboardController extends Controller
         $matches = [];
 
         foreach ($users as $user) {
-            foreach ($this->userMatchTokens($user) as $field => $token) {
-                if ($token === '' || !str_contains($normalizedFilename, $token)) {
+            foreach ($this->userMatchTokens($user) as $candidate) {
+                if ($candidate['token'] === '' || !str_contains($normalizedFilename, $candidate['token'])) {
                     continue;
                 }
 
-                $score = strlen($token) + ($field === 'nama_lengkap' ? 100 : 0);
                 $matches[] = [
                     'user' => $user,
-                    'field' => $field,
-                    'score' => $score,
+                    'field' => $candidate['field'],
+                    'score' => $candidate['score'] + strlen($candidate['token']),
                 ];
             }
         }
@@ -229,16 +228,53 @@ class SkYayasanDashboardController extends Controller
 
     protected function userMatchTokens($user): array
     {
-        $tokens = [
-            'nama_lengkap' => $this->normalizeMatchToken((string) ($user->nama_lengkap ?? '')),
-            'nis' => $this->normalizeMatchToken((string) ($user->nis ?? '')),
-            'nuptk' => $this->normalizeMatchToken((string) ($user->nuptk ?? '')),
-            'nip' => $this->normalizeMatchToken((string) ($user->nip ?? '')),
-        ];
+        $candidates = [];
 
-        return array_filter($tokens, function ($token) {
-            return strlen($token) >= 4;
-        });
+        $fullName = $this->normalizeMatchToken((string) ($user->nama_lengkap ?? ''));
+        if (strlen($fullName) >= 6) {
+            $candidates[] = ['field' => 'nama_user', 'token' => $fullName, 'score' => 900];
+        }
+
+        $nameParts = preg_split('/\s+/', strtolower(Str::ascii((string) ($user->nama_lengkap ?? '')))) ?: [];
+        $nameParts = array_values(array_filter(array_map(function ($part) {
+            return preg_replace('/[^a-z0-9]/', '', $part) ?: '';
+        }, $nameParts), fn ($part) => strlen($part) >= 4));
+
+        foreach ($nameParts as $part) {
+            $candidates[] = ['field' => 'nama_user', 'token' => $part, 'score' => 180];
+        }
+
+        for ($index = 0; $index < count($nameParts) - 1; $index++) {
+            $pair = $nameParts[$index] . $nameParts[$index + 1];
+            if (strlen($pair) >= 8) {
+                $candidates[] = ['field' => 'nama_user', 'token' => $pair, 'score' => 420];
+            }
+        }
+
+        $ewanugk = $this->normalizeMatchToken((string) ($user->nis ?? ''));
+        if (strlen($ewanugk) >= 4) {
+            $candidates[] = ['field' => 'ewanugk', 'token' => $ewanugk, 'score' => 1000];
+        }
+
+        $nuptk = $this->normalizeMatchToken((string) ($user->nuptk ?? ''));
+        if (strlen($nuptk) >= 4) {
+            $candidates[] = ['field' => 'nuptk', 'token' => $nuptk, 'score' => 700];
+        }
+
+        $nip = $this->normalizeMatchToken((string) ($user->nip ?? ''));
+        if (strlen($nip) >= 4) {
+            $candidates[] = ['field' => 'nip', 'token' => $nip, 'score' => 700];
+        }
+
+        $uniqueCandidates = [];
+        foreach ($candidates as $candidate) {
+            $key = $candidate['field'] . ':' . $candidate['token'];
+            if (!isset($uniqueCandidates[$key]) || $candidate['score'] > $uniqueCandidates[$key]['score']) {
+                $uniqueCandidates[$key] = $candidate;
+            }
+        }
+
+        return array_values($uniqueCandidates);
     }
 
     protected function normalizeMatchToken(string $value): string
