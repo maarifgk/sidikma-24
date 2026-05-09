@@ -221,7 +221,15 @@
                                 </select>
                                 <small class="text-muted">Nomor SK akan mengikuti urutan daftar user yang dipilih pada kotak ini, berdasarkan pengaturan periode. Filter periode dan status di atas juga berlaku di sini.</small>
                             </div>
-                            <button type="submit" class="btn btn-warning w-100">Generate PDF Banyak User</button>
+                            <div class="mb-3">
+                                <label class="form-label">Mode Hasil Batch</label>
+                                <select name="output_mode" class="form-select">
+                                    <option value="combined">1 PDF gabungan</option>
+                                    <option value="zip">ZIP berisi PDF terpisah</option>
+                                </select>
+                                <small class="text-muted">Folder unduhan dikirim sebagai file ZIP karena browser tidak bisa mengunduh folder langsung.</small>
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100">Generate Batch</button>
                         </form>
                         <a href="{{ route('sk-templates.settings') }}" class="btn btn-outline-dark">Pengaturan SK Yayasan</a>
                         <a href="{{ route('sk-templates.edit', $template) }}" class="btn btn-outline-primary">Edit Template</a>

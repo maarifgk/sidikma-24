@@ -272,16 +272,18 @@ class SkTemplateController extends Controller
             'tahun_sk' => 'nullable|integer|min:2000|max:2100',
             'nomor_mulai' => 'nullable|integer|min:1|max:999999',
             'nomor_text' => 'nullable|string|max:255',
+            'output_mode' => 'nullable|string|in:combined,zip',
         ]);
 
         $orderedIds = array_values(array_unique(array_map('intval', $validated['user_ids'])));
         $generateYear = $this->sanitizeGenerateYear($validated['tahun_sk'] ?? null);
         $startNumberOverride = $this->sanitizeStartNumber($validated['nomor_mulai'] ?? null);
         $nomorTextOverride = $this->sanitizeNomorText($validated['nomor_text'] ?? null);
+        $outputMode = $validated['output_mode'] ?? 'combined';
         $users = $this->orderedTemplateUsers($orderedIds);
         abort_if($users->isEmpty(), 404);
 
-        [$combinedHtml, $documentTitle] = DB::transaction(function () use ($orderedIds, $users, $skTemplate, $generateYear, $startNumberOverride, $nomorTextOverride) {
+        [$documents, $documentTitle] = DB::transaction(function () use ($orderedIds, $users, $skTemplate, $generateYear, $startNumberOverride, $nomorTextOverride) {
             $periodIds = $users->pluck('periode')->filter()->map(fn ($value) => (int) $value)->unique()->values()->all();
             $settings = SkYayasanSetting::query()
                 ->whereIn('periode_id', $periodIds)
@@ -290,17 +292,23 @@ class SkTemplateController extends Controller
                 ->keyBy('periode_id');
 
             $counters = [];
-            $htmlParts = [];
+            $documents = [];
 
             foreach ($users as $user) {
                 $periodId = (int) ($user->periode ?? 0);
                 $setting = $this->resolveNumberSettingForPeriod($periodId, $settings, true);
                 $currentNumber = $counters[$periodId] ?? ($startNumberOverride ?: max((int) $setting->nomor_awal, (int) $setting->nomor_berikutnya));
                 $generatedSkNumber = $this->formatSkNumber($setting, $currentNumber, $user, $generateYear, $nomorTextOverride);
+                $documentTitle = $this->renderText($skTemplate->document_title, $user, ['nomor_sk' => $generatedSkNumber])
+                    ?: ($skTemplate->name ?: 'SK Yayasan');
 
-                $htmlParts[] = $this->renderTemplate($skTemplate, $user, [
-                    'nomor_sk' => $generatedSkNumber,
-                ]);
+                $documents[] = [
+                    'title' => $documentTitle,
+                    'filename' => $this->batchDocumentFilename($documentTitle),
+                    'html' => $this->renderTemplate($skTemplate, $user, [
+                        'nomor_sk' => $generatedSkNumber,
+                    ]),
+                ];
 
                 $counters[$periodId] = $currentNumber + 1;
             }
@@ -312,10 +320,19 @@ class SkTemplateController extends Controller
             }
 
             return [
-                implode('<div style="page-break-after: always;"></div>', $htmlParts),
+                $documents,
                 ($skTemplate->name ?: 'SK Yayasan') . ' Batch ' . now()->format('Ymd-His'),
             ];
         });
+
+        if ($outputMode === 'zip') {
+            return $this->downloadBatchZip($skTemplate, $documents, $documentTitle);
+        }
+
+        $combinedHtml = implode(
+            '<div style="page-break-after: always;"></div>',
+            array_map(fn (array $document) => $document['html'], $documents)
+        );
 
         $pdf = Pdf::loadView('backend.sk_templates.pdf', [
             'title' => $documentTitle,
@@ -324,6 +341,47 @@ class SkTemplateController extends Controller
         ])->setPaper($skTemplate->paper_size ?: 'A4', $skTemplate->orientation === 'landscape' ? 'landscape' : 'portrait');
 
         return $pdf->stream(Str::slug($documentTitle ?: $skTemplate->name ?: 'template-sk-batch') . '.pdf');
+    }
+
+    protected function downloadBatchZip(SkTemplate $skTemplate, array $documents, string $documentTitle)
+    {
+        $tempDirectory = storage_path('app/tmp');
+        if (!is_dir($tempDirectory)) {
+            mkdir($tempDirectory, 0775, true);
+        }
+
+        $zipPath = tempnam($tempDirectory, 'sk-batch-');
+        if ($zipPath === false) {
+            abort(500, 'Gagal menyiapkan arsip ZIP.');
+        }
+
+        @unlink($zipPath);
+        $zipPath .= '.zip';
+
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            abort(500, 'Gagal membuat arsip ZIP.');
+        }
+
+        $usedFilenames = [];
+        foreach ($documents as $document) {
+            $pdf = Pdf::loadView('backend.sk_templates.pdf', [
+                'title' => $document['title'],
+                'html' => $document['html'],
+                'customCss' => $this->resolvedTemplateCss($skTemplate),
+            ])->setPaper($skTemplate->paper_size ?: 'A4', $skTemplate->orientation === 'landscape' ? 'landscape' : 'portrait');
+
+            $filename = $this->uniqueZipFilename($document['filename'], $usedFilenames);
+            $zip->addFromString($filename, $pdf->output());
+        }
+
+        $zip->close();
+
+        return response()->download(
+            $zipPath,
+            Str::slug($documentTitle ?: $skTemplate->name ?: 'template-sk-batch') . '.zip',
+            ['Content-Type' => 'application/zip']
+        )->deleteFileAfterSend(true);
     }
 
     protected function ensureRoleOne(): void
@@ -1081,6 +1139,30 @@ CSS;
     protected function renderTemplate(SkTemplate $template, $user, array $overrides = []): string
     {
         return strtr($this->resolvedTemplateContent($template), $this->replacementMap($user, true, $overrides));
+    }
+
+    protected function batchDocumentFilename(string $documentTitle): string
+    {
+        $slug = Str::slug($documentTitle);
+
+        return ($slug !== '' ? $slug : 'template-sk') . '.pdf';
+    }
+
+    protected function uniqueZipFilename(string $filename, array &$usedFilenames): string
+    {
+        $extension = pathinfo($filename, PATHINFO_EXTENSION) ?: 'pdf';
+        $baseName = pathinfo($filename, PATHINFO_FILENAME);
+        $candidate = $baseName . '.' . $extension;
+        $suffix = 1;
+
+        while (isset($usedFilenames[$candidate])) {
+            $suffix++;
+            $candidate = $baseName . '-' . $suffix . '.' . $extension;
+        }
+
+        $usedFilenames[$candidate] = true;
+
+        return $candidate;
     }
 
     protected function resolvedTemplateContent(SkTemplate $template): string
