@@ -470,7 +470,7 @@
     }
 
     function formatText(value) {
-        return replacePlaceholders(escapeHtml(value || '')).replace(/\r\n|\n|\r/g, '<br>');
+        return replacePlaceholders(escapeHtml(value || '')).replace(/\r|\r/g, '<br>');
     }
 
     function formatAttr(value) {
