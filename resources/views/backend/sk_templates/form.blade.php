@@ -496,8 +496,8 @@
             .map(item => `<li>${formatText(item)}</li>`)
             .join('');
 
-        // Provide defaults if dimensions not computed yet
-        logoDimensions = logoDimensions || { cell_width: 106, wrap_width: 96, wrap_height: 96, image_width: 96, image_height: 96 };
+        // Provide defaults if dimensions not computed yet.
+        logoDimensions = logoDimensions || { cell_width: 238, wrap_width: 220, wrap_height: 110, image_width: 220, image_height: 110 };
 
         return `
             <div class="document">
@@ -590,11 +590,9 @@
 
     function computeLogoDisplayDimensions(src) {
         return new Promise((resolve) => {
-            // Match server-side preferences: prefer wider rectangular logo
-            const maxW = 220;
-            const maxH = 100;
+            const defaultDimensions = { cell_width: 238, wrap_width: 220, wrap_height: 110, image_width: 220, image_height: 110 };
             if (!src) {
-                resolve({ cell_width: 106, wrap_width: 96, wrap_height: 96, image_width: 96, image_height: 96 });
+                resolve(defaultDimensions);
                 return;
             }
 
@@ -602,13 +600,28 @@
             img.onload = function () {
                 const sourceWidth = img.naturalWidth || 96;
                 const sourceHeight = img.naturalHeight || 96;
+                const aspectRatio = sourceHeight > 0 ? (sourceWidth / sourceHeight) : 1;
+                let maxW = 138;
+                let maxH = 118;
+                let cellPadding = 14;
+
+                if (aspectRatio >= 1.3) {
+                    maxW = 250;
+                    maxH = 118;
+                    cellPadding = 18;
+                } else if (aspectRatio <= 0.85) {
+                    maxW = 108;
+                    maxH = 118;
+                    cellPadding = 12;
+                }
+
                 const ratio = Math.min(maxW / sourceWidth, maxH / sourceHeight);
                 const imageWidth = Math.max(1, Math.round(sourceWidth * ratio));
                 const imageHeight = Math.max(1, Math.round(sourceHeight * ratio));
                 const wrapWidth = imageWidth;
                 const wrapHeight = imageHeight;
                 resolve({
-                    cell_width: wrapWidth + 10,
+                    cell_width: wrapWidth + cellPadding,
                     wrap_width: wrapWidth,
                     wrap_height: wrapHeight,
                     image_width: imageWidth,
@@ -617,7 +630,7 @@
             };
 
             img.onerror = function () {
-                resolve({ cell_width: 106, wrap_width: 96, wrap_height: 96, image_width: 96, image_height: 96 });
+                resolve(defaultDimensions);
             };
 
             // Ensure data URIs and same-origin images load

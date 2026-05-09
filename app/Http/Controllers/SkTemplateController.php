@@ -233,12 +233,9 @@ class SkTemplateController extends Controller
 
         $rendered = $this->renderTemplate($skTemplate, $user, ['nomor_sk' => $skNumber]);
 
-    // Remove header logo markup temporarily for preview (keep empty wrapper to preserve layout)
-    $renderedWithoutLogo = preg_replace('/(<div[^>]*class=["\']?[^>"\']*header-logo-wrap[^>"\']*["\']?[^>]*>).*?(<\/div>)/is', '$1$2', $rendered);
-
         return view('backend.sk_templates.preview', [
             'title' => $this->renderText($skTemplate->document_title, $user, ['nomor_sk' => $skNumber]),
-            'html' => $renderedWithoutLogo,
+            'html' => $rendered,
             'customCss' => $skTemplate->custom_css,
         ]);
     }
@@ -256,12 +253,9 @@ class SkTemplateController extends Controller
 
         $rendered = $this->renderTemplate($skTemplate, $user, ['nomor_sk' => $skNumber]);
 
-    // Remove header logo markup temporarily for PDF output (keep empty wrapper to preserve layout)
-    $renderedWithoutLogo = preg_replace('/(<div[^>]*class=["\']?[^>"\']*header-logo-wrap[^>"\']*["\']?[^>]*>).*?(<\/div>)/is', '$1$2', $rendered);
-
         $pdf = Pdf::loadView('backend.sk_templates.pdf', [
             'title' => $documentTitle,
-            'html' => $renderedWithoutLogo,
+            'html' => $rendered,
             'customCss' => $skTemplate->custom_css,
         ])->setPaper($skTemplate->paper_size ?: 'A4', $skTemplate->orientation === 'landscape' ? 'landscape' : 'portrait');
 
@@ -1347,23 +1341,32 @@ CSS;
     protected function logoDisplayDimensions(string $logoUrl): array
     {
         [$sourceWidth, $sourceHeight] = $this->imageDimensionsFromSource($logoUrl);
+        $aspectRatio = $sourceHeight > 0 ? ($sourceWidth / $sourceHeight) : 1;
 
-    // Prefer a rectangular (wider) display for kop logos in generated documents
-    // Increase max width and reduce max height so logos render wider rather than square.
-    $maxWidth = 220;
-    $maxHeight = 100;
+        if ($aspectRatio >= 1.3) {
+            $maxWidth = 250;
+            $maxHeight = 118;
+            $cellPadding = 18;
+        } elseif ($aspectRatio <= 0.85) {
+            $maxWidth = 108;
+            $maxHeight = 118;
+            $cellPadding = 12;
+        } else {
+            $maxWidth = 138;
+            $maxHeight = 118;
+            $cellPadding = 14;
+        }
 
         $ratio = min($maxWidth / $sourceWidth, $maxHeight / $sourceHeight);
 
         $imageWidth = max(1, (int) round($sourceWidth * $ratio));
         $imageHeight = max(1, (int) round($sourceHeight * $ratio));
 
-        // No extra padding — wrapper equals image size
         $wrapWidth = $imageWidth;
         $wrapHeight = $imageHeight;
 
         return [
-            'cell_width' => $wrapWidth + 10,
+            'cell_width' => $wrapWidth + $cellPadding,
             'wrap_width' => $wrapWidth,
             'wrap_height' => $wrapHeight,
             'image_width' => $imageWidth,
@@ -1398,8 +1401,39 @@ CSS;
             }
         }
 
-        // Fallback to a smaller default so unknown images don't render excessively large
-        return [96, 96];
+        $localImagePath = $this->resolveImagePath($source);
+        if ($localImagePath && is_file($localImagePath)) {
+            $imageSize = @getimagesize($localImagePath);
+            if ($imageSize && !empty($imageSize[0]) && !empty($imageSize[1])) {
+                return [max(1, (float) $imageSize[0]), max(1, (float) $imageSize[1])];
+            }
+        }
+
+        // Use a landscape-leaning fallback so unknown logo URLs are not forced into a square box.
+        return [220, 110];
+    }
+
+    protected function resolveImagePath(string $source): ?string
+    {
+        $source = trim(html_entity_decode($source));
+        if ($source === '') {
+            return null;
+        }
+
+        $path = parse_url($source, PHP_URL_PATH);
+        if (is_string($path) && $path !== '') {
+            $normalizedPath = ltrim($path, '/');
+            if (Str::startsWith($normalizedPath, 'storage/')) {
+                return public_path($normalizedPath);
+            }
+        }
+
+        $normalizedSource = ltrim($source, '/');
+        if (Str::startsWith($normalizedSource, 'storage/')) {
+            return public_path($normalizedSource);
+        }
+
+        return null;
     }
 
     protected function renderHeaderLogoMarkup(string $source, array $logoDimensions): string
@@ -1407,8 +1441,7 @@ CSS;
         $imageWidth = $this->numericValue($logoDimensions['image_width']);
         $imageHeight = $this->numericValue($logoDimensions['image_height']);
 
-        // Render a fixed-size image (DomPDF renders fixed pixel sizes reliably)
-        return '\n<img src="' . $this->attributeValue($source) . '" alt="Logo" style="display:block;margin:0 auto;width:' . $imageWidth . 'px;height:' . $imageHeight . 'px;">\n';
+        return '\n<img src="' . $this->attributeValue($source) . '" alt="Logo" class="header-logo" style="display:block;margin:0 auto;width:' . $imageWidth . 'px;height:' . $imageHeight . 'px;object-fit:contain;">\n';
     }
 
     protected function fontSizeValue($value, float $default): string
