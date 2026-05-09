@@ -1461,7 +1461,7 @@ CSS;
         $imageWidth = $this->numericValue($logoDimensions['image_width']);
         $imageHeight = $this->numericValue($logoDimensions['image_height']);
 
-        return '\n<img src="' . $this->attributeValue($source) . '" alt="Logo" class="header-logo" style="display:block;margin:0 auto;width:' . $imageWidth . 'px;height:' . $imageHeight . 'px;object-fit:contain;">\n';
+        return '<img src="' . $this->attributeValue($source) . '" alt="Logo" class="header-logo" style="display:block;margin:0 auto;width:' . $imageWidth . 'px;height:' . $imageHeight . 'px;object-fit:contain;">';
     }
 
     protected function fontSizeValue($value, float $default): string
