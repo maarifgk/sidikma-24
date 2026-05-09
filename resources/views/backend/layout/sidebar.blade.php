@@ -163,9 +163,9 @@
                 </a>
             </li>
             <li class="menu-item">
-                <a href="{{ route('sk-templates.index') }}" class="menu-link ">
+                <a href="{{ route('sk-yayasan.index') }}" class="menu-link ">
                     <i class="fa-solid fa-file-pdf"></i>
-                    <div style="margin-left: 8px;">Template SK</div>
+                    <div style="margin-left: 8px;">SK Yayasan</div>
                 </a>
             </li>
             <li class="menu-item">

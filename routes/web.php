@@ -48,6 +48,7 @@ use App\Http\Controllers\MobileRole2Controller;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceAdminController;
 use App\Http\Controllers\SkTemplateController;
+use App\Http\Controllers\SkYayasanDashboardController;
 
 
 
@@ -185,6 +186,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/sk-templates/{skTemplate}/preview/{userId}', [SkTemplateController::class, 'preview'])->name('sk-templates.preview');
     Route::get('/sk-templates/{skTemplate}/pdf/{userId}', [SkTemplateController::class, 'pdf'])->name('sk-templates.pdf');
     Route::post('/sk-templates/{skTemplate}/pdf-batch', [SkTemplateController::class, 'batchPdf'])->name('sk-templates.batch-pdf');
+    Route::get('/sk-yayasan', [SkYayasanDashboardController::class, 'index'])->name('sk-yayasan.index');
+    Route::post('/sk-yayasan/upload-single', [SkYayasanDashboardController::class, 'uploadSingle'])->name('sk-yayasan.upload-single');
+    Route::post('/sk-yayasan/import', [SkYayasanDashboardController::class, 'import'])->name('sk-yayasan.import');
+    Route::get('/sk-yayasan/documents/{document}/download', [SkYayasanDashboardController::class, 'download'])->name('sk-yayasan.documents.download');
     //sarpras
     Route::get('/sarpras', [SarprasController::class, 'view'])->name('sarpras');
     Route::get('/sarpras/add', [SarprasController::class, 'add'])->name('sarpras.add');
