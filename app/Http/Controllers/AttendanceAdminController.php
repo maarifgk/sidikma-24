@@ -20,53 +20,126 @@ class AttendanceAdminController extends Controller
         $this->validator = $validator;
     }
 
-    protected function ensureRoleThree(): void
+    protected function ensurePresensiAdmin(): void
     {
-        abort_unless(request()->user() && (int) request()->user()->role === 3, 403);
+        abort_unless(request()->user() && in_array((int) request()->user()->role, [1, 3], true), 403);
     }
 
-    protected function kelasId()
+    protected function isRoleOne(): bool
     {
-        return request()->user()->kelas_id;
+        return request()->user() && (int) request()->user()->role === 1;
     }
 
-    protected function usersQuery()
+    protected function kelasId(): ?int
     {
-        return DB::table('users')
-            ->where('role', 2)
-            ->where('kelas_id', $this->kelasId());
+        return request()->user() ? (int) request()->user()->kelas_id : null;
+    }
+
+    protected function selectedKelasId(?Request $request = null, bool $fallbackToFirstForRoleOne = false): ?int
+    {
+        $request ??= request();
+
+        if (!$this->isRoleOne()) {
+            return $this->kelasId();
+        }
+
+        if ($request->filled('kelas_id')) {
+            $kelasId = (int) $request->input('kelas_id');
+
+            if (DB::table('kelas')->where('id', $kelasId)->exists()) {
+                return $kelasId;
+            }
+        }
+
+        if ($fallbackToFirstForRoleOne) {
+            $kelasId = DB::table('kelas')->orderBy('nama_kelas')->value('id');
+
+            return $kelasId ? (int) $kelasId : null;
+        }
+
+        return null;
+    }
+
+    protected function applyKelasScope($query, string $column, ?int $kelasId = null)
+    {
+        $resolvedKelasId = $this->isRoleOne() ? $kelasId : $this->kelasId();
+
+        if ($resolvedKelasId) {
+            $query->where($column, $resolvedKelasId);
+        }
+
+        return $query;
+    }
+
+    protected function kelasOptions()
+    {
+        return DB::table('kelas')
+            ->select('id', 'nama_kelas')
+            ->orderBy('nama_kelas')
+            ->get();
+    }
+
+    protected function selectedKelasName(?int $kelasId): ?string
+    {
+        if (!$kelasId) {
+            return null;
+        }
+
+        return DB::table('kelas')->where('id', $kelasId)->value('nama_kelas');
+    }
+
+    protected function filtersMeta(?int $selectedKelasId): array
+    {
+        return [
+            'canSelectKelas' => $this->isRoleOne(),
+            'classes' => $this->isRoleOne() ? $this->kelasOptions() : collect(),
+            'selectedKelasId' => $selectedKelasId,
+            'selectedKelasName' => $this->selectedKelasName($selectedKelasId),
+        ];
+    }
+
+    protected function usersQuery(?int $kelasId = null)
+    {
+        $query = DB::table('users')
+            ->select('users.*', 'kelas.nama_kelas')
+            ->leftJoin('kelas', 'kelas.id', '=', 'users.kelas_id')
+            ->where('users.role', 2);
+
+        return $this->applyKelasScope($query, 'users.kelas_id', $kelasId);
     }
 
     public function dashboard()
     {
-        $this->ensureRoleThree();
+        $this->ensurePresensiAdmin();
 
         $today = today()->toDateString();
-        $setting = $this->validator->settingForKelas($this->kelasId());
-        $todayAttendances = Attendance::where('kelas_id', $this->kelasId())
+        $selectedKelasId = $this->selectedKelasId();
+        $setting = $selectedKelasId ? $this->validator->settingForKelas($selectedKelasId) : null;
+
+        $todayAttendances = $this->applyKelasScope(Attendance::query(), 'kelas_id', $selectedKelasId)
             ->whereDate('attendance_date', $today)
             ->where('status', '!=', 'ditolak');
 
-        $approvedPermissionsToday = AttendancePermission::where('kelas_id', $this->kelasId())
+        $approvedPermissionsToday = $this->applyKelasScope(AttendancePermission::query(), 'kelas_id', $selectedKelasId)
             ->where('status', 'approved')
             ->whereDate('start_date', '<=', $today)
             ->whereDate('end_date', '>=', $today);
 
         $presentUserCount = (clone $todayAttendances)->distinct('user_id')->count('user_id');
         $permissionUserCount = (clone $approvedPermissionsToday)->distinct('user_id')->count('user_id');
-        $totalUsers = $this->usersQuery()->count();
+        $totalUsers = $this->usersQuery($selectedKelasId)->count();
 
-        $chart = collect(range(6, 0))->map(function ($dayOffset) {
+        $chart = collect(range(6, 0))->map(function ($dayOffset) use ($selectedKelasId) {
             $date = today()->subDays($dayOffset);
 
             return [
                 'date' => $date->format('d/m'),
-                'hadir' => Attendance::where('kelas_id', $this->kelasId())
+                'hadir' => $this->applyKelasScope(Attendance::query(), 'kelas_id', $selectedKelasId)
                     ->whereDate('attendance_date', $date)
                     ->whereIn('status', ['hadir', 'terlambat'])
                     ->distinct('user_id')
                     ->count('user_id'),
-                'izin' => AttendancePermission::where('kelas_id', $this->kelasId())
+                'izin' => $this->applyKelasScope(AttendancePermission::query(), 'kelas_id', $selectedKelasId)
                     ->where('status', 'approved')
                     ->whereDate('start_date', '<=', $date)
                     ->whereDate('end_date', '>=', $date)
@@ -74,18 +147,18 @@ class AttendanceAdminController extends Controller
             ];
         });
 
-        $latestActivities = Attendance::query()
-            ->select('attendances.*', 'users.nama_lengkap')
+        $latestActivities = $this->applyKelasScope(Attendance::query(), 'attendances.kelas_id', $selectedKelasId)
+            ->select('attendances.*', 'users.nama_lengkap', 'kelas.nama_kelas')
             ->leftJoin('users', 'users.id', '=', 'attendances.user_id')
-            ->where('attendances.kelas_id', $this->kelasId())
+            ->leftJoin('kelas', 'kelas.id', '=', 'attendances.kelas_id')
             ->orderByRaw('COALESCE(attendances.check_out_at, attendances.check_in_at, attendances.checked_at) DESC')
             ->limit(8)
             ->get();
 
-        $attendanceMapPoints = Attendance::query()
-            ->select('attendances.*', 'users.nama_lengkap')
+        $attendanceMapPoints = $this->applyKelasScope(Attendance::query(), 'attendances.kelas_id', $selectedKelasId)
+            ->select('attendances.*', 'users.nama_lengkap', 'kelas.nama_kelas')
             ->leftJoin('users', 'users.id', '=', 'attendances.user_id')
-            ->where('attendances.kelas_id', $this->kelasId())
+            ->leftJoin('kelas', 'kelas.id', '=', 'attendances.kelas_id')
             ->whereDate('attendances.attendance_date', $today)
             ->where(function ($query) {
                 $query
@@ -126,6 +199,7 @@ class AttendanceAdminController extends Controller
                 return [
                     'user_id' => $attendance->user_id,
                     'name' => $attendance->nama_lengkap ?? '-',
+                    'school_name' => $attendance->nama_kelas ?? '-',
                     'status' => $attendance->status,
                     'check_label' => $checkLabel,
                     'checked_at' => $checkedAt ? $checkedAt->format('H:i') : '-',
@@ -135,8 +209,7 @@ class AttendanceAdminController extends Controller
                 ];
             });
 
-        return view('backend.presensi.dashboard', [
-            'setting' => $setting,
+        return view('backend.presensi.dashboard', array_merge([
             'stats' => [
                 'total_hadir' => $presentUserCount,
                 'hadir' => (clone $todayAttendances)->where('status', 'hadir')->distinct('user_id')->count('user_id'),
@@ -149,30 +222,35 @@ class AttendanceAdminController extends Controller
             'chart' => $chart,
             'latestActivities' => $latestActivities,
             'attendanceMapPoints' => $attendanceMapPoints,
-            'geofencePolygon' => $this->validator->normalizePolygon($setting->geofence_polygon),
-        ]);
+            'geofencePolygon' => $setting ? $this->validator->normalizePolygon($setting->geofence_polygon) : [],
+        ], $this->filtersMeta($selectedKelasId)));
     }
 
     public function settings()
     {
-        $this->ensureRoleThree();
+        $this->ensurePresensiAdmin();
 
-        return view('backend.presensi.settings', [
-            'setting' => $this->validator->settingForKelas($this->kelasId()),
-        ]);
+        $selectedKelasId = $this->selectedKelasId(request(), true);
+
+        return view('backend.presensi.settings', array_merge([
+            'setting' => $this->validator->settingForKelas($selectedKelasId),
+        ], $this->filtersMeta($selectedKelasId)));
     }
 
     public function updateSettings(Request $request)
     {
-        $this->ensureRoleThree();
+        $this->ensurePresensiAdmin();
 
         $request->validate([
+            'kelas_id' => $this->isRoleOne() ? 'required|integer|exists:kelas,id' : 'nullable',
             'check_in_time' => 'required|date_format:H:i',
             'check_out_time' => 'required|date_format:H:i',
             'late_tolerance_minutes' => 'required|integer|min:0|max:240',
             'max_gps_accuracy' => 'nullable|numeric|min:1|max:100',
             'geofence_polygon' => 'nullable|string',
         ]);
+
+        $selectedKelasId = $this->selectedKelasId($request, true);
 
         $maxGpsAccuracy = $request->filled('max_gps_accuracy')
             ? $request->input('max_gps_accuracy')
@@ -192,7 +270,7 @@ class AttendanceAdminController extends Controller
             $polygon = $normalizedPolygon;
         }
 
-        $setting = $this->validator->settingForKelas($this->kelasId());
+        $setting = $this->validator->settingForKelas($selectedKelasId);
         $setting->update([
             'enable_check_in' => $request->boolean('enable_check_in'),
             'enable_check_out' => $request->boolean('enable_check_out'),
@@ -206,33 +284,42 @@ class AttendanceAdminController extends Controller
             'require_selfie' => $request->boolean('require_selfie'),
         ]);
 
-        return redirect()->route('presensi.settings')->with('success', 'Pengaturan presensi berhasil disimpan.');
+        return redirect()->route('presensi.settings', ['kelas_id' => $selectedKelasId])
+            ->with('success', 'Pengaturan presensi berhasil disimpan.');
     }
 
     public function report(Request $request)
     {
-        $this->ensureRoleThree();
+        $this->ensurePresensiAdmin();
 
         return view('backend.presensi.report', $this->reportData($request));
     }
 
     public function exportReport(Request $request)
     {
-        $this->ensureRoleThree();
+        $this->ensurePresensiAdmin();
 
         $data = $this->reportData($request);
         $periodLabel = $this->periodLabel($data['filters']['period']);
         $spreadsheet = new Spreadsheet();
         $attendanceSheet = $spreadsheet->getActiveSheet();
         $attendanceSheet->setTitle('Presensi');
-        $attendanceSheet->fromArray([
-            ['Tanggal', 'Nama', 'Status Masuk', 'Jam Masuk', 'Jam Pulang', 'Lokasi Masuk', 'Lokasi Pulang', 'Keterangan'],
-        ]);
+        $attendanceHeaders = ['Tanggal'];
+        if ($this->isRoleOne()) {
+            $attendanceHeaders[] = 'Sekolah';
+        }
+        $attendanceHeaders = array_merge($attendanceHeaders, ['Nama', 'Status Masuk', 'Jam Masuk', 'Jam Pulang', 'Lokasi Masuk', 'Lokasi Pulang', 'Keterangan']);
+        $attendanceSheet->fromArray([$attendanceHeaders]);
 
         $row = 2;
         foreach ($data['attendances'] as $attendance) {
-            $attendanceSheet->fromArray([[
+            $rowData = [
                 Carbon::parse($attendance->attendance_date)->format('d-m-Y'),
+            ];
+            if ($this->isRoleOne()) {
+                $rowData[] = $attendance->nama_kelas;
+            }
+            $rowData = array_merge($rowData, [
                 $attendance->nama_lengkap,
                 ucfirst($attendance->status),
                 $attendance->check_in_time ? $attendance->check_in_time->format('H:i:s') : '-',
@@ -240,27 +327,37 @@ class AttendanceAdminController extends Controller
                 $this->formatAttendanceLocation($attendance, 'check_in'),
                 $this->formatAttendanceLocation($attendance, 'check_out'),
                 $attendance->combined_note,
-            ]], null, 'A' . $row);
+            ]);
+            $attendanceSheet->fromArray([$rowData], null, 'A' . $row);
             $row++;
         }
 
         $permissionSheet = $spreadsheet->createSheet();
         $permissionSheet->setTitle('Izin');
-        $permissionSheet->fromArray([
-            ['Tanggal Mulai', 'Tanggal Selesai', 'Nama', 'Kategori', 'Status', 'Alasan', 'Catatan Review'],
-        ]);
+        $permissionHeaders = ['Tanggal Mulai', 'Tanggal Selesai'];
+        if ($this->isRoleOne()) {
+            $permissionHeaders[] = 'Sekolah';
+        }
+        $permissionHeaders = array_merge($permissionHeaders, ['Nama', 'Kategori', 'Status', 'Alasan', 'Catatan Review']);
+        $permissionSheet->fromArray([$permissionHeaders]);
 
         $row = 2;
         foreach ($data['permissions'] as $permission) {
-            $permissionSheet->fromArray([[
+            $rowData = [
                 Carbon::parse($permission->start_date)->format('d-m-Y'),
                 Carbon::parse($permission->end_date)->format('d-m-Y'),
+            ];
+            if ($this->isRoleOne()) {
+                $rowData[] = $permission->nama_kelas;
+            }
+            $rowData = array_merge($rowData, [
                 $permission->nama_lengkap,
                 $this->permissionLabel($permission->category),
                 ucfirst($permission->status),
                 $permission->reason,
                 $permission->review_notes,
-            ]], null, 'A' . $row);
+            ]);
+            $permissionSheet->fromArray([$rowData], null, 'A' . $row);
             $row++;
         }
 
@@ -276,46 +373,52 @@ class AttendanceAdminController extends Controller
 
     public function permissions()
     {
-        $this->ensureRoleThree();
+        $this->ensurePresensiAdmin();
 
         $status = request()->input('status', 'pending');
         if (!in_array($status, ['pending', 'approved', 'rejected', 'all'], true)) {
             $status = 'pending';
         }
 
-        $baseQuery = AttendancePermission::where('kelas_id', $this->kelasId());
+        $selectedKelasId = $this->selectedKelasId();
+        $baseQuery = $this->applyKelasScope(AttendancePermission::query(), 'kelas_id', $selectedKelasId);
 
-        $permissions = AttendancePermission::query()
-            ->select('attendance_permissions.*', 'users.nama_lengkap', 'reviewer.nama_lengkap as reviewer_name')
+        $permissions = $this->applyKelasScope(AttendancePermission::query(), 'attendance_permissions.kelas_id', $selectedKelasId)
+            ->select('attendance_permissions.*', 'users.nama_lengkap', 'reviewer.nama_lengkap as reviewer_name', 'kelas.nama_kelas')
             ->leftJoin('users', 'users.id', '=', 'attendance_permissions.user_id')
             ->leftJoin('users as reviewer', 'reviewer.id', '=', 'attendance_permissions.reviewer_id')
-            ->where('attendance_permissions.kelas_id', $this->kelasId())
+            ->leftJoin('kelas', 'kelas.id', '=', 'attendance_permissions.kelas_id')
             ->when($status !== 'all', fn ($query) => $query->where('attendance_permissions.status', $status))
             ->orderByDesc('attendance_permissions.created_at')
             ->get();
 
-        return view('backend.presensi.permissions', [
+        return view('backend.presensi.permissions', array_merge([
             'permissions' => $permissions,
             'status' => $status,
+            'filters' => ['kelasId' => $selectedKelasId],
             'summary' => [
                 'pending' => (clone $baseQuery)->where('status', 'pending')->count(),
                 'approved' => (clone $baseQuery)->where('status', 'approved')->count(),
                 'rejected' => (clone $baseQuery)->where('status', 'rejected')->count(),
                 'all' => (clone $baseQuery)->count(),
             ],
-        ]);
+        ], $this->filtersMeta($selectedKelasId)));
     }
 
     public function updatePermission(Request $request, $id)
     {
-        $this->ensureRoleThree();
+        $this->ensurePresensiAdmin();
 
         $request->validate([
+            'kelas_id' => $this->isRoleOne() ? 'nullable|integer|exists:kelas,id' : 'nullable',
             'status' => 'required|in:approved,rejected',
             'review_notes' => 'nullable|string|max:2000',
         ]);
 
-        $permission = AttendancePermission::where('kelas_id', $this->kelasId())->findOrFail($id);
+        $selectedKelasId = $this->selectedKelasId($request);
+        $permissionQuery = AttendancePermission::query();
+        $this->applyKelasScope($permissionQuery, 'kelas_id', $selectedKelasId);
+        $permission = $permissionQuery->findOrFail($id);
         $permission->update([
             'status' => $request->input('status'),
             'review_notes' => $request->input('review_notes'),
@@ -327,12 +430,16 @@ class AttendanceAdminController extends Controller
             ? 'Pengajuan izin berhasil disetujui.'
             : 'Pengajuan izin berhasil ditolak.';
 
-        return redirect()->route('presensi.permissions', ['status' => $request->input('status')])
+        return redirect()->route('presensi.permissions', [
+            'status' => $request->input('status'),
+            'kelas_id' => $selectedKelasId,
+        ])
             ->with('success', $message);
     }
 
     protected function reportData(Request $request): array
     {
+        $selectedKelasId = $this->selectedKelasId($request);
         $range = $this->resolveReportRange($request);
         $from = $range['from'];
         $to = $range['to'];
@@ -341,10 +448,10 @@ class AttendanceAdminController extends Controller
         $userId = $request->input('user_id');
         $status = $request->input('status');
 
-        $attendances = Attendance::query()
-            ->select('attendances.*', 'users.nama_lengkap')
+        $attendances = $this->applyKelasScope(Attendance::query(), 'attendances.kelas_id', $selectedKelasId)
+            ->select('attendances.*', 'users.nama_lengkap', 'kelas.nama_kelas')
             ->leftJoin('users', 'users.id', '=', 'attendances.user_id')
-            ->where('attendances.kelas_id', $this->kelasId())
+            ->leftJoin('kelas', 'kelas.id', '=', 'attendances.kelas_id')
             ->whereBetween('attendances.attendance_date', [$from, $to])
             ->when($userId, fn ($query) => $query->where('attendances.user_id', $userId))
             ->when(in_array($status, ['hadir', 'terlambat', 'ditolak'], true), fn ($query) => $query->where('attendances.status', $status))
@@ -352,10 +459,10 @@ class AttendanceAdminController extends Controller
             ->orderByRaw('COALESCE(attendances.check_out_at, attendances.check_in_at, attendances.checked_at) DESC')
             ->get();
 
-        $permissions = AttendancePermission::query()
-            ->select('attendance_permissions.*', 'users.nama_lengkap')
+        $permissions = $this->applyKelasScope(AttendancePermission::query(), 'attendance_permissions.kelas_id', $selectedKelasId)
+            ->select('attendance_permissions.*', 'users.nama_lengkap', 'kelas.nama_kelas')
             ->leftJoin('users', 'users.id', '=', 'attendance_permissions.user_id')
-            ->where('attendance_permissions.kelas_id', $this->kelasId())
+            ->leftJoin('kelas', 'kelas.id', '=', 'attendance_permissions.kelas_id')
             ->whereDate('attendance_permissions.start_date', '<=', $to)
             ->whereDate('attendance_permissions.end_date', '>=', $from)
             ->when($userId, fn ($query) => $query->where('attendance_permissions.user_id', $userId))
@@ -365,12 +472,12 @@ class AttendanceAdminController extends Controller
             ->orderByDesc('attendance_permissions.created_at')
             ->get();
 
-        return [
+        return array_merge([
             'attendances' => $attendances,
             'permissions' => $permissions,
-            'users' => $this->usersQuery()->orderBy('nama_lengkap')->get(),
-            'filters' => compact('from', 'to', 'period', 'periodDate', 'userId', 'status'),
-        ];
+            'users' => $this->usersQuery($selectedKelasId)->orderBy('users.nama_lengkap')->get(),
+            'filters' => compact('from', 'to', 'period', 'periodDate', 'userId', 'status') + ['kelasId' => $selectedKelasId],
+        ], $this->filtersMeta($selectedKelasId));
     }
 
     protected function resolveReportRange(Request $request): array

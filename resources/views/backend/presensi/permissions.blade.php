@@ -22,12 +22,47 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 text-white"><b>Pengajuan Izin</b></h4>
-            <small class="text-muted">Role 3 dapat menyetujui atau menolak pengajuan izin guru/pegawai.</small>
+            <small class="text-muted">
+                {{ $canSelectKelas ? 'Dashboard pusat pengajuan izin seluruh sekolah.' : 'Role 3 dapat menyetujui atau menolak pengajuan izin guru/pegawai.' }}
+            </small>
         </div>
-        <a href="{{ route('presensi.dashboard') }}" class="btn btn-outline-primary">
+        <a href="{{ route('presensi.dashboard', $filters['kelasId'] ? ['kelas_id' => $filters['kelasId']] : []) }}" class="btn btn-outline-primary">
             <i class="fa-solid fa-chart-line"></i> Dashboard
         </a>
     </div>
+
+    @if($canSelectKelas)
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="GET" action="{{ route('presensi.permissions') }}" class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Madrasah / Sekolah</label>
+                        <select name="kelas_id" class="form-select">
+                            <option value="">Semua sekolah</option>
+                            @foreach($classes as $class)
+                                <option value="{{ $class->id }}" {{ (string) $filters['kelasId'] === (string) $class->id ? 'selected' : '' }}>
+                                    {{ $class->nama_kelas }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            @foreach(['pending' => 'Menunggu', 'approved' => 'Disetujui', 'rejected' => 'Ditolak', 'all' => 'Semua'] as $value => $label)
+                                <option value="{{ $value }}" {{ $status === $value ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-auto">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-filter"></i> Terapkan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 
     <div class="row g-4 mb-4">
         @foreach([
@@ -37,7 +72,7 @@
             'all' => ['label' => 'Total', 'color' => 'primary'],
         ] as $key => $item)
             <div class="col-md-3">
-                <a href="{{ route('presensi.permissions', ['status' => $key]) }}" class="text-decoration-none">
+                <a href="{{ route('presensi.permissions', array_filter(['status' => $key, 'kelas_id' => $filters['kelasId']])) }}" class="text-decoration-none">
                     <div class="card h-100 {{ $status === $key ? 'border border-' . $item['color'] : '' }}">
                         <div class="card-body d-flex justify-content-between align-items-center">
                             <div>
@@ -60,6 +95,9 @@
                 <thead>
                     <tr>
                         <th>Tanggal</th>
+                        @if($canSelectKelas)
+                            <th>Sekolah</th>
+                        @endif
                         <th>Nama</th>
                         <th>Kategori</th>
                         <th>Status</th>
@@ -75,6 +113,9 @@
                     @forelse($permissions as $permission)
                         <tr>
                             <td>{{ $permission->start_date->format('d-m-Y') }} - {{ $permission->end_date->format('d-m-Y') }}</td>
+                            @if($canSelectKelas)
+                                <td>{{ $permission->nama_kelas ?? '-' }}</td>
+                            @endif
                             <td>{{ $permission->nama_lengkap }}</td>
                             <td>{{ [
                                 'terlambat' => 'Izin Terlambat',
@@ -114,6 +155,9 @@
                                 @if($permission->status === 'pending')
                                     <form action="{{ route('presensi.permissions.update', $permission->id) }}" method="POST" class="permission-review-form">
                                         @csrf
+                                        @if($filters['kelasId'])
+                                            <input type="hidden" name="kelas_id" value="{{ $filters['kelasId'] }}">
+                                        @endif
                                         <div class="input-group input-group-sm mb-2">
                                             <input type="text" name="review_notes" class="form-control" placeholder="Catatan opsional">
                                         </div>
@@ -133,7 +177,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center text-muted">Belum ada pengajuan izin.</td>
+                            <td colspan="{{ $canSelectKelas ? 11 : 10 }}" class="text-center text-muted">Belum ada pengajuan izin.</td>
                         </tr>
                     @endforelse
                 </tbody>

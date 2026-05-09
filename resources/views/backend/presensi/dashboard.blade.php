@@ -27,17 +27,55 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 text-white"><b>Dashboard Presensi</b></h4>
-            <small class="text-muted">Monitoring kehadiran guru dan pegawai hari ini.</small>
+            <small class="text-muted">
+                @if($canSelectKelas)
+                    Monitoring kehadiran guru dan pegawai {{ $selectedKelasName ? 'untuk ' . $selectedKelasName : 'seluruh sekolah' }} hari ini.
+                @else
+                    Monitoring kehadiran guru dan pegawai hari ini.
+                @endif
+            </small>
         </div>
         <div>
-            <a href="{{ route('presensi.report') }}" class="btn btn-outline-primary me-2">
+            <a href="{{ route('presensi.report', $selectedKelasId ? ['kelas_id' => $selectedKelasId] : []) }}" class="btn btn-outline-primary me-2">
                 <i class="fa-solid fa-file-lines"></i> Laporan
             </a>
-            <a href="{{ route('presensi.settings') }}" class="btn btn-primary">
+            <a href="{{ route('presensi.settings', $selectedKelasId ? ['kelas_id' => $selectedKelasId] : []) }}" class="btn btn-primary">
                 <i class="fa-solid fa-gear"></i> Pengaturan
             </a>
         </div>
     </div>
+
+    @if($canSelectKelas)
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="GET" action="{{ route('presensi.dashboard') }}" class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label">Madrasah / Sekolah</label>
+                        <select name="kelas_id" class="form-select">
+                            <option value="">Semua sekolah</option>
+                            @foreach($classes as $class)
+                                <option value="{{ $class->id }}" {{ (string) $selectedKelasId === (string) $class->id ? 'selected' : '' }}>
+                                    {{ $class->nama_kelas }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-auto">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-filter"></i> Terapkan
+                        </button>
+                    </div>
+                    @if($selectedKelasId)
+                        <div class="col-md-auto">
+                            <a href="{{ route('presensi.dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fa-solid fa-rotate-left"></i> Reset
+                            </a>
+                        </div>
+                    @endif
+                </form>
+            </div>
+        </div>
+    @endif
 
     <div class="row g-4 mb-4">
         @foreach([
@@ -88,6 +126,9 @@
                         <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
                             <div>
                                 <div class="fw-semibold">{{ $activity->nama_lengkap ?? '-' }}</div>
+                                @if($canSelectKelas)
+                                    <small class="d-block text-muted">{{ $activity->nama_kelas ?? '-' }}</small>
+                                @endif
                                 <small class="text-muted">
                                     Masuk {{ $activity->check_in_time ? $activity->check_in_time->format('H:i') : '-' }}
                                     • Pulang {{ $activity->check_out_time ? $activity->check_out_time->format('H:i') : '-' }}
@@ -125,6 +166,9 @@
                                             <div class="d-flex justify-content-between align-items-start gap-3">
                                                 <div>
                                                     <div class="fw-semibold">{{ $point['name'] }}</div>
+                                                    @if($canSelectKelas)
+                                                        <small class="d-block text-muted">{{ $point['school_name'] ?? '-' }}</small>
+                                                    @endif
                                                     <small class="text-muted">
                                                         {{ $point['check_label'] }} • {{ $point['checked_at'] }}
                                                     </small>

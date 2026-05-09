@@ -41,6 +41,34 @@
             </li>
             <li class="menu-item">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="fa-solid fa-location-crosshairs"></i>
+                    <div style="margin-left: 8px;">Presensi</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="{{ route('presensi.dashboard') }}" class="menu-link">
+                            <div>Dashboard Presensi</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{ route('presensi.report') }}" class="menu-link">
+                            <div>Laporan Presensi</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{ route('presensi.permissions') }}" class="menu-link">
+                            <div>Pengajuan Izin</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{ route('presensi.settings') }}" class="menu-link">
+                            <div>Pengaturan Presensi</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="fa-brands fa-unity"></i>
                     <div style="margin-left: 8px;">Master data</div>
                 </a>

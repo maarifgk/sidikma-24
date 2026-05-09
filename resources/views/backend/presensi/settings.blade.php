@@ -42,12 +42,42 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1" style="color: white"><b>Pengaturan Presensi</b></h4>
-            <small class="text-muted">Pengaturan ini hanya berlaku untuk sekolah/madrasah admin login.</small>
+            <small class="text-muted">
+                @if($canSelectKelas)
+                    Pengaturan presensi untuk {{ $selectedKelasName ?? 'sekolah terpilih' }}.
+                @else
+                    Pengaturan ini hanya berlaku untuk sekolah/madrasah admin login.
+                @endif
+            </small>
         </div>
-        <a href="{{ route('presensi.dashboard') }}" class="btn btn-outline-primary">
+        <a href="{{ route('presensi.dashboard', $selectedKelasId ? ['kelas_id' => $selectedKelasId] : []) }}" class="btn btn-outline-primary">
             <i class="fa-solid fa-chart-line"></i> Dashboard
         </a>
     </div>
+
+    @if($canSelectKelas)
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="GET" action="{{ route('presensi.settings') }}" class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label">Madrasah / Sekolah</label>
+                        <select name="kelas_id" class="form-select">
+                            @foreach($classes as $class)
+                                <option value="{{ $class->id }}" {{ (string) $selectedKelasId === (string) $class->id ? 'selected' : '' }}>
+                                    {{ $class->nama_kelas }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-auto">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-filter"></i> Buka Pengaturan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 
     @if ($errors->any())
         <div class="alert alert-danger">
@@ -61,6 +91,9 @@
 
     <form action="{{ route('presensi.settings.update') }}" method="POST">
         @csrf
+        @if($selectedKelasId)
+            <input type="hidden" name="kelas_id" value="{{ $selectedKelasId }}">
+        @endif
         <div class="row g-4">
             <div class="col-lg-6">
                 <div class="card h-100">

@@ -4,9 +4,16 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 text-white"><b>Laporan Presensi</b></h4>
-            <small class="text-muted">Filter dan export laporan harian, mingguan, bulanan, atau rentang kustom.</small>
+            <small class="text-muted">
+                Filter dan export laporan harian, mingguan, bulanan, atau rentang kustom
+                @if($canSelectKelas)
+                    {{ $selectedKelasName ? 'untuk ' . $selectedKelasName : 'untuk seluruh sekolah' }}.
+                @else
+                    .
+                @endif
+            </small>
         </div>
-        <a href="{{ route('presensi.dashboard') }}" class="btn btn-outline-primary">
+        <a href="{{ route('presensi.dashboard', $filters['kelasId'] ? ['kelas_id' => $filters['kelasId']] : []) }}" class="btn btn-outline-primary">
             <i class="fa-solid fa-chart-line"></i> Dashboard
         </a>
     </div>
@@ -14,6 +21,19 @@
     <div class="card mb-4">
         <div class="card-body">
             <form method="GET" action="{{ route('presensi.report') }}" class="row g-3 align-items-end">
+                @if($canSelectKelas)
+                    <div class="col-md-3">
+                        <label class="form-label">Madrasah / Sekolah</label>
+                        <select name="kelas_id" class="form-select">
+                            <option value="">Semua sekolah</option>
+                            @foreach($classes as $class)
+                                <option value="{{ $class->id }}" {{ (string) $filters['kelasId'] === (string) $class->id ? 'selected' : '' }}>
+                                    {{ $class->nama_kelas }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
                 <div class="col-md-2">
                     <label class="form-label">Jenis Laporan</label>
                     <select name="period" class="form-select">
@@ -90,6 +110,9 @@
                 <thead>
                     <tr>
                         <th>Tanggal</th>
+                        @if($canSelectKelas)
+                            <th>Sekolah</th>
+                        @endif
                         <th>Nama</th>
                         <th>Status Masuk</th>
                         <th>Jam Masuk</th>
@@ -104,6 +127,9 @@
                     @forelse($attendances as $attendance)
                         <tr>
                             <td>{{ \Carbon\Carbon::parse($attendance->attendance_date)->format('d-m-Y') }}</td>
+                            @if($canSelectKelas)
+                                <td>{{ $attendance->nama_kelas ?? '-' }}</td>
+                            @endif
                             <td>{{ $attendance->nama_lengkap }}</td>
                             <td>
                                 <span class="badge bg-label-{{ $attendance->status === 'ditolak' ? 'danger' : ($attendance->status === 'terlambat' ? 'warning' : 'success') }}">
@@ -149,7 +175,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center text-muted">Belum ada data presensi.</td>
+                            <td colspan="{{ $canSelectKelas ? 10 : 9 }}" class="text-center text-muted">Belum ada data presensi.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -166,6 +192,9 @@
                 <thead>
                     <tr>
                         <th>Periode</th>
+                        @if($canSelectKelas)
+                            <th>Sekolah</th>
+                        @endif
                         <th>Nama</th>
                         <th>Kategori</th>
                         <th>Status</th>
@@ -177,6 +206,9 @@
                     @forelse($permissions as $permission)
                         <tr>
                             <td>{{ $permission->start_date->format('d-m-Y') }} - {{ $permission->end_date->format('d-m-Y') }}</td>
+                            @if($canSelectKelas)
+                                <td>{{ $permission->nama_kelas ?? '-' }}</td>
+                            @endif
                             <td>{{ $permission->nama_lengkap }}</td>
                             <td>{{ [
                                 'terlambat' => 'Izin Terlambat',
@@ -201,7 +233,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted">Belum ada data izin.</td>
+                            <td colspan="{{ $canSelectKelas ? 7 : 6 }}" class="text-center text-muted">Belum ada data izin.</td>
                         </tr>
                     @endforelse
                 </tbody>
