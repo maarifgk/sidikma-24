@@ -1364,9 +1364,9 @@ CSS;
         if ($aspectRatio >= 1.3) {
             // Wide logos such as the NU landscape mark need more vertical room
             // so the side ornaments/text do not look horizontally compressed.
-            $maxWidth = 250;
-            $maxHeight = 125;
-            $cellPadding = 18;
+            $maxWidth = 220;
+            $maxHeight = 110;
+            $cellPadding = 16;
         } elseif ($aspectRatio <= 0.85) {
             $maxWidth = 108;
             $maxHeight = 118;
