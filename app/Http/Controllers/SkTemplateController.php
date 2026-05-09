@@ -875,7 +875,7 @@ body {
     font-family: "Bodoni MT", Didot, "Times New Roman", serif;
     font-size: 13px;
     font-weight: 700;
-    color: #000000;
+    color: #159947;
     text-align: right;
     text-transform: uppercase;
 }
@@ -884,7 +884,7 @@ body {
     font-family: Calibri, Carlito, Arial, sans-serif;
     font-size: 26px;
     font-weight: 800;
-    color: #000000;
+    color: #0b8f2f;
     text-align: right;
     text-transform: uppercase;
     margin: 6px 0 4px;
@@ -892,7 +892,7 @@ body {
 
 .header-address {
     font-family: "Bodoni MT", Didot, "Times New Roman", serif;
-    color: #000000;
+    color: #159947;
     font-size: 11px;
     font-weight: 700;
     text-align: right;
@@ -911,7 +911,7 @@ body {
 
 .header-contact-text {
     font-family: "Bodoni MT", Didot, "Times New Roman", serif;
-    color: #000000;
+    color: #159947;
     font-size: 11px;
     font-weight: 700;
     text-align: right;
@@ -930,7 +930,7 @@ body {
 }
 
 .header-divider {
-    border-top: 4px solid #000000;
+    border-top: 4px solid #0b8f2f;
     margin: 3px 0 4px;
 }
 
@@ -1364,9 +1364,9 @@ CSS;
         if ($aspectRatio >= 1.3) {
             // Wide logos such as the NU landscape mark need more vertical room
             // so the side ornaments/text do not look horizontally compressed.
-            $maxWidth = 300;
-            $maxHeight = 150;
-            $cellPadding = 22;
+            $maxWidth = 250;
+            $maxHeight = 125;
+            $cellPadding = 18;
         } elseif ($aspectRatio <= 0.85) {
             $maxWidth = 108;
             $maxHeight = 118;
