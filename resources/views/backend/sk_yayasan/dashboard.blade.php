@@ -292,13 +292,18 @@
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <form action="{{ route('sk-yayasan.documents.delete', $document->id) }}" method="POST" onsubmit="return confirm('Hapus dokumen SK ini?')" class="me-auto">
-                                                            @csrf
-                                                            <button type="submit" class="btn btn-outline-danger">Hapus Dokumen</button>
-                                                        </form>
+                                                        <button type="submit"
+                                                            form="delete-sk-document-{{ $document->id }}"
+                                                            class="btn btn-outline-danger me-auto"
+                                                            onclick="return confirm('Hapus dokumen SK ini?')">
+                                                            Hapus Dokumen
+                                                        </button>
                                                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
                                                         <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                                                     </div>
+                                                </form>
+                                                <form id="delete-sk-document-{{ $document->id }}" action="{{ route('sk-yayasan.documents.delete', $document->id) }}" method="POST" class="d-none">
+                                                    @csrf
                                                 </form>
                                             </div>
                                         </div>
