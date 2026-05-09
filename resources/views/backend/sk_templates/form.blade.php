@@ -497,7 +497,7 @@
             .join('');
 
         // Provide defaults if dimensions not computed yet.
-        logoDimensions = logoDimensions || { cell_width: 238, wrap_width: 220, wrap_height: 110, image_width: 220, image_height: 110 };
+        logoDimensions = logoDimensions || { cell_width: 322, wrap_width: 300, wrap_height: 150, image_width: 300, image_height: 150 };
 
         return `
             <div class="document">
@@ -590,7 +590,7 @@
 
     function computeLogoDisplayDimensions(src) {
         return new Promise((resolve) => {
-            const defaultDimensions = { cell_width: 238, wrap_width: 220, wrap_height: 110, image_width: 220, image_height: 110 };
+            const defaultDimensions = { cell_width: 322, wrap_width: 300, wrap_height: 150, image_width: 300, image_height: 150 };
             if (!src) {
                 resolve(defaultDimensions);
                 return;
@@ -606,9 +606,9 @@
                 let cellPadding = 14;
 
                 if (aspectRatio >= 1.3) {
-                    maxW = 250;
-                    maxH = 118;
-                    cellPadding = 18;
+                    maxW = 300;
+                    maxH = 150;
+                    cellPadding = 22;
                 } else if (aspectRatio <= 0.85) {
                     maxW = 108;
                     maxH = 118;
