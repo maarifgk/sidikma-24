@@ -22,10 +22,27 @@
                 </a>
             </li>
             <li class="menu-item">
-                <a href="/upload-sk" class="menu-link ">
-                    <i class="fa-brands fa-slack"></i>
-                    <div style="margin-left: 8px;">Tools</div>
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <div style="margin-left: 8px;">SK Yayasan</div>
                 </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="{{ route('sk-yayasan.index') }}" class="menu-link">
+                            <div>Dashboard SK Yayasan</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{ route('sk-templates.index') }}" class="menu-link">
+                            <div>Template SK</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{ route('sk-templates.settings') }}" class="menu-link">
+                            <div>Pengaturan Nomor SK</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
             <li class="menu-item">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -160,12 +177,6 @@
                 <a href="/agenda_kesekretariatan" class="menu-link ">
                     <i class="fa-solid fa-receipt"></i>
                     <div style="margin-left: 8px;">Agenda Kesekretariatan</div>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="{{ route('sk-yayasan.index') }}" class="menu-link ">
-                    <i class="fa-solid fa-file-pdf"></i>
-                    <div style="margin-left: 8px;">SK Yayasan</div>
                 </a>
             </li>
             <li class="menu-item">
