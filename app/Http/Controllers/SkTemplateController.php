@@ -236,7 +236,7 @@ class SkTemplateController extends Controller
         return view('backend.sk_templates.preview', [
             'title' => $this->renderText($skTemplate->document_title, $user, ['nomor_sk' => $skNumber]),
             'html' => $rendered,
-            'customCss' => $skTemplate->custom_css,
+            'customCss' => $this->resolvedTemplateCss($skTemplate),
         ]);
     }
 
@@ -256,7 +256,7 @@ class SkTemplateController extends Controller
         $pdf = Pdf::loadView('backend.sk_templates.pdf', [
             'title' => $documentTitle,
             'html' => $rendered,
-            'customCss' => $skTemplate->custom_css,
+            'customCss' => $this->resolvedTemplateCss($skTemplate),
         ])->setPaper($skTemplate->paper_size ?: 'A4', $skTemplate->orientation === 'landscape' ? 'landscape' : 'portrait');
 
         return $pdf->stream(Str::slug($documentTitle ?: $skTemplate->name ?: 'template-sk') . '.pdf');
@@ -320,7 +320,7 @@ class SkTemplateController extends Controller
         $pdf = Pdf::loadView('backend.sk_templates.pdf', [
             'title' => $documentTitle,
             'html' => $combinedHtml,
-            'customCss' => $skTemplate->custom_css,
+            'customCss' => $this->resolvedTemplateCss($skTemplate),
         ])->setPaper($skTemplate->paper_size ?: 'A4', $skTemplate->orientation === 'landscape' ? 'landscape' : 'portrait');
 
         return $pdf->stream(Str::slug($documentTitle ?: $skTemplate->name ?: 'template-sk-batch') . '.pdf');
@@ -875,7 +875,7 @@ body {
     font-family: "Bodoni MT", Didot, "Times New Roman", serif;
     font-size: 13px;
     font-weight: 700;
-    color: #159947;
+    color: #000000;
     text-align: right;
     text-transform: uppercase;
 }
@@ -884,7 +884,7 @@ body {
     font-family: Calibri, Carlito, Arial, sans-serif;
     font-size: 26px;
     font-weight: 800;
-    color: #0b8f2f;
+    color: #000000;
     text-align: right;
     text-transform: uppercase;
     margin: 6px 0 4px;
@@ -892,7 +892,7 @@ body {
 
 .header-address {
     font-family: "Bodoni MT", Didot, "Times New Roman", serif;
-    color: #159947;
+    color: #000000;
     font-size: 11px;
     font-weight: 700;
     text-align: right;
@@ -911,7 +911,7 @@ body {
 
 .header-contact-text {
     font-family: "Bodoni MT", Didot, "Times New Roman", serif;
-    color: #159947;
+    color: #000000;
     font-size: 11px;
     font-weight: 700;
     text-align: right;
@@ -930,7 +930,7 @@ body {
 }
 
 .header-divider {
-    border-top: 4px solid #0b8f2f;
+    border-top: 4px solid #000000;
     margin: 3px 0 4px;
 }
 
@@ -1080,7 +1080,25 @@ CSS;
 
     protected function renderTemplate(SkTemplate $template, $user, array $overrides = []): string
     {
-        return strtr((string) $template->content, $this->replacementMap($user, true, $overrides));
+        return strtr($this->resolvedTemplateContent($template), $this->replacementMap($user, true, $overrides));
+    }
+
+    protected function resolvedTemplateContent(SkTemplate $template): string
+    {
+        if (is_array($template->builder_data) && !empty($template->builder_data)) {
+            return $this->buildContentFromBuilderData($template->builder_data);
+        }
+
+        return (string) $template->content;
+    }
+
+    protected function resolvedTemplateCss(SkTemplate $template): string
+    {
+        if (is_array($template->builder_data) && !empty($template->builder_data)) {
+            return $this->defaultCss();
+        }
+
+        return (string) $template->custom_css;
     }
 
     protected function renderText(string $text, $user, array $overrides = []): string
