@@ -756,7 +756,7 @@ if ($hour >= 0 && $hour <= 11) {
 
         <div class="col-12 role3-dashboard">
             <div class="row g-4">
-                <div class="col-12">
+                {{-- <div class="col-12">
                     <div class="card role3-hero role3-panel">
                         <div class="card-body">
                             <div class="row align-items-center g-4">
@@ -784,7 +784,7 @@ if ($hour >= 0 && $hour <= 11) {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
                 @foreach($role3Stats as $stat)
                     <div class="col-lg-3 col-md-6">
