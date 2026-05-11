@@ -900,10 +900,13 @@ if ($hour >= 0 && $hour <= 11) {
                                                 <div class="small soft-muted">
                                                     {{ $ketugasanLabels[$staff->ketugasan] ?? 'Ketugasan belum diatur' }}
                                                 </div>
+                                                <div class="small soft-muted">
+                                                    {{ $jurusanLabels[$staff->jurusan_id] ?? 'Status belum diatur' }}
+                                                </div>
                                             </div>
-                                            <span class="badge bg-label-primary">
+                                            {{-- <span class="badge bg-label-primary">
                                                 {{ $jurusanLabels[$staff->jurusan_id] ?? 'Status belum diatur' }}
-                                            </span>
+                                            </span> --}}
                                         </div>
                                     </div>
                                 @empty
