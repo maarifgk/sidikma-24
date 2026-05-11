@@ -2,10 +2,6 @@
 
 @section('content')
     @php
-        $schoolIdentity = strtoupper(trim(($siswa->nama_lengkap ?? '') . ' ' . ($siswa->kelas_id ?? '')));
-        $kelasId = (int) ($siswa->kelas_id ?? 0);
-        $isMiSchool = preg_match('/\bMI\b/u', strtoupper($siswa->nama_lengkap ?? '')) === 1 || ($kelasId >= 1 && $kelasId <= 63);
-        $isMtsOrSmpSchool = preg_match('/\b(MTS|SMP)\b/u', strtoupper($siswa->nama_lengkap ?? '')) === 1 || $kelasId > 63;
         $schoolPhoto = !empty($admin->image)
             ? asset('storage/images/users/' . $admin->image)
             : asset('storage/images/logo/logo sidikma gk.png');
@@ -228,34 +224,6 @@
             --bs-gutter-y: 0.35rem;
         }
 
-        .admin-class-group {
-            display: none;
-        }
-
-        .admin-class-group.is-visible {
-            display: block;
-        }
-
-        .admin-total-card {
-            margin-top: 0.4rem;
-            padding: 1rem;
-            border-radius: 18px;
-            border: 1px dashed rgba(18, 100, 58, 0.2);
-            background: linear-gradient(135deg, rgba(232, 244, 241, 0.78) 0%, rgba(237, 246, 252, 0.78) 100%);
-        }
-
-        .admin-total-card strong {
-            display: block;
-            color: var(--admin-text);
-            font-size: 1.3rem;
-            line-height: 1.2;
-        }
-
-        .admin-total-card span {
-            color: var(--admin-muted);
-            font-size: 0.84rem;
-        }
-
         .admin-actions {
             display: flex;
             flex-wrap: wrap;
@@ -334,7 +302,7 @@
 
                         <div class="admin-summary-grid">
                             <div class="admin-summary-item">
-                                <small>Nama Lembaga</small>
+                                <small>Nama Madrasah/Sekolah</small>
                                 <strong>{{ $siswa->nama_lengkap ?: 'Belum diisi' }}</strong>
                             </div>
                             <div class="admin-summary-item">
@@ -393,14 +361,10 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label" for="kelas_id">Asal Madrasah/Sekolah</label>
-                                            <select class="form-select" name="kelas_id" id="kelas_id">
-                                                <option value="">-- Pilih --</option>
-                                                @foreach ($kelas as $k)
-                                                    <option value="{{ $k->id }}" {{ $k->id == $siswa->kelas_id ? 'selected' : '' }}>
-                                                        {{ $k->nama_kelas }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                            <input type="text" class="form-control"
+                                                value="{{ collect($kelas)->firstWhere('id', $siswa->kelas_id)->nama_kelas ?? '-' }}"
+                                                readonly>
+                                            <input type="hidden" name="kelas_id" id="kelas_id" value="{{ $siswa->kelas_id }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -464,67 +428,7 @@
                             </div>
                         </div>
 
-                        <div class="col-xl-7">
-                            <div class="admin-section-card">
-                                <div class="admin-section-head">
-                                    <div>
-                                        <h5>Data Kesiswaan</h5>
-                                        <p>Jumlah siswa ditampilkan mengikuti jenjang MI atau MTs/SMP agar lebih fokus.</p>
-                                    </div>
-                                    <span class="admin-section-icon">
-                                        <i class="fa-solid fa-users"></i>
-                                    </span>
-                                </div>
-
-                                <div class="row admin-grid-tight">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label" for="thn_pelajaran">Tahun Pelajaran</label>
-                                            <input type="text" class="form-control" id="thn_pelajaran" name="thn_pelajaran"
-                                                value="{{ $siswa->thn_pelajaran ?: '2024-2025' }}" placeholder="Contoh: 2024-2025" required>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="admin-class-group {{ $isMiSchool && !$isMtsOrSmpSchool ? 'is-visible' : '' }}" id="kelas-group-mi">
-                                    <div class="row admin-grid-tight">
-                                        @for ($i = 1; $i <= 6; $i++)
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label class="form-label" for="kelas{{ $i }}">Jumlah Siswa Kelas {{ $i }}</label>
-                                                    <input type="number" min="0" class="form-control kelas-count kelas-mi"
-                                                        id="kelas{{ $i }}" name="kelas{{ $i }}" value="{{ $siswa->{'kelas' . $i} ?? 0 }}"
-                                                        placeholder="0">
-                                                </div>
-                                            </div>
-                                        @endfor
-                                    </div>
-                                </div>
-
-                                <div class="admin-class-group {{ $isMtsOrSmpSchool ? 'is-visible' : '' }}" id="kelas-group-mts">
-                                    <div class="row admin-grid-tight">
-                                        @for ($i = 7; $i <= 9; $i++)
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label class="form-label" for="kelas{{ $i }}">Jumlah Siswa Kelas {{ $i }}</label>
-                                                    <input type="number" min="0" class="form-control kelas-count kelas-mts"
-                                                        id="kelas{{ $i }}" name="kelas{{ $i }}" value="{{ $siswa->{'kelas' . $i} ?? 0 }}"
-                                                        placeholder="0">
-                                                </div>
-                                            </div>
-                                        @endfor
-                                    </div>
-                                </div>
-
-                                <div class="admin-total-card">
-                                    <strong id="jumlahsiswa-preview">{{ $siswa->jumlahsiswa ?? 0 }} siswa</strong>
-                                    <span>Total siswa akan dihitung otomatis dari kelas yang aktif.</span>
-                                </div>
-                                <input type="hidden" id="jumlahsiswa" name="jumlahsiswa" value="{{ $siswa->jumlahsiswa ?? 0 }}">
-                            </div>
-                        </div>
-
-                        <div class="col-xl-5">
+                        <div class="col-12">
                             <div class="admin-section-card">
                                 <div class="admin-section-head">
                                     <div>
@@ -611,61 +515,4 @@
             </form>
         </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const kelasIdSelect = document.getElementById('kelas_id');
-            const schoolNameInput = document.getElementById('nama_lengkap');
-            const miGroup = document.getElementById('kelas-group-mi');
-            const mtsGroup = document.getElementById('kelas-group-mts');
-            const totalField = document.getElementById('jumlahsiswa');
-            const totalPreview = document.getElementById('jumlahsiswa-preview');
-            const allClassInputs = document.querySelectorAll('.kelas-count');
-
-            function getSchoolType() {
-                const kelasId = parseInt(kelasIdSelect?.value || '0', 10);
-                const schoolName = (schoolNameInput?.value || '').toUpperCase();
-
-                if (schoolName.includes('MI') || (kelasId >= 1 && kelasId <= 63)) {
-                    return 'mi';
-                }
-
-                if (schoolName.includes('MTS') || schoolName.includes('SMP') || kelasId > 63) {
-                    return 'mts';
-                }
-
-                return 'mi';
-            }
-
-            function toggleClassGroups() {
-                const type = getSchoolType();
-                miGroup.classList.toggle('is-visible', type === 'mi');
-                mtsGroup.classList.toggle('is-visible', type === 'mts');
-                updateTotal();
-            }
-
-            function updateTotal() {
-                const type = getSchoolType();
-                let total = 0;
-
-                allClassInputs.forEach((input) => {
-                    const isMiInput = input.classList.contains('kelas-mi');
-                    const isMtsInput = input.classList.contains('kelas-mts');
-
-                    if ((type === 'mi' && isMiInput) || (type === 'mts' && isMtsInput)) {
-                        total += parseInt(input.value || '0', 10) || 0;
-                    }
-                });
-
-                totalField.value = total;
-                totalPreview.textContent = `${total} siswa`;
-            }
-
-            allClassInputs.forEach((input) => input.addEventListener('input', updateTotal));
-            kelasIdSelect?.addEventListener('change', toggleClassGroups);
-            schoolNameInput?.addEventListener('input', toggleClassGroups);
-
-            toggleClassGroups();
-        });
-    </script>
 @endsection

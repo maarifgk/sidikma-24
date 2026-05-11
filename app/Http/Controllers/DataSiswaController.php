@@ -108,7 +108,7 @@ class DataSiswaController extends Controller
         ]);
 
         $cek = DB::table('data_siswa')
-            ->where('madrasah_id', $request->kelas_id)
+            ->where('madrasah_id', $request->madrasah_id)
             ->where('tahun_pelajaran', $request->tahun_pelajaran)
             ->exists();
 

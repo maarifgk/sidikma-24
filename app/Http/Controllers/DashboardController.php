@@ -144,7 +144,14 @@ class DashboardController extends Controller
 
         // Data tambahan untuk role 3 (Kepala Sekolah)
         if (request()->user()->role == 3) {
-            $data['total_students'] = ($data['profile']->kelas1 ?? 0) + ($data['profile']->kelas2 ?? 0) + ($data['profile']->kelas3 ?? 0) + ($data['profile']->kelas4 ?? 0) + ($data['profile']->kelas5 ?? 0) + ($data['profile']->kelas6 ?? 0) + ($data['profile']->kelas7 ?? 0) + ($data['profile']->kelas8 ?? 0) + ($data['profile']->kelas9 ?? 0);
+            $data['latest_student_data'] = DB::table('data_siswa')
+                ->where('madrasah_id', request()->user()->kelas_id)
+                ->orderByDesc('updated_at')
+                ->orderByDesc('created_at')
+                ->first();
+
+            $data['total_students'] = (int) ($data['latest_student_data']->total ?? 0);
+            $data['student_data_year'] = $data['latest_student_data']->tahun_pelajaran ?? null;
             $data['total_teachers'] = DB::table('users')->where('role', 2)->where('kelas_id', request()->user()->kelas_id)->count();
             $data['total_staff'] = DB::table('users')->whereIn('role', [2, 4])->where('kelas_id', request()->user()->kelas_id)->count();
             $data['recent_activities'] = DB::table('usulan')->where('kelas', request()->user()->kelas_id)->orderByDesc('created_at')->limit(5)->get();

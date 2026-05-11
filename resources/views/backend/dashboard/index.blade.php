@@ -335,7 +335,8 @@ if ($hour >= 0 && $hour <= 11) {
             $visibleClassLevels = $isMiSchool
                 ? range(1, 6)
                 : (($isMtsOrSmpSchool || $kelasId > 63) ? range(7, 9) : range(1, 9));
-            $classCounts = collect($visibleClassLevels)->mapWithKeys(fn ($level) => [$level => (int) ($profile->{'kelas' . $level} ?? 0)]);
+            $classDataSource = $latest_student_data ?? null;
+            $classCounts = collect($visibleClassLevels)->mapWithKeys(fn ($level) => [$level => (int) (($classDataSource->{'kelas' . $level} ?? null) ?? 0)]);
             $studentTotal = (int) $classCounts->sum();
             $filledClasses = $classCounts->filter(fn ($count) => $count > 0)->count();
             $averageStudents = $filledClasses > 0 ? round($studentTotal / $filledClasses) : 0;
@@ -343,6 +344,7 @@ if ($hour >= 0 && $hour <= 11) {
             $largestClassStudents = $largestClassNumber ? (int) $classCounts[$largestClassNumber] : 0;
             $largestClassLabel = $largestClassStudents > 0 ? 'Kelas ' . $largestClassNumber : 'Belum ada data';
             $classPeak = max((int) $classCounts->max(), 1);
+            $studentYearLabel = $student_data_year ?? $profile->thn_pelajaran ?? 'Tahun pelajaran belum diisi';
             $staffPreview = collect($temankelas ?? [])->take(6);
             $role3Stats = [
                 ['label' => 'Total Siswa', 'value' => number_format($studentTotal, 0, ',', '.'), 'icon' => 'fa-users', 'tone' => 'primary', 'caption' => $filledClasses . ' kelas aktif'],
@@ -770,7 +772,7 @@ if ($hour >= 0 && $hour <= 11) {
                                         <p class="mb-1 fs-5">{{ $profile->nama_lengkap ?? 'Madrasah/Sekolah' }}</p>
                                         <div class="activity-meta text-white-50 flex-wrap">
                                             <span><i class="fa-solid fa-id-card me-1"></i>NPSN {{ $profile->nis ?? '-' }}</span>
-                                            <span><i class="fa-solid fa-calendar-days me-1"></i>{{ $profile->thn_pelajaran ?? 'Tahun pelajaran belum diisi' }}</span>
+                                            <span><i class="fa-solid fa-calendar-days me-1"></i>{{ $studentYearLabel }}</span>
                                         </div>
                                     </div>
                                 </div>

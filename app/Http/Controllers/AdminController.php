@@ -81,18 +81,6 @@ class AdminController extends Controller
             'status' => $request->status,
             'updated_at' => now(),
 
-            'thn_pelajaran' => $request->thn_pelajaran,
-            'kelas1' => $request->kelas1,
-            'kelas2' => $request->kelas2,
-            'kelas3' => $request->kelas3,
-            'kelas4' => $request->kelas4,
-            'kelas5' => $request->kelas5,
-            'kelas6' => $request->kelas6,
-            'kelas7' => $request->kelas7,
-            'kelas8' => $request->kelas8,
-            'kelas9' => $request->kelas9,
-            'jumlahsiswa' => $request->jumlahsiswa,
-
             'akreditasi' => $request->akreditasi,
             'masaakreditasi' => $request->masaakreditasi,
             'statustanah' => $request->statustanah,
