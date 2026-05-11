@@ -336,9 +336,6 @@ if ($hour >= 0 && $hour <= 11) {
             $largestClassStudents = $largestClassNumber ? (int) $classCounts[$largestClassNumber] : 0;
             $largestClassLabel = $largestClassStudents > 0 ? 'Kelas ' . $largestClassNumber : 'Belum ada data';
             $classPeak = max((int) $classCounts->max(), 1);
-            $profileImage = request()->user()->image
-                ? asset('storage/images/users/' . request()->user()->image)
-                : asset('storage/images/users/users.png');
             $staffPreview = collect($temankelas ?? [])->take(6);
             $role3Stats = [
                 ['label' => 'Total Siswa', 'value' => number_format($studentTotal, 0, ',', '.'), 'icon' => 'fa-users', 'tone' => 'primary', 'caption' => $filledClasses . ' kelas aktif'],
@@ -392,15 +389,54 @@ if ($hour >= 0 && $hour <= 11) {
 
         <style>
             .role3-dashboard {
-                --role3-border: #e9eef6;
-                --role3-text-soft: #6f7d95;
-                --role3-surface: #f7f9fc;
+                --role3-primary: #12643a;
+                --role3-primary-dark: #0d4f30;
+                --role3-blue: #1d6fa5;
+                --role3-blue-dark: #114d76;
+                --role3-soft: #e8f4f1;
+                --role3-soft-blue: #edf6fc;
+                --role3-border: rgba(18, 100, 58, .12);
+                --role3-text-soft: #6f7f77;
+                --role3-surface: #f7faf8;
+                --role3-title: #163024;
+                position: relative;
+                padding: 8px 0;
+            }
+
+            .role3-dashboard::before,
+            .role3-dashboard::after {
+                content: '';
+                position: absolute;
+                border-radius: 999px;
+                pointer-events: none;
+                z-index: 0;
+            }
+
+            .role3-dashboard::before {
+                width: 240px;
+                height: 240px;
+                top: -20px;
+                right: 4%;
+                background: rgba(29, 111, 165, .08);
+            }
+
+            .role3-dashboard::after {
+                width: 200px;
+                height: 200px;
+                bottom: 20px;
+                left: 2%;
+                background: rgba(18, 100, 58, .08);
+            }
+
+            .role3-dashboard > .row {
+                position: relative;
+                z-index: 1;
             }
 
             .role3-dashboard .role3-panel {
                 border: 0;
-                border-radius: 24px;
-                box-shadow: 0 18px 40px rgba(15, 23, 42, .08);
+                border-radius: 26px;
+                box-shadow: 0 18px 40px rgba(21, 53, 40, .08);
             }
 
             .role3-dashboard .section-kicker {
@@ -420,23 +456,16 @@ if ($hour >= 0 && $hour <= 11) {
                 position: relative;
                 background:
                     radial-gradient(circle at top right, rgba(255, 255, 255, .18), transparent 26%),
-                    radial-gradient(circle at bottom left, rgba(255, 255, 255, .16), transparent 20%),
-                    linear-gradient(135deg, #0a48b3 0%, #0f6f9f 52%, #11805e 100%);
+                    radial-gradient(circle at bottom left, rgba(241, 197, 107, .16), transparent 22%),
+                    linear-gradient(145deg, var(--role3-primary-dark) 0%, var(--role3-primary) 38%, var(--role3-blue) 72%, var(--role3-blue-dark) 100%);
                 color: #fff;
-                border-radius: 28px;
-                box-shadow: 0 24px 50px rgba(10, 72, 179, .22);
+                border-radius: 30px;
+                box-shadow: 0 24px 50px rgba(17, 77, 118, .18);
             }
 
             .role3-dashboard .role3-hero .text-muted,
             .role3-dashboard .role3-hero small {
                 color: rgba(255, 255, 255, .78) !important;
-            }
-
-            .role3-dashboard .role3-profile {
-                width: 86px;
-                height: 86px;
-                object-fit: cover;
-                border: 4px solid rgba(255, 255, 255, .55);
             }
 
             .role3-dashboard .hero-chip {
@@ -453,7 +482,7 @@ if ($hour >= 0 && $hour <= 11) {
             }
 
             .role3-dashboard .hero-mini-card {
-                border-radius: 18px;
+                border-radius: 22px;
                 padding: 18px;
                 background: rgba(255, 255, 255, .12);
                 border: 1px solid rgba(255, 255, 255, .18);
@@ -466,27 +495,27 @@ if ($hour >= 0 && $hour <= 11) {
                 gap: 8px;
                 justify-content: center;
                 min-width: 154px;
-                border-radius: 14px;
-                padding: 12px 16px;
-                color: #0a48b3;
-                background: #fff;
+                border-radius: 16px;
+                padding: 12px 18px;
+                color: #fff;
+                background: linear-gradient(135deg, var(--role3-primary) 0%, var(--role3-blue) 100%);
                 font-weight: 700;
                 text-decoration: none;
-                box-shadow: 0 12px 28px rgba(18, 38, 63, .16);
+                box-shadow: 0 14px 28px rgba(17, 77, 118, .16);
                 transition: transform .2s ease, box-shadow .2s ease;
             }
 
             .role3-dashboard .quick-action:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 16px 32px rgba(18, 38, 63, .2);
-                color: #0a48b3;
+                box-shadow: 0 18px 34px rgba(17, 77, 118, .22);
+                color: #fff;
             }
 
             .role3-dashboard .metric-card {
                 border: 0;
-                border-radius: 22px;
-                background: linear-gradient(180deg, #fff 0%, #fbfcfe 100%);
-                box-shadow: 0 14px 32px rgba(15, 23, 42, .06);
+                border-radius: 24px;
+                background: linear-gradient(180deg, #fff 0%, #f8fbfa 100%);
+                box-shadow: 0 14px 32px rgba(21, 53, 40, .06);
             }
 
             .role3-dashboard .metric-icon {
@@ -504,15 +533,22 @@ if ($hour >= 0 && $hour <= 11) {
                 letter-spacing: .08em;
             }
 
+            .role3-dashboard .card-header h5,
+            .role3-dashboard .fw-bold,
+            .role3-dashboard h3,
+            .role3-dashboard h2 {
+                color: var(--role3-title);
+            }
+
             .role3-dashboard .info-item,
             .role3-dashboard .class-row,
             .role3-dashboard .activity-row,
             .role3-dashboard .staff-row,
             .role3-dashboard .insight-card {
                 border: 1px solid var(--role3-border);
-                border-radius: 18px;
+                border-radius: 20px;
                 padding: 16px;
-                background: #fff;
+                background: rgba(255, 255, 255, .96);
             }
 
             .role3-dashboard .info-item {
@@ -529,25 +565,25 @@ if ($hour >= 0 && $hour <= 11) {
                 align-items: center;
                 justify-content: center;
                 border-radius: 12px;
-                background: #eef4ff;
-                color: #0a48b3;
+                background: linear-gradient(135deg, var(--role3-soft) 0%, var(--role3-soft-blue) 100%);
+                color: var(--role3-blue-dark);
             }
 
             .role3-dashboard .class-track {
                 height: 10px;
                 border-radius: 999px;
-                background: #edf2f8;
+                background: #edf3f0;
                 overflow: hidden;
             }
 
             .role3-dashboard .class-fill {
                 height: 100%;
                 border-radius: inherit;
-                background: linear-gradient(90deg, #0a48b3 0%, #11805e 100%);
+                background: linear-gradient(90deg, var(--role3-primary) 0%, var(--role3-blue) 100%);
             }
 
             .role3-dashboard .insight-card {
-                background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+                background: linear-gradient(180deg, #ffffff 0%, #f7fbfa 100%);
             }
 
             .role3-dashboard .staff-row,
@@ -557,8 +593,8 @@ if ($hour >= 0 && $hour <= 11) {
 
             .role3-dashboard .staff-row:hover,
             .role3-dashboard .activity-row:hover {
-                border-color: #dce6f5;
-                box-shadow: 0 12px 30px rgba(15, 23, 42, .06);
+                border-color: rgba(18, 100, 58, .18);
+                box-shadow: 0 12px 30px rgba(21, 53, 40, .06);
                 transform: translateY(-1px);
             }
 
@@ -582,8 +618,8 @@ if ($hour >= 0 && $hour <= 11) {
                 width: 8px;
                 height: 8px;
                 border-radius: 999px;
-                background: #0a48b3;
-                box-shadow: 0 0 0 6px rgba(10, 72, 179, .10);
+                background: var(--role3-blue);
+                box-shadow: 0 0 0 6px rgba(29, 111, 165, .12);
             }
 
             .role3-dashboard .activity-meta {
@@ -596,6 +632,33 @@ if ($hour >= 0 && $hour <= 11) {
 
             .role3-dashboard .soft-muted {
                 color: var(--role3-text-soft);
+            }
+
+            .role3-dashboard .btn-outline-primary {
+                border-color: rgba(18, 100, 58, .22);
+                color: var(--role3-primary);
+            }
+
+            .role3-dashboard .btn-outline-primary:hover {
+                background: var(--role3-primary);
+                border-color: var(--role3-primary);
+                color: #fff;
+            }
+
+            .role3-dashboard .btn-outline-secondary {
+                border-color: rgba(29, 111, 165, .18);
+                color: var(--role3-blue-dark);
+            }
+
+            .role3-dashboard .btn-outline-secondary:hover {
+                background: var(--role3-blue-dark);
+                border-color: var(--role3-blue-dark);
+                color: #fff;
+            }
+
+            .role3-dashboard .badge.bg-label-primary {
+                background: rgba(18, 100, 58, .12) !important;
+                color: var(--role3-primary) !important;
             }
 
             @media (max-width: 991.98px) {
@@ -616,16 +679,13 @@ if ($hour >= 0 && $hour <= 11) {
                                     <span class="section-kicker text-white mb-3">
                                         <i class="fa-solid fa-chart-line"></i> Dashboard Kepala Madrasah/Sekolah
                                     </span>
-                                    <div class="d-flex align-items-center gap-3 mb-4">
-                                        <img src="{{ $profileImage }}" class="rounded-circle role3-profile" alt="Profile Image">
-                                        <div>
-                                            <small class="fw-semibold text-uppercase">{{ $congrat }}</small>
-                                            <h2 class="mb-1 text-white">{{ request()->user()->nama_lengkap }}</h2>
-                                            <p class="mb-1 fs-5">{{ $profile->nama_lengkap ?? 'Madrasah/Sekolah' }}</p>
-                                            <div class="activity-meta text-white-50">
-                                                <span><i class="fa-solid fa-id-card me-1"></i>NPSN {{ $profile->nis ?? '-' }}</span>
-                                                <span><i class="fa-solid fa-calendar-days me-1"></i>{{ $profile->thn_pelajaran ?? 'Tahun pelajaran belum diisi' }}</span>
-                                            </div>
+                                    <div class="mb-4">
+                                        <small class="fw-semibold text-uppercase">{{ $congrat }}</small>
+                                        <h2 class="mb-1 text-white">{{ request()->user()->nama_lengkap }}</h2>
+                                        <p class="mb-1 fs-5">{{ $profile->nama_lengkap ?? 'Madrasah/Sekolah' }}</p>
+                                        <div class="activity-meta text-white-50 flex-wrap">
+                                            <span><i class="fa-solid fa-id-card me-1"></i>NPSN {{ $profile->nis ?? '-' }}</span>
+                                            <span><i class="fa-solid fa-calendar-days me-1"></i>{{ $profile->thn_pelajaran ?? 'Tahun pelajaran belum diisi' }}</span>
                                         </div>
                                     </div>
                                     <div class="d-flex flex-wrap gap-2">
