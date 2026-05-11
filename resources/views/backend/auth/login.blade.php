@@ -449,7 +449,7 @@
                         class="login-brand-sidikma">
                 </div>
 
-                <div class="login-hero-copy">
+                <div class="login-hero-copy" style="text-align: center">
                     <h1>{{ Helper::apk()->nama_aplikasi }}</h1>
                     <p>
                         Lembaga Pendidikan Ma'arif NU PCNU Gunungkidul
