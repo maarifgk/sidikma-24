@@ -471,6 +471,15 @@ if ($hour >= 0 && $hour <= 11) {
                 box-shadow: 0 24px 50px rgba(21, 53, 40, .08);
             }
 
+            .role3-dashboard .role3-hero .card-body {
+                padding: 1.35rem 1.4rem !important;
+            }
+
+            .role3-dashboard .role3-hero .row {
+                --bs-gutter-x: 1rem;
+                --bs-gutter-y: 0.9rem;
+            }
+
             .role3-dashboard .role3-hero .text-muted,
             .role3-dashboard .role3-hero small {
                 color: var(--role3-text-soft) !important;
@@ -487,12 +496,13 @@ if ($hour >= 0 && $hour <= 11) {
                 display: inline-flex;
                 align-items: center;
                 gap: 8px;
-                padding: 9px 14px;
+                padding: 0.5rem 0.8rem;
                 border-radius: 999px;
                 background: linear-gradient(135deg, var(--role3-soft) 0%, var(--role3-soft-blue) 100%);
                 border: 1px solid rgba(18, 100, 58, .10);
                 color: var(--role3-title);
                 font-weight: 600;
+                font-size: 0.84rem;
             }
 
             .role3-dashboard .hero-mini-card {
@@ -669,11 +679,33 @@ if ($hour >= 0 && $hour <= 11) {
                 align-items: center;
                 gap: 8px;
                 color: var(--role3-text-soft);
-                font-size: 13px;
+                font-size: 0.82rem;
+                line-height: 1.5;
             }
 
             .role3-dashboard .soft-muted {
                 color: var(--role3-text-soft);
+            }
+
+            .role3-dashboard .hero-copy {
+                margin-bottom: 0.9rem !important;
+            }
+
+            .role3-dashboard .hero-copy h2 {
+                margin-bottom: 0.25rem !important;
+                font-size: clamp(1.55rem, 2.3vw, 2rem);
+                line-height: 1.18;
+            }
+
+            .role3-dashboard .hero-copy p {
+                margin-bottom: 0.35rem !important;
+                font-size: 1rem !important;
+                line-height: 1.45;
+            }
+
+            .role3-dashboard .hero-chip-group {
+                gap: 0.55rem !important;
+                align-items: flex-start;
             }
 
             .role3-dashboard .btn-outline-primary {
@@ -708,6 +740,10 @@ if ($hour >= 0 && $hour <= 11) {
                     width: 100%;
                     min-width: 0;
                 }
+
+                .role3-dashboard .role3-hero .card-body {
+                    padding: 1.2rem 1.15rem !important;
+                }
             }
 
             @media (min-width: 1200px) {
@@ -722,13 +758,13 @@ if ($hour >= 0 && $hour <= 11) {
             <div class="row g-4">
                 <div class="col-12">
                     <div class="card role3-hero role3-panel">
-                        <div class="card-body p-4 p-lg-5">
+                        <div class="card-body">
                             <div class="row align-items-center g-4">
                                 <div class="col-lg-7">
                                     <span class="section-kicker text-white mb-3">
                                         <i class="fa-solid fa-chart-line"></i> Dashboard Kepala Madrasah/Sekolah
                                     </span>
-                                    <div class="mb-4">
+                                    <div class="hero-copy">
                                         <small class="fw-semibold text-uppercase">{{ $congrat }}</small>
                                         <h2 class="mb-1 text-white">{{ request()->user()->nama_lengkap }}</h2>
                                         <p class="mb-1 fs-5">{{ $profile->nama_lengkap ?? 'Madrasah/Sekolah' }}</p>
@@ -739,12 +775,10 @@ if ($hour >= 0 && $hour <= 11) {
                                     </div>
                                 </div>
                                 <div class="col-lg-5">
-                                    <div class="row g-3">
-                                        <div class="d-flex flex-wrap gap-2">
+                                    <div class="d-flex flex-wrap hero-chip-group">
                                             <span class="hero-chip"><i class="fa-solid fa-certificate"></i> Akreditasi {{ $profile->akreditasi ?? '-' }}</span>
                                             <span class="hero-chip"><i class="fa-solid fa-users"></i> {{ number_format($studentTotal, 0, ',', '.') }} siswa aktif</span>
                                             <span class="hero-chip"><i class="fa-solid fa-user-tie"></i> {{ number_format($total_teachers ?? 0, 0, ',', '.') }} guru/pegawai</span>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
