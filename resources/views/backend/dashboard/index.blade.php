@@ -328,8 +328,15 @@ if ($hour >= 0 && $hour <= 11) {
     <!-- ROLE 3 -->
     @if (request()->user()->role == 3)
         @php
-            $studentTotal = $total_students ?? 0;
-            $classCounts = collect(range(1, 9))->mapWithKeys(fn ($level) => [$level => (int) ($profile->{'kelas' . $level} ?? 0)]);
+            $schoolIdentity = strtoupper(trim(($profile->nama_lengkap ?? '') . ' ' . ($profile->nama_kelas ?? '')));
+            $kelasId = (int) (request()->user()->kelas_id ?? 0);
+            $isMiSchool = preg_match('/\bMI\b/u', $schoolIdentity) === 1;
+            $isMtsOrSmpSchool = preg_match('/\b(MTS|SMP)\b/u', $schoolIdentity) === 1;
+            $visibleClassLevels = $isMiSchool
+                ? range(1, 6)
+                : (($isMtsOrSmpSchool || $kelasId > 63) ? range(7, 9) : range(1, 9));
+            $classCounts = collect($visibleClassLevels)->mapWithKeys(fn ($level) => [$level => (int) ($profile->{'kelas' . $level} ?? 0)]);
+            $studentTotal = (int) $classCounts->sum();
             $filledClasses = $classCounts->filter(fn ($count) => $count > 0)->count();
             $averageStudents = $filledClasses > 0 ? round($studentTotal / $filledClasses) : 0;
             $largestClassNumber = $classCounts->sortDesc()->keys()->first();
