@@ -463,17 +463,24 @@ if ($hour >= 0 && $hour <= 11) {
                 border: 0;
                 position: relative;
                 background:
-                    radial-gradient(circle at top right, rgba(255, 255, 255, .18), transparent 26%),
-                    radial-gradient(circle at bottom left, rgba(241, 197, 107, .16), transparent 22%),
-                    linear-gradient(145deg, var(--role3-primary-dark) 0%, var(--role3-primary) 38%, var(--role3-blue) 72%, var(--role3-blue-dark) 100%);
-                color: #fff;
+                    radial-gradient(circle at top right, rgba(29, 111, 165, .08), transparent 26%),
+                    radial-gradient(circle at bottom left, rgba(18, 100, 58, .08), transparent 22%),
+                    linear-gradient(180deg, #ffffff 0%, #fbfefd 100%);
+                color: var(--role3-title);
                 border-radius: 30px;
-                box-shadow: 0 24px 50px rgba(17, 77, 118, .18);
+                box-shadow: 0 24px 50px rgba(21, 53, 40, .08);
             }
 
             .role3-dashboard .role3-hero .text-muted,
             .role3-dashboard .role3-hero small {
-                color: rgba(255, 255, 255, .78) !important;
+                color: var(--role3-text-soft) !important;
+            }
+
+            .role3-dashboard .role3-hero h2,
+            .role3-dashboard .role3-hero h3,
+            .role3-dashboard .role3-hero p,
+            .role3-dashboard .role3-hero .section-kicker {
+                color: var(--role3-title) !important;
             }
 
             .role3-dashboard .hero-chip {
@@ -482,19 +489,17 @@ if ($hour >= 0 && $hour <= 11) {
                 gap: 8px;
                 padding: 9px 14px;
                 border-radius: 999px;
-                background: rgba(255, 255, 255, .15);
-                border: 1px solid rgba(255, 255, 255, .18);
-                color: #fff;
+                background: linear-gradient(135deg, var(--role3-soft) 0%, var(--role3-soft-blue) 100%);
+                border: 1px solid rgba(18, 100, 58, .10);
+                color: var(--role3-title);
                 font-weight: 600;
-                backdrop-filter: blur(10px);
             }
 
             .role3-dashboard .hero-mini-card {
                 border-radius: 22px;
                 padding: 18px;
-                background: rgba(255, 255, 255, .12);
-                border: 1px solid rgba(255, 255, 255, .18);
-                backdrop-filter: blur(10px);
+                background: rgba(255, 255, 255, .96);
+                border: 1px solid var(--role3-border);
             }
 
             .role3-dashboard .quick-action {
@@ -505,18 +510,19 @@ if ($hour >= 0 && $hour <= 11) {
                 min-width: 154px;
                 border-radius: 16px;
                 padding: 12px 18px;
-                color: #fff;
-                background: linear-gradient(135deg, var(--role3-primary) 0%, var(--role3-blue) 100%);
+                color: var(--role3-title);
+                background: #fff;
                 font-weight: 700;
                 text-decoration: none;
-                box-shadow: 0 14px 28px rgba(17, 77, 118, .16);
+                border: 1px solid rgba(18, 100, 58, .10);
+                box-shadow: 0 14px 28px rgba(21, 53, 40, .08);
                 transition: transform .2s ease, box-shadow .2s ease;
             }
 
             .role3-dashboard .quick-action:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 18px 34px rgba(17, 77, 118, .22);
-                color: #fff;
+                box-shadow: 0 18px 34px rgba(21, 53, 40, .12);
+                color: var(--role3-title);
             }
 
             .role3-dashboard .metric-card {
