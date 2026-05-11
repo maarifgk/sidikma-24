@@ -453,7 +453,7 @@
                     </p>
                 </div>
 
-                <div class="login-highlight-list">
+                {{-- <div class="login-highlight-list">
                     <div class="login-highlight-item">
                         <span><i class="bx bx-layer"></i></span>
                         <h6>Ruang kerja tertata</h6>
@@ -469,7 +469,7 @@
                         <h6>Responsif penuh</h6>
                         <p>Tampilan tetap rapi saat dibuka dari laptop, tablet, maupun ponsel.</p>
                     </div>
-                </div>
+                </div> --}}
             </section>
 
             <section class="login-panel">
