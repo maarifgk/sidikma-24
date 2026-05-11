@@ -1,19 +1,24 @@
 @extends('backend.layout.base')
 
 @section('content')
-    <div class="card table-responsive">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="fw-bold">{{ $title }}</h3>
+    @include('backend.administrasi._theme')
+    <div class="admin-module-page">
+    <div class="card table-responsive admin-module-panel">
+        <div class="card-header admin-module-header">
+            <div>
+                <span class="admin-module-kicker"><i class="fa-solid fa-file-signature"></i> Administrasi</span>
+                <h3 class="admin-module-title">{{ $title }}</h3>
+                <p class="admin-module-subtitle">Kelola pengajuan proposal, nominal bantuan, dan file persetujuan dengan tampilan yang lebih bersih.</p>
+            </div>
             @if (in_array(request()->user()->role, [3, 1]))
-            <a href="/proposal/add" type="button" class="btn rounded-pill btn-primary justify-content-end"
-                style="margin-left: 70%;">Ajukan</a>
+            <a href="/proposal/add" type="button" class="btn btn-primary admin-module-cta">Ajukan</a>
                 @endif
         </div>
 
         <div class="card-body">
-            <div class="card shadow mb-4 border-bottom-success" id="infosiswa" value="0">
+            <div class="card shadow mb-4 border-bottom-success admin-module-info-card" id="infosiswa" value="0">
                 <!-- Card Header - Accordion -->
-                <a href="#" class="d-block card-header py-3"
+                <a href="#" class="d-block card-header py-3 admin-module-info-head"
                                 data-toggle="collapse" role="button" aria-expanded="true" style="background-color: #007F3E;"
                                 aria-controls="collapseCardExample">
                     <h6 class="m-0 font-weight-bold text-white">DATA PENGAJUAN PROPOSAL</h6>
@@ -89,7 +94,7 @@
             </div>
         </div>
         @if (request()->user()->role == 3)
-        <div class="container mt-4 ">
+        <div class="admin-module-table-card">
             <table id="datatable" class="table table-striped ">
                 <thead>
                     <tr>
@@ -292,7 +297,7 @@
         @endif
 
         @if (in_array(request()->user()->role, [1, 4,]))
-        <div class="container mt-4 ">
+        <div class="admin-module-table-card">
             <table id="datatable" class="table table-striped ">
                 <thead>
                     <tr>

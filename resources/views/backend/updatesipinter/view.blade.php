@@ -1,17 +1,17 @@
 @extends('backend.layout.base')
 
 @section('content')
-<div class="card table-responsive">
-    <div class="card-header d-flex justify-content-between align-items-center mb-0">
-        <h5 class="mb-0" style="font-size: 30px">
-            <b>{{ $title }}</b>
-            <p></p>
-            <p style="font-size: 16px; margin-bottom: 0; font-weight: normal;">Detail update data SIPINTER Ma'arif</p>
-        </h5>
+@include('backend.administrasi._theme')
+<div class="admin-module-page">
+<div class="card table-responsive admin-module-panel">
+    <div class="card-header admin-module-header mb-0">
+        <div>
+            <span class="admin-module-kicker"><i class="fa-solid fa-database"></i> Administrasi</span>
+            <h5 class="admin-module-title">{{ $title }}</h5>
+            <p class="admin-module-subtitle">Detail pembaruan data SIPINTER Ma'arif, dokumen pendukung, dan rekap data satuan pendidikan.</p>
+        </div>
         @if(!$isDataExist) 
-            <a href="/updatesipinter/add" type="button" 
-            class="btn rounded-pill btn-primary justify-content-end" 
-            style="margin-bottom: 2;">
+            <a href="/updatesipinter/add" type="button" class="btn btn-primary admin-module-cta">
                 Input Data
             </a>
         @endif
@@ -20,7 +20,7 @@
 @if (request()->user()->role == 3)
     @if(isset($sipinter) && count($sipinter) > 0)
         @foreach ($sipinter as $s) 
-            <div class="container">
+            <div class="admin-module-table-card">
                 <p style="font-size: 16px; margin-bottom: 2; margin-top: 1px; font-weight: bold;">STATUS ASET DAN PENGELOLAAN SATUAN PENDIDIKAN</p>
                 <table class="data-table" style="margin-bottom: 2; margin-top: 1px;"> 
                     <tr>
@@ -182,7 +182,7 @@
         <p style="text-align: center; font-size: 18px; color: red;">Data tidak tersedia, Silahkan Input Data dan Dokumen!</p>
     @endif
 
-    <div class="container" style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+    <div class="admin-module-table-card" style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
     
         <!-- Kolom Dokumen Pemutakhiran Data -->
         <div style="width: 65%;">
@@ -282,7 +282,7 @@
 </div>
 @endif
 @if (in_array(request()->user()->role, [4, 1]))
-<div class="container mt-4 ">
+<div class="admin-module-table-card">
     <table id="datatable" class="table table-striped ">
         <thead>
             <tr>
@@ -474,4 +474,5 @@
     </table>
 </div>
 @endif
+</div>
 @endsection
