@@ -497,20 +497,21 @@
                         </div>
                     @endif
 
-                    <form id="formAuthentication" method="POST" action="{{ route('login.action') }}">
+                    <form id="loginForm" method="POST" action="{{ route('login.action') }}">
                         @csrf
 
-                        <div class="login-field">
+                        <div class="login-field mb-3">
                             <label for="email" class="form-label">Email</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bx bx-envelope"></i></span>
                                 <input
-                                    type="text"
+                                    type="email"
                                     id="email"
                                     name="email"
                                     value="{{ old('email') }}"
                                     class="form-control @error('email') is-invalid @enderror"
                                     placeholder="Masukkan email Anda"
+                                    autocomplete="username"
                                     required
                                     autofocus>
                             </div>
@@ -519,7 +520,7 @@
                             @enderror
                         </div>
 
-                        <div class="login-field form-password-toggle">
+                        <div class="login-field form-password-toggle mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label mb-0" for="password">Password</label>
                                 <a href="/forgetPassword">Lupa password?</a>
@@ -532,6 +533,7 @@
                                     name="password"
                                     class="form-control @error('password') is-invalid @enderror"
                                     placeholder="Masukkan password Anda"
+                                    autocomplete="current-password"
                                     aria-describedby="password"
                                     required />
                                 <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
