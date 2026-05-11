@@ -141,7 +141,7 @@
     }
 
     .login-hero-copy h1 {
-        margin-bottom: 14px;
+        margin-bottom: 12px;
         color: #fff;
         font-size: clamp(2rem, 2.8vw, 3.35rem);
         line-height: 1.08;
