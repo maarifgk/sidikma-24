@@ -731,7 +731,7 @@ if ($hour >= 0 && $hour <= 11) {
                 </div>
 
                 @foreach($role3Stats as $stat)
-                    <div class="col-xl-3 col-md-6">
+                    <div class="col-lg-3 col-md-6">
                         <div class="card metric-card h-100 role3-panel">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start">
