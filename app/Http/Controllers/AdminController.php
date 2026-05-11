@@ -67,80 +67,55 @@ class AdminController extends Controller
     }
     public function editProses(Request $request)
     {
-        if ($request->has('image') != null) {
-            $getImage = DB::table('users')->where('id', $request->id)->first();
-            $file_path = public_path() . '/storage/images/users/' . $getImage->image;
-            File::delete($file_path);
+        $getImage = DB::table('users')->where('id', $request->id)->first();
+
+        $data = [
+            'nis' => $request->nis,
+            'nama_lengkap' => $request->nama_lengkap,
+            'email' => $request->email,
+            'kelas_id' => $request->kelas_id,
+            'no_tlp' => $request->no_tlp,
+            'tgl_lahir' => $request->tgl_lahir,
+            'alamat' => $request->alamat,
+            'role' => $request->role,
+            'status' => $request->status,
+            'updated_at' => now(),
+
+            'thn_pelajaran' => $request->thn_pelajaran,
+            'kelas1' => $request->kelas1,
+            'kelas2' => $request->kelas2,
+            'kelas3' => $request->kelas3,
+            'kelas4' => $request->kelas4,
+            'kelas5' => $request->kelas5,
+            'kelas6' => $request->kelas6,
+            'kelas7' => $request->kelas7,
+            'kelas8' => $request->kelas8,
+            'kelas9' => $request->kelas9,
+            'jumlahsiswa' => $request->jumlahsiswa,
+
+            'akreditasi' => $request->akreditasi,
+            'masaakreditasi' => $request->masaakreditasi,
+            'statustanah' => $request->statustanah,
+            'luastanah' => $request->luastanah,
+            'sertifikat' => $request->sertifikat,
+            'atasnama' => $request->atasnama,
+            'phbnu' => $request->phbnu
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        if ($request->hasFile('image')) {
+            if (!empty($getImage->image)) {
+                $file_path = public_path() . '/storage/images/users/' . $getImage->image;
+                File::delete($file_path);
+            }
+
             $image = $request->file('image');
-            // dd($getImage->image);
             $filename = $image->getClientOriginalName();
             $image->move(public_path('storage/images/users'), $filename);
-            $data = [
-                'nis' => $request->nis,
-                'nama_lengkap' => $request->nama_lengkap,
-                'email' => $request->email,
-                'kelas_id' => $request->kelas_id,
-                'no_tlp' => $request->no_tlp,
-                'tgl_lahir' => $request->tgl_lahir,
-                'alamat' => $request->alamat,
-                'role' => $request->role,
-                'status' => $request->status,
-                'image' => $request->file('image')->getClientOriginalName(),
-                'updated_at' => now(),
-                
-                'thn_pelajaran' => $request->thn_pelajaran,
-                'kelas1' => $request->kelas1,
-                'kelas2' => $request->kelas2,
-                'kelas3' => $request->kelas3,
-                'kelas4' => $request->kelas4,
-                'kelas5' => $request->kelas5,
-                'kelas6' => $request->kelas6,
-                'kelas7' => $request->kelas7,
-                'kelas8' => $request->kelas8,
-                'kelas9' => $request->kelas9,
-                'jumlahsiswa' => $request->jumlahsiswa,
-                
-                'akreditasi' => $request->akreditasi,
-                'masaakreditasi' => $request->masaakreditasi,
-                'statustanah' => $request->statustanah,
-                'luastanah' => $request->luastanah,
-                'sertifikat' => $request->sertifikat,
-                'atasnama' => $request->atasnama,
-                'phbnu' => $request->phbnu
-            ];
-        } else {
-            $data = [
-                'nis' => $request->nis,
-                'nama_lengkap' => $request->nama_lengkap,
-                'email' => $request->email,
-                'kelas_id' => $request->kelas_id,
-                'no_tlp' => $request->no_tlp,
-                'tgl_lahir' => $request->tgl_lahir,
-                'alamat' => $request->alamat,
-                'role' => $request->role,
-                'status' => $request->status,
-                'updated_at' => now(),
-                
-                'thn_pelajaran' => $request->thn_pelajaran,
-                'kelas1' => $request->kelas1,
-                'kelas2' => $request->kelas2,
-                'kelas3' => $request->kelas3,
-                'kelas4' => $request->kelas4,
-                'kelas5' => $request->kelas5,
-                'kelas6' => $request->kelas6,
-                'kelas7' => $request->kelas7,
-                'kelas8' => $request->kelas8,
-                'kelas9' => $request->kelas9,
-                'jumlahsiswa' => $request->jumlahsiswa,
-                
-                'akreditasi' => $request->akreditasi,
-                'masaakreditasi' => $request->masaakreditasi,
-                'statustanah' => $request->statustanah,
-                'luastanah' => $request->luastanah,
-                'sertifikat' => $request->sertifikat,
-                'atasnama' => $request->atasnama,
-                'phbnu' => $request->phbnu
-            ];
+            $data['image'] = $filename;
         }
 
         // dd($data);
