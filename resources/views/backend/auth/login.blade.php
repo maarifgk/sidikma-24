@@ -24,7 +24,7 @@
         min-height: 100vh;
         display: flex;
         align-items: center;
-        padding: 32px 20px;
+        padding: 24px 20px;
         position: relative;
         overflow: hidden;
     }
@@ -70,17 +70,20 @@
         overflow: hidden;
         box-shadow: 0 28px 60px rgba(33, 55, 43, 0.12);
         backdrop-filter: blur(16px);
+        min-height: clamp(620px, 82vh, 760px);
     }
 
     .login-hero {
         position: relative;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-        gap: 32px;
-        padding: 42px 42px 38px;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        padding: 40px 42px;
         background: linear-gradient(155deg, #0e4f2d 0%, #12643a 48%, #1f8a5b 100%);
         color: #fff;
+        text-align: center;
     }
 
     .login-hero::before,
@@ -115,6 +118,7 @@
     .login-brand-strip {
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 18px;
         flex-wrap: wrap;
     }
@@ -144,7 +148,7 @@
 
     .login-hero-copy p {
         margin-bottom: 0;
-        max-width: 520px;
+        max-width: 500px;
         color: rgba(255, 255, 255, 0.84);
         font-size: 1rem;
         line-height: 1.75;
@@ -154,6 +158,7 @@
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 14px;
+        width: 100%;
     }
 
     .login-highlight-item {
@@ -194,14 +199,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 34px;
+        padding: 30px;
         background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(247, 250, 248, 0.96));
     }
 
     .login-card {
         width: 100%;
         max-width: 440px;
-        padding: 36px 34px 32px;
+        padding: 32px 32px 28px;
         border-radius: 28px;
         background: rgba(255, 255, 255, 0.96);
         border: 1px solid var(--login-border);
@@ -376,11 +381,12 @@
     @media (max-width: 991.98px) {
         .login-stage {
             grid-template-columns: 1fr;
+            min-height: auto;
         }
 
         .login-hero,
         .login-panel {
-            padding: 30px;
+            padding: 26px;
         }
 
         .login-highlight-list {
@@ -394,33 +400,29 @@
 
     @media (max-width: 767.98px) {
         .login-page {
-            padding: 18px 14px;
+            min-height: auto;
+            padding: 16px 14px;
         }
 
         .login-stage {
+            display: block;
             border-radius: 24px;
+            min-height: auto;
         }
 
-        .login-hero,
         .login-panel {
-            padding: 24px 20px;
+            padding: 0;
+        }
+
+        .login-hero {
+            display: none;
         }
 
         .login-card {
-            padding: 28px 20px 24px;
-            border-radius: 22px;
-        }
-
-        .login-brand-strip {
-            justify-content: center;
-        }
-
-        .login-hero-copy {
-            text-align: center;
-        }
-
-        .login-highlight-list {
-            grid-template-columns: 1fr;
+            max-width: 100%;
+            padding: 24px 18px 22px;
+            border-radius: 24px;
+            box-shadow: none;
         }
 
         .login-meta {
