@@ -448,8 +448,7 @@
                 <div class="login-hero-copy">
                     <h1>{{ Helper::apk()->nama_aplikasi }}</h1>
                     <p>
-                        Masuk ke sistem dengan tampilan yang lebih rapi, fokus, dan nyaman digunakan di layar desktop
-                        maupun perangkat mobile.
+                        Lembaga Pendidikan Ma'arif NU PCNU Gunungkidul
                     </p>
                 </div>
 
