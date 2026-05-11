@@ -4,8 +4,10 @@
 <style>
     :root {
         --login-primary: #12643a;
-        --login-primary-dark: #0d4d2b;
-        --login-primary-soft: #e9f5ee;
+        --login-primary-dark: #0c4d72;
+        --login-primary-soft: #e8f4f1;
+        --login-blue: #1d6fa5;
+        --login-blue-dark: #144f77;
         --login-accent: #f1c56b;
         --login-text: #163024;
         --login-muted: #6f7f77;
@@ -81,7 +83,7 @@
         justify-content: center;
         gap: 28px;
         padding: 40px 42px;
-        background: linear-gradient(155deg, #0e4f2d 0%, #12643a 48%, #1f8a5b 100%);
+        background: linear-gradient(145deg, #0d4f30 0%, #12643a 38%, #1b7aa0 72%, #114d76 100%);
         color: #fff;
         text-align: center;
     }
@@ -358,16 +360,16 @@
         border: 0;
         border-radius: 18px;
         padding: 14px 18px;
-        background: linear-gradient(135deg, var(--login-primary) 0%, #1b7d4f 100%);
-        box-shadow: 0 14px 24px rgba(18, 100, 58, 0.2);
+        background: linear-gradient(135deg, var(--login-primary) 0%, var(--login-blue) 100%);
+        box-shadow: 0 14px 24px rgba(18, 100, 58, 0.16);
         font-weight: 700;
         letter-spacing: 0.01em;
     }
 
     .login-submit:hover,
     .login-submit:focus {
-        background: linear-gradient(135deg, var(--login-primary-dark) 0%, #166a42 100%);
-        box-shadow: 0 16px 28px rgba(18, 100, 58, 0.24);
+        background: linear-gradient(135deg, #0f5a35 0%, var(--login-blue-dark) 100%);
+        box-shadow: 0 16px 28px rgba(17, 77, 118, 0.22);
     }
 
     .login-note {
