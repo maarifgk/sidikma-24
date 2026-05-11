@@ -749,7 +749,7 @@ if ($hour >= 0 && $hour <= 11) {
                     </div>
                 @endforeach
 
-                <div class="col-xl-7">
+                <div class="col-xl-3 col-md-6">
                     <div class="card h-100 role3-panel">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div>
@@ -783,7 +783,7 @@ if ($hour >= 0 && $hour <= 11) {
                     </div>
                 </div>
 
-                <div class="col-xl-5">
+                <div class="col-xl-3 col-md-6">
                     <div class="card h-100 role3-panel">
                         <div class="card-header">
                             <span class="section-kicker mb-2">
@@ -832,7 +832,7 @@ if ($hour >= 0 && $hour <= 11) {
                     </div>
                 </div>
 
-                <div class="col-xl-5">
+                <div class="col-xl-3 col-md-6">
                     <div class="card h-100 role3-panel">
                         <div class="card-header">
                             <span class="section-kicker mb-2">
@@ -871,7 +871,7 @@ if ($hour >= 0 && $hour <= 11) {
                     </div>
                 </div>
 
-                <div class="col-xl-7">
+                <div class="col-xl-3 col-md-6">
                     <div class="card h-100 role3-panel">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div>
