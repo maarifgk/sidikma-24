@@ -437,6 +437,7 @@ if ($hour >= 0 && $hour <= 11) {
                 border: 0;
                 border-radius: 26px;
                 box-shadow: 0 18px 40px rgba(21, 53, 40, .08);
+                overflow: hidden;
             }
 
             .role3-dashboard .section-kicker {
@@ -549,6 +550,34 @@ if ($hour >= 0 && $hour <= 11) {
                 border-radius: 20px;
                 padding: 16px;
                 background: rgba(255, 255, 255, .96);
+            }
+
+            .role3-dashboard .card-header,
+            .role3-dashboard .card-body,
+            .role3-dashboard .info-item,
+            .role3-dashboard .class-row,
+            .role3-dashboard .activity-row,
+            .role3-dashboard .staff-row,
+            .role3-dashboard .insight-card,
+            .role3-dashboard .d-flex,
+            .role3-dashboard .flex-grow-1 {
+                min-width: 0;
+            }
+
+            .role3-dashboard .info-item small,
+            .role3-dashboard .info-item .fw-semibold,
+            .role3-dashboard .info-item div,
+            .role3-dashboard .class-row span,
+            .role3-dashboard .class-row div,
+            .role3-dashboard .staff-row .fw-semibold,
+            .role3-dashboard .staff-row .small,
+            .role3-dashboard .activity-row .fw-semibold,
+            .role3-dashboard .activity-row div,
+            .role3-dashboard .activity-meta span,
+            .role3-dashboard .badge {
+                overflow-wrap: anywhere;
+                word-break: break-word;
+                white-space: normal;
             }
 
             .role3-dashboard .info-item {
@@ -667,6 +696,13 @@ if ($hour >= 0 && $hour <= 11) {
                     min-width: 0;
                 }
             }
+
+            @media (min-width: 1200px) {
+                .role3-dashboard .school-info-col,
+                .role3-dashboard .insight-summary-col {
+                    width: 100%;
+                }
+            }
         </style>
 
         <div class="col-12 role3-dashboard">
@@ -766,7 +802,7 @@ if ($hour >= 0 && $hour <= 11) {
                         <div class="card-body">
                             <div class="row g-3">
                                 @foreach($schoolInfo as $info)
-                                    <div class="{{ $info['label'] === 'Alamat' ? 'col-12' : 'col-md-6' }}">
+                                    <div class="col-12 school-info-col">
                                         <div class="info-item h-100">
                                             <span class="info-icon">
                                                 <i class="fa-solid {{ $info['icon'] }}"></i>
@@ -794,14 +830,14 @@ if ($hour >= 0 && $hour <= 11) {
                         </div>
                         <div class="card-body">
                             <div class="row g-3 mb-3">
-                                <div class="col-sm-6">
+                                <div class="col-12 insight-summary-col">
                                     <div class="insight-card h-100">
                                         <small class="text-muted">Rata-rata per kelas</small>
                                         <h3 class="mb-1 mt-2">{{ $averageStudents }}</h3>
                                         <div class="soft-muted">siswa per kelas aktif</div>
                                     </div>
                                 </div>
-                                <div class="col-sm-6">
+                                <div class="col-12 insight-summary-col">
                                     <div class="insight-card h-100">
                                         <small class="text-muted">Kelas terpadat</small>
                                         <h3 class="mb-1 mt-2">{{ $largestClassLabel }}</h3>
