@@ -70,7 +70,7 @@
         overflow: hidden;
         box-shadow: 0 28px 60px rgba(33, 55, 43, 0.12);
         backdrop-filter: blur(16px);
-        min-height: clamp(620px, 82vh, 760px);
+        min-height: clamp(520px, 72vh, 640px);
     }
 
     .login-hero {
