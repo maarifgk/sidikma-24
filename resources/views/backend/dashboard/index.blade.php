@@ -737,7 +737,7 @@ if ($hour >= 0 && $hour <= 11) {
                                         <span class="hero-chip"><i class="fa-solid fa-user-tie"></i> {{ number_format($total_teachers ?? 0, 0, ',', '.') }} guru/pegawai</span>
                                     </div>
                                 </div>
-                                <div class="col-lg-5">
+                                {{-- <div class="col-lg-5">
                                     <div class="row g-3">
                                         <div class="col-sm-6">
                                             <div class="hero-mini-card h-100">
@@ -767,7 +767,7 @@ if ($hour >= 0 && $hour <= 11) {
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     </div>
