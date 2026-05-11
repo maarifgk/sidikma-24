@@ -550,7 +550,7 @@
         <div class="role3-sidebar-summary">
             <span class="role3-sidebar-chip">
                 <i class="fa-solid fa-school"></i>
-                <span>Portal Admin Sekolah</span>
+                <span>Portal Admin</span>
             </span>
             <h6>{{ $role3SchoolName }}</h6>
             <p>Akses utama untuk dashboard, presensi, administrasi, dan data kelembagaan.</p>
