@@ -1,12 +1,18 @@
 @extends('backend.layout.base')
 
 @section('content')
-<div class="card shadow-sm">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 fw-bold" style="font-size: 28px">Data Tenaga Pendidik per Tahun Pelajaran</h5>
+@include('backend.administrasi._theme')
+<div class="admin-module-page">
+<div class="card shadow-sm admin-module-panel">
+    <div class="card-header admin-module-header">
+        <div>
+            <span class="admin-module-kicker"><i class="fa-solid fa-chalkboard-user"></i> Kelembagaan</span>
+            <h5 class="admin-module-title">Data Tenaga Pendidik per Tahun Pelajaran</h5>
+            <p class="admin-module-subtitle">Rekap tenaga pendidik per madrasah dan tahun pelajaran dalam tampilan yang lebih rapi dan konsisten.</p>
+        </div>
 
         @if(auth()->user()->role != 4)
-            <a href="{{ route('data-tenaga.create') }}" class="btn btn-primary rounded-pill">+ Tambah Data</a>
+            <a href="{{ route('data-tenaga.create') }}" class="btn btn-primary admin-module-cta">+ Tambah Data</a>
         @endif
     </div>
 
@@ -122,6 +128,7 @@
             </table>
         </div>
     </div>
+</div>
 </div>
 
 @endsection

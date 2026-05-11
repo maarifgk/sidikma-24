@@ -1,20 +1,81 @@
 @extends('backend.layout.base')
 
 @section('content')
-<div class="row">
+@include('backend.administrasi._theme')
+<style>
+    .batik-module {
+        --batik-hero-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(247, 251, 250, 0.96) 100%);
+    }
+
+    .batik-module .admin-module-panel {
+        background: var(--batik-hero-bg);
+    }
+
+    .batik-module .product-card {
+        border: 1px solid rgba(18, 100, 58, 0.08);
+        border-radius: 22px;
+        box-shadow: 0 14px 28px rgba(21, 53, 40, 0.06);
+        overflow: hidden;
+    }
+
+    .batik-module .product-card .card-body {
+        padding: 1rem 1rem 1.1rem;
+    }
+
+    .batik-module .product-card .card-title {
+        color: #173126;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .batik-module .product-card .btn {
+        border-radius: 12px;
+    }
+
+    .batik-module .batik-table-card {
+        margin-top: 1.4rem;
+    }
+
+    .batik-module .product-card .btn + .btn {
+        margin-left: 0.35rem;
+    }
+
+    .batik-module .product-img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    @media (max-width: 767.98px) {
+        .batik-module .product-card .btn + .btn {
+            margin-left: 0;
+        }
+
+        .batik-module .product-card .btn {
+            width: 100%;
+        }
+    }
+</style>
+<div class="admin-module-page">
+<div class="row batik-module">
     <div class="col-mb">
-        <div class="card mb-4">
+        <div class="card mb-4 admin-module-panel">
 
             <!-- Header Card -->
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0" style="font-size: 40px"><b>{{ $title }}</b></h5>
+            <div class="card-header admin-module-header">
+                <div>
+                    <span class="admin-module-kicker"><i class="fa-solid fa-shirt"></i> Batik Ma'arif</span>
+                    <h5 class="admin-module-title">{{ $title }}</h5>
+                    <p class="admin-module-subtitle">Katalog produk, stok, dan pemesanan batik dalam tampilan yang lebih bersih seperti halaman produk modern.</p>
+                </div>
             </div>
 
-            <div class="container-fluid px-4 mt-4">
+            <div class="card-body">
                 <!-- Daftar Harga Batik Maarif (Marketplace Style) -->
                 <div class="row mb-4 g-3">
                     <div class="col-6 col-md-3">
-                        <div class="card shadow-sm h-100">
+                        <div class="card shadow-sm h-100 product-card">
                             <img src="{{ asset('storage/images/logo/Seragam MI.jpg') }}" class="card-img-top product-img" alt="Batik Siswa MI">
                             <div class="card-body text-center">
                                 <h4 class="card-title mb-1">Batik Siswa MI</h4>
@@ -43,7 +104,7 @@
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <div class="card shadow-sm h-100">
+                        <div class="card shadow-sm h-100 product-card">
                             <img src="{{ asset('storage/images/logo/Seragam MTs-SMP.jpg') }}" class="card-img-top product-img" alt="Batik Siswa MTs/SMP">
                             <div class="card-body text-center">
                                 <h4 class="card-title mb-1">Batik Siswa MTs/SMP</h4>
@@ -160,7 +221,7 @@
                     @endif
                     <!-- Merged product: Batik Guru (per meter) -->
                     <div class="col-6 col-md-3">
-                        <div class="card shadow-sm h-100">
+                        <div class="card shadow-sm h-100 product-card">
                             <img src="{{ asset('storage/images/logo/Seragam Guru & Pegawai.jpg') }}" class="card-img-top product-img" alt="Batik Guru">
                             <div class="card-body text-center">
                                 <h4 class="card-title mb-1">Batik Guru</h4>
@@ -182,15 +243,6 @@
                         </div>
                     </div>
                 </div>
-                <style>
-                .product-img {
-                    width: 100%;
-                    height: 200px; /* atur tinggi tetap */
-                    object-fit: cover; /* biar tidak gepeng */
-                    border-radius: 8px;
-                }
-                </style>
-
                 <form id="formPesananProduk" action="{{ route('batik.maarif.store') }}" method="POST" style="display:none;">
                     @csrf
                     <!-- ✅ asal sekolah ambil dari Auth::user()->kelas_id -->
@@ -243,7 +295,7 @@
             <!-- Table Data -->
             <div class="row">
                 <div class="col-md-12 col-lg-12 mb-4 mb-md-0">
-                    <div class="container-fluid px-4 mt-4">
+                    <div class="admin-module-table-card batik-table-card">
                         <div class="table-responsive">
                             <table id="datatable" class="table table-striped table-bordered">
                                 <thead>
@@ -361,5 +413,4 @@ document.querySelectorAll('.btn-diterima').forEach(function(btn) {
     });
 });
 </script>
-
 @endsection

@@ -1,68 +1,150 @@
 @extends('backend.layout.base')
 
 @section('content')
+    @include('backend.administrasi._theme')
+    <style>
+        .payment-module .payment-search-card,
+        .payment-module .payment-content-card,
+        .payment-module .payment-info-card {
+            border-radius: 24px;
+            border: 0;
+            box-shadow: 0 18px 40px rgba(21, 53, 40, 0.08);
+        }
+
+        .payment-module .payment-info-card {
+            overflow: hidden;
+            border: 1px solid rgba(18, 100, 58, 0.08);
+        }
+
+        .payment-module .payment-info-head {
+            background: linear-gradient(135deg, #0f5a35 0%, #12643a 52%, #1d6fa5 100%) !important;
+        }
+
+        .payment-module .payment-filter-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .payment-module .payment-action-group {
+            display: flex;
+            gap: 0.75rem;
+            align-items: end;
+            justify-content: flex-start;
+        }
+
+        .payment-module .payment-note {
+            border: 1px dashed rgba(18, 100, 58, 0.16);
+            border-radius: 18px;
+            padding: 1rem 1.1rem;
+            background: linear-gradient(180deg, rgba(232, 244, 241, 0.38) 0%, rgba(237, 246, 252, 0.4) 100%);
+            color: #315245;
+        }
+
+        .payment-module .payment-note strong {
+            color: #163024;
+        }
+
+        .payment-module .payment-info-card + .payment-info-card {
+            margin-top: 1.2rem;
+        }
+
+        .payment-module .payment-table-wrap {
+            padding: 0.15rem 0 0;
+        }
+
+        .payment-module .payment-table td:first-child {
+            width: 34%;
+            font-weight: 600;
+            color: #163024;
+        }
+
+        .payment-module .payment-table td:last-child {
+            color: #31443a;
+        }
+
+        @media (max-width: 991.98px) {
+            .payment-module .payment-filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-module .payment-action-group {
+                width: 100%;
+            }
+
+            .payment-module .payment-action-group .btn {
+                flex: 1 1 auto;
+            }
+        }
+    </style>
+    <div class="admin-module-page payment-module">
     <div class="row">
         <div class="col-mb">
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0" style="font-size: 40px">{{ $title }}</h5>
+            <div class="card mb-4 payment-search-card admin-module-panel">
+                <div class="card-header admin-module-header">
+                    <div>
+                        <span class="admin-module-kicker"><i class="fa-solid fa-wallet"></i> Pembayaran</span>
+                        <h5 class="admin-module-title">{{ $title }}</h5>
+                        <p class="admin-module-subtitle">Cari data pembayaran, lihat informasi iuran, dan proses tagihan dengan tampilan yang lebih rapi.</p>
+                    </div>
                 </div>
                 <div class="card-body">
                     @if (request()->user()->role == 1)
                         <form action="/pembayaran/search" method="GET" enctype="multipart/form-data">
                             @csrf
-                            <div class="row">
-                                <div class="col-md-5">
-                                    <div class="mb-3">
-                                        <label class="form-label" for="kelas_id">Asal Madrasah</label>
-                                        <select class="form-select" name="kelas_id" id="kelas_id" required>
-                                            <option value="" selected>-- Pilih --</option>
-                                            @foreach ($kelas as $s)
-                                                <option value="{{ $s->id }}">{{ $s->nama_kelas }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                            <div class="payment-filter-grid">
+                                <div>
+                                    <label class="form-label" for="kelas_id">Asal Madrasah</label>
+                                    <select class="form-select" name="kelas_id" id="kelas_id" required>
+                                        <option value="" selected>-- Pilih --</option>
+                                        @foreach ($kelas as $s)
+                                            <option value="{{ $s->id }}">{{ $s->nama_kelas }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                                <div class="col-md-5">
+                                <div>
                                     {{-- <div id="open" class="position-absolute top-0 start-50 translate-middle"
                                         style="margin-top: 5%">
                                         <div id="loading-image" class="spinner-border text-primary" role="status">
                                             <span class="visually-hidden">Loading...</span>
                                         </div>
                                     </div> --}}
-                                    <div class="mb-3">
-                                        <label class="form-label" for="">EWANUGK/NAMA</label>
-                                        <select class="form-select" name="nis" id="nis"
-                                            aria-label="Default select example"></select>
-                                    </div>
+                                    <label class="form-label" for="nis">EWANUGK/NAMA</label>
+                                    <select class="form-select" name="nis" id="nis"
+                                        aria-label="Default select example"></select>
                                 </div>
-                                <div class="col-md-2">
-                                    <br>
+                                <div class="payment-action-group">
                                     <button type="submit" class="btn btn-primary">Cari</button>
-                                    <a href="/pembayaran" type="button" class="btn btn-danger">refresh</a>
+                                    <a href="/pembayaran" type="button" class="btn btn-danger">Refresh</a>
                                 </div>
+                            </div>
                         </form>
+                    @else
+                        <div class="payment-note">
+                            <strong>Informasi pembayaran</strong> ditampilkan berdasarkan akun aktif. Bagian di bawah akan menyesuaikan data guru, tagihan, dan riwayat pembayaran terbaru.
+                        </div>
                     @endif
                 </div>
 
             </div>
         </div>
         <div class="col-xl">
-            <div class="card mb-4">
+            <div class="card mb-4 payment-content-card admin-module-panel">
                 @if ($siswa != null)
                     <div class="card-body">
-                        <div class="card shadow mb-4 border-bottom-success" id="infosiswa" value="0">
+                        <div class="card shadow mb-4 border-bottom-success payment-info-card" id="informasiGuruCard" value="0">
                         @if (request()->user()->role != 3)
                             <!-- Card Header - Accordion -->
-                            <a href="#informasisiswa" class="d-block card-header py-3"
-                            style="background-color: #009991;" data-toggle="collapse" role="button"
+                            <a href="#informasiGuruPegawai" class="d-block card-header py-3 admin-module-info-head payment-info-head"
+                            data-toggle="collapse" role="button"
                             aria-expanded="true" aria-controls="collapseCardExample">
                                 <h6 class="m-0 font-weight-bold text-white">Informasi Guru/Pegawai</h6>
                             </a>
                             <!-- Card Content - Collapse -->
-                            <div class="collapse show" id="informasisiswa">
+                            <div class="collapse show" id="informasiGuruPegawai">
                                 <div class="card-body">
-                                    <table class="table table-striped">
+                                    <table class="table table-striped payment-table">
                                         <tbody>
 
                                             <tr>
@@ -106,12 +188,12 @@
                     </div>
                 @endif
                 <div class="card-body">
-                    <div class="card shadow mb-4 border-bottom-success" id="infosiswa" value="0">
+                    <div class="card shadow mb-4 border-bottom-success payment-info-card" id="informasiIuranCard" value="0">
                         <!-- Card Header - Accordion -->
 
-                        <div class="d-block card-header py-3" style="background-color: #009991;">
+                        <div class="d-block card-header py-3 admin-module-info-head payment-info-head">
                             <div class="d-flex justify-content-between align-items-center">
-                                <a href="#informasisiswa" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample" style="color:inherit; text-decoration:none;">
+                                <a href="#informasiIuran" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample" style="color:inherit; text-decoration:none;">
                                     <h6 class="m-0 font-weight-bold text-white">Informasi Pembayaran Iuran LP. Ma'arif NU PCNU Gunungkidul</h6>
                                 </a>
                                 @if (request()->user()->role == 1)
@@ -121,7 +203,7 @@
                         </div>
 
                         <!-- Card Content - Collapse -->
-                        <div class="collapse show" id="informasisiswa">
+                        <div class="collapse show" id="informasiIuran">
                             <div class="card-body">
                                 @if (!empty(Helper::apk()->info_pembayaran))
                                     @php
@@ -130,7 +212,7 @@
                                     @endphp
 
                                     @if (json_last_error() === JSON_ERROR_NONE && is_array($decoded))
-                                        <table class="table table-striped">
+                                        <table class="table table-striped payment-table">
                                             <tbody>
                                                 <tr>
                                                     <td class="m-0 font-weight-bold text-dark">IURAN</td>
@@ -179,7 +261,7 @@
                                         {!! Helper::apk()->info_pembayaran !!}
                                     @endif
                                 @else
-                                    <table class="table table-striped">
+                                    <table class="table table-striped payment-table">
                                         <tbody>
 
                                             <tr>
@@ -231,18 +313,18 @@
                 </div>
                 @if ($pembayaran_bulanan != null)
                     <div class="card-body">
-                        <div class="card shadow mb-4 border-bottom-warning" id="tagihanbulanan" value="0">
+                        <div class="card shadow mb-4 border-bottom-warning payment-info-card" id="tagihanBulananCard" value="0">
                             <!-- Card Header - Accordion -->
-                            <a href="#tagihanbulan" class="d-block card-header py-3"
-                                data-toggle="collapse" role="button" aria-expanded="true" style="background-color: #009991;"
+                            <a href="#tagihanBulananCollapse" class="d-block card-header py-3 admin-module-info-head payment-info-head"
+                                data-toggle="collapse" role="button" aria-expanded="true"
                                 aria-controls="collapseCardExample">
                                 <h6 class="m-0 font-weight-bold text-white">Iuran Bulanan</h6>
                             </a>
                             <!-- Card Content - Collapse -->
 
-                            <div class="collapse show" id="tagihanbulan">
+                            <div class="collapse show" id="tagihanBulananCollapse">
 
-                                <div class="table-responsive">
+                                <div class="table-responsive payment-table-wrap">
                                     <div class="card-body">
                                         <table class="table table-striped" width="100%" cellspacing="0">
                                             <thead>
@@ -304,16 +386,16 @@
                 @endif
                 @if (!empty($pembayaran_lainya))
                 <div class="card-body">
-                    <div class="card shadow mb-4 border-bottom-info" id="tagihanlainya" value="0">
+                    <div class="card shadow mb-4 border-bottom-info payment-info-card" id="tagihanLainnyaCard" value="0">
                         <!-- Card Header - Accordion -->
-                        <a href="#tagihanlainya" class="d-block card-header py-3"
-                            data-toggle="collapse" role="button" aria-expanded="true" style="background-color: #009991;"
+                        <a href="#tagihanLainnyaCollapse" class="d-block card-header py-3 admin-module-info-head payment-info-head"
+                            data-toggle="collapse" role="button" aria-expanded="true"
                             aria-controls="collapseCardExample">
                             <h6 class="m-0 font-weight-bold text-white">Tagihan Lainnya</h6>
                         </a>
                         <!-- Card Content - Collapse -->
-                        <div class="collapse show" id="tagihanlainya">
-                            <div class="table-responsive">
+                        <div class="collapse show" id="tagihanLainnyaCollapse">
+                            <div class="table-responsive payment-table-wrap">
                                 <div class="card-body">
                                     <table class="table table-striped" width="100%" cellspacing="0">
                                         <thead>
@@ -396,6 +478,7 @@
             @endif
             </div>
         </div>
+    </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>

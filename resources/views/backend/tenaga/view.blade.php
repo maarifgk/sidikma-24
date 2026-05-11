@@ -1,18 +1,21 @@
 @extends('backend.layout.base')
 
 @section('content')
-    <div class="card table-responsive">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0" style="font-size: 40px">
-                <b>{{ $title }}</b>
-            </h5>
+    @include('backend.administrasi._theme')
+    <div class="admin-module-page">
+    <div class="card table-responsive admin-module-panel">
+        <div class="card-header admin-module-header">
+            <div>
+                <span class="admin-module-kicker"><i class="fa-solid fa-user-group"></i> Kelembagaan</span>
+                <h5 class="admin-module-title">{{ $title }}</h5>
+                <p class="admin-module-subtitle">Ringkasan tenaga pendidik dan guru/pegawai per madrasah dalam tampilan yang lebih terstruktur.</p>
+            </div>
             @if (request()->user()->role == 1)
-            <a href="/tenaga/add" type="button" class="btn rounded-pill btn-primary justify-content-end"
-                style="margin-left: 70%;">Add</a>
+            <a href="/tenaga/add" type="button" class="btn btn-primary admin-module-cta">Add</a>
             @endif   
         </div>
     @if (request()->user()->role == 1)
-        <div class="container mt-4 ">
+        <div class="admin-module-table-card">
             <table id="datatable" class="table table-striped ">
                 <thead>
                     <tr>
@@ -80,7 +83,7 @@
     @endif
     
     @if (request()->user()->role == 3)
-    <div class="container mt-4 ">
+    <div class="admin-module-table-card">
             <table id="datatable" class="table table-striped ">
                 <thead>
                     <tr>
@@ -179,5 +182,6 @@
         </div>
     @endif
     
+    </div>
     </div>
 @endsection
