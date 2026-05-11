@@ -737,37 +737,15 @@ if ($hour >= 0 && $hour <= 11) {
                                         <span class="hero-chip"><i class="fa-solid fa-user-tie"></i> {{ number_format($total_teachers ?? 0, 0, ',', '.') }} guru/pegawai</span>
                                     </div>
                                 </div>
-                                {{-- <div class="col-lg-5">
+                                <div class="col-lg-5">
                                     <div class="row g-3">
-                                        <div class="col-sm-6">
-                                            <div class="hero-mini-card h-100">
-                                                <small class="text-uppercase fw-semibold">Distribusi Kelas</small>
-                                                <h3 class="text-white mt-2 mb-1">{{ $filledClasses }}</h3>
-                                                <div class="soft-muted text-white-50">kelas aktif dari data rombel</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="hero-mini-card h-100">
-                                                <small class="text-uppercase fw-semibold">Kelas Terpadat</small>
-                                                <h3 class="text-white mt-2 mb-1">{{ $largestClassLabel }}</h3>
-                                                <div class="soft-muted text-white-50">{{ number_format($largestClassStudents, 0, ',', '.') }} siswa</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="d-flex flex-wrap justify-content-lg-end gap-2">
-                                                <a href="{{ route('siswa') }}" class="quick-action">
-                                                    <i class="fa-solid fa-users"></i> Guru/Pegawai
-                                                </a>
-                                                <a href="{{ route('presensi.dashboard') }}" class="quick-action">
-                                                    <i class="fa-solid fa-calendar-check"></i> Presensi
-                                                </a>
-                                                <a href="{{ route('admin.edit', $profile->id) }}" class="quick-action">
-                                                    <i class="fa-solid fa-pen-to-square"></i> Profil
-                                                </a>
-                                            </div>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <span class="hero-chip"><i class="fa-solid fa-certificate"></i> Akreditasi {{ $profile->akreditasi ?? '-' }}</span>
+                                            <span class="hero-chip"><i class="fa-solid fa-users"></i> {{ number_format($studentTotal, 0, ',', '.') }} siswa aktif</span>
+                                            <span class="hero-chip"><i class="fa-solid fa-user-tie"></i> {{ number_format($total_teachers ?? 0, 0, ',', '.') }} guru/pegawai</span>
                                         </div>
                                     </div>
-                                </div> --}}
+                                </div>
                             </div>
                         </div>
                     </div>
