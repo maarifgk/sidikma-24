@@ -731,11 +731,6 @@ if ($hour >= 0 && $hour <= 11) {
                                             <span><i class="fa-solid fa-calendar-days me-1"></i>{{ $profile->thn_pelajaran ?? 'Tahun pelajaran belum diisi' }}</span>
                                         </div>
                                     </div>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <span class="hero-chip"><i class="fa-solid fa-certificate"></i> Akreditasi {{ $profile->akreditasi ?? '-' }}</span>
-                                        <span class="hero-chip"><i class="fa-solid fa-users"></i> {{ number_format($studentTotal, 0, ',', '.') }} siswa aktif</span>
-                                        <span class="hero-chip"><i class="fa-solid fa-user-tie"></i> {{ number_format($total_teachers ?? 0, 0, ',', '.') }} guru/pegawai</span>
-                                    </div>
                                 </div>
                                 <div class="col-lg-5">
                                     <div class="row g-3">
