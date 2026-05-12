@@ -28,9 +28,6 @@ class PembayaranController extends Controller
     }
     public function search(Request $request)
     {
-        MidtransPaymentSync::syncPendingPaymentsForNis($request->nis);
-        MidtransPaymentSync::syncTagihanStatusesForNis($request->nis);
-
         $data['title'] = "Pembayaran";
         $data['getSiswa'] = DB::select("select * from users where role in ('2','3') order by role desc, nama_lengkap asc");
         $data['thajaran'] = DB::select("select * from tahun_ajaran where active = 'ON'");
@@ -96,16 +93,6 @@ class PembayaranController extends Controller
 
     public function spp($id_tagihan)
     {
-        $targetNis = DB::table('tagihan as t')
-            ->leftJoin('users as u', 'u.id', '=', 't.user_id')
-            ->where('t.id', $id_tagihan)
-            ->value('u.nis');
-
-        if ($targetNis) {
-            MidtransPaymentSync::syncPendingPaymentsForNis($targetNis);
-            MidtransPaymentSync::syncTagihanStatusesForNis($targetNis);
-        }
-
         $data['title'] = "Riwayat Pembayaran Spp";
         // $data['id_tagihan'] = $id_tagihan;
 

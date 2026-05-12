@@ -145,41 +145,6 @@ class MidtransPaymentSync
         return $localStatus;
     }
 
-    public static function syncPendingPaymentsForNis(string $nis): void
-    {
-        if (!$nis) {
-            return;
-        }
-
-        $payments = DB::table('payment as p')
-            ->join('users as u', 'u.id', '=', 'p.user_id')
-            ->where('u.nis', $nis)
-            ->whereNotNull('p.order_id')
-            ->whereIn('p.status', ['Pending', 'Failed'])
-            ->select('p.order_id')
-            ->distinct()
-            ->get();
-
-        foreach ($payments as $payment) {
-            static::syncPaymentByOrderId($payment->order_id);
-        }
-    }
-
-    public static function syncTagihanStatusesForNis(string $nis): void
-    {
-        if (!$nis) {
-            return;
-        }
-
-        $tagihanIds = DB::table('tagihan as t')
-            ->join('users as u', 'u.id', '=', 't.user_id')
-            ->where('u.nis', $nis)
-            ->pluck('t.id')
-            ->all();
-
-        static::refreshTagihanStatuses($tagihanIds);
-    }
-
     public static function refreshTagihanStatuses(array $tagihanIds): void
     {
         $tagihanIds = collect($tagihanIds)
