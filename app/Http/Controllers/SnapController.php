@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Support\MidtransPaymentSync;
 use Midtrans\Snap;
 use Midtrans\Config;
 use App\Providers\Helper;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SnapController extends Controller
 {
@@ -17,8 +20,8 @@ class SnapController extends Controller
     {
         try {
             // 🔥 Ambil server key & client key dari database
-            $serverKey  = Helper::apk()->serverKey;
-            $clientKey  = Helper::apk()->clientKey;
+            $serverKey  = MidtransPaymentSync::serverKey();
+            $clientKey  = MidtransPaymentSync::clientKey();
 
             // 🔥 Jika kosong → langsung error biar tidak 401
             if (!$serverKey || !$clientKey) {
@@ -29,7 +32,7 @@ class SnapController extends Controller
 
             // 🔥 Set konfigurasi Midtrans
             Config::$serverKey     = $serverKey;
-            Config::$isProduction  = true;  // ubah true kalau sudah live
+            Config::$isProduction  = MidtransPaymentSync::isProduction();
             Config::$isSanitized   = true;
             Config::$is3ds         = true;
 
@@ -97,5 +100,51 @@ class SnapController extends Controller
     public function token(Request $request)
     {
         return $this->payment($request);
+    }
+
+    public function callback(Request $request)
+    {
+        $payload = $request->json()->all() ?: $request->all();
+
+        $orderId = $payload['order_id'] ?? null;
+        $statusCode = $payload['status_code'] ?? null;
+        $grossAmount = $payload['gross_amount'] ?? null;
+        $signatureKey = $payload['signature_key'] ?? null;
+        $serverKey = MidtransPaymentSync::serverKey();
+
+        if (!$orderId || !$statusCode || !$grossAmount || !$signatureKey || !$serverKey) {
+            Log::warning('Midtrans callback payload incomplete', ['payload' => $payload]);
+
+            return response()->json(['message' => 'Invalid payload'], 422);
+        }
+
+        $expectedSignature = hash('sha512', $orderId . $statusCode . $grossAmount . $serverKey);
+
+        if (!hash_equals($expectedSignature, $signatureKey)) {
+            Log::warning('Midtrans callback signature mismatch', ['order_id' => $orderId]);
+
+            return response()->json(['message' => 'Invalid signature'], 403);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $status = MidtransPaymentSync::syncPaymentByOrderId($orderId, $payload);
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Notification processed',
+                'status' => $status,
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            Log::error('Midtrans callback processing failed', [
+                'order_id' => $orderId,
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json(['message' => 'Internal server error'], 500);
+        }
     }
 }

@@ -74,6 +74,7 @@ Route::get('/forgetPassword', [AuthController::class, 'forgetPassword'])->name('
 Route::post('/forgetPassword/action', [AuthController::class, 'forgetPasswordAction'])->name('forgetPasswordAction');
 Route::get('/resetPassword/{token}', [AuthController::class, 'resetPassword'])->name('resetPassword');
 Route::post('/resetPassword/action', [AuthController::class, 'resetPasswordAction'])->name('resetPasswordAction');
+Route::post('/midtrans/callback', [SnapController::class, 'callback'])->name('midtrans.callback');
 
 
 
@@ -291,7 +292,6 @@ Route::middleware(['auth'])->group(function () {
     //midtrans
     Route::post('/getToken', [SnapController::class, 'token'])->name('token');
     Route::post('/getTokenPayment', [SnapController::class, 'payment'])->name('payment');
-    Route::post('/midtrans/callback', [SnapController::class, 'callback']);
     //kelas
     Route::get('/kelas', [KelasController::class, 'view'])->name('kelas');
     Route::get('/kelas/add', [KelasController::class, 'add'])->name('kelas.add');
