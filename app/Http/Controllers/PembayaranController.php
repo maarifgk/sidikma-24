@@ -8,7 +8,6 @@ use App\Support\MidtransPaymentSync;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class PembayaranController extends Controller
@@ -151,9 +150,16 @@ class PembayaranController extends Controller
         $params['detail']    = "Tambah Pembayaran Spp dengan ID Tagihan '$request->tagihan_id' dan kelas Id '$request->kelas_id'";
         Helper::log_transaction($params);
         $getusers = DB::table('users')->where('id', $request->user_id)->first();
-        Http::get('https://wa.dlhcode.com/send-message?api_key=' . Helper::apk()->token_whatsapp . '&sender=' . Helper::apk()->tlp . '&number=' . $getusers->no_tlp . '&message=Terima kasih, pembayaran Bulanan anda berhasil dengan nama siswa ' . $getusers->nama_lengkap . ' dengan nis ' . $getusers->nis . '. Silahkan cek tagihan anda di dashboard siswa');
         DB::table('payment')->insert($data);
         MidtransPaymentSync::refreshTagihanStatuses([(int) $request->tagihan_id]);
+        Helper::sendWhatsappMessage(
+            $getusers->no_tlp ?? null,
+            'Terima kasih, pembayaran Bulanan anda berhasil dengan nama siswa '
+                . ($getusers->nama_lengkap ?? '-')
+                . ' dengan nis '
+                . ($getusers->nis ?? '-')
+                . '. Silahkan cek tagihan anda di dashboard siswa'
+        );
         $request->metode_pembayaran == "Manual" ? Alert::success('Success', 'Pembayaran Berhasil') : Alert::warning('Peringatan', 'Segera melakukan pembayaran!!!');
         return redirect("/pembayaran/spp/$request->tagihan_id");
     }
@@ -203,9 +209,18 @@ class PembayaranController extends Controller
         ];
         // dd($data);
         $getusers = DB::table('users')->where('id', $request->user_id)->first();
-        Http::get('https://wa.dlhcode.com/send-message?api_key=' . Helper::apk()->token_whatsapp . '&sender=' . Helper::apk()->tlp . '&number=' . $getusers->no_tlp . '&message=Terima kasih, pembayaran dengan jumlah ' . $request->nilai . ' dengan nama siswa ' . $getusers->nama_lengkap . ' dengan nis ' . $getusers->nis . ' Berhasil. Silahkan cek tagihan anda di dashboard siswa');
         DB::table('payment')->insert($data);
         MidtransPaymentSync::refreshTagihanStatuses([(int) $request->tagihan_id]);
+        Helper::sendWhatsappMessage(
+            $getusers->no_tlp ?? null,
+            'Terima kasih, pembayaran dengan jumlah '
+                . $request->nilai
+                . ' dengan nama siswa '
+                . ($getusers->nama_lengkap ?? '-')
+                . ' dengan nis '
+                . ($getusers->nis ?? '-')
+                . ' Berhasil. Silahkan cek tagihan anda di dashboard siswa'
+        );
 
         if ($alertType == 'success') {
             Alert::success('Success', $alertMessage);
