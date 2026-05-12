@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\MidtransPaymentSync;
 use Illuminate\Support\Facades\DB;
 
 class MobileRole2Controller extends Controller
@@ -143,6 +144,9 @@ class MobileRole2Controller extends Controller
     {
         $this->ensureRoleTwo();
 
+        MidtransPaymentSync::syncPaymentsForNis((string) request()->user()->nis);
+        MidtransPaymentSync::syncTagihanStatusesForNis((string) request()->user()->nis);
+
         $profile = $this->profileData();
         $payments = $this->skPaymentQuery()->get();
 
@@ -176,6 +180,9 @@ class MobileRole2Controller extends Controller
     public function payment($id_tagihan)
     {
         $this->ensureRoleTwo();
+
+        MidtransPaymentSync::syncPaymentsForNis((string) request()->user()->nis);
+        MidtransPaymentSync::syncTagihanStatusesForNis((string) request()->user()->nis);
 
         $payment = DB::select("SELECT t.*, u.nama_lengkap, jp.pembayaran, ta.tahun, u.nis, u.email, u.no_tlp FROM tagihan t LEFT JOIN users u on u.id=t.user_id LEFT JOIN jenis_pembayaran jp on jp.id=t.jenis_pembayaran LEFT JOIN tahun_ajaran ta on ta.id=t.thajaran_id WHERE t.id = '$id_tagihan'");
 

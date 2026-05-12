@@ -29,7 +29,7 @@ class PembayaranController extends Controller
     }
     public function search(Request $request)
     {
-        MidtransPaymentSync::syncPendingPaymentsForNis($request->nis);
+        MidtransPaymentSync::syncPaymentsForNis($request->nis);
         MidtransPaymentSync::syncTagihanStatusesForNis($request->nis);
 
         $data['title'] = "Pembayaran";
@@ -103,7 +103,7 @@ class PembayaranController extends Controller
             ->value('u.nis');
 
         if ($targetNis) {
-            MidtransPaymentSync::syncPendingPaymentsForNis($targetNis);
+            MidtransPaymentSync::syncPaymentsForNis($targetNis);
             MidtransPaymentSync::syncTagihanStatusesForNis($targetNis);
         }
 
