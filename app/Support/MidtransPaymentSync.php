@@ -147,27 +147,18 @@ class MidtransPaymentSync
 
     public static function syncPendingPaymentsForNis(string $nis): void
     {
-        static::syncPaymentsForNis($nis, ['Pending', 'Failed']);
-    }
-
-    public static function syncPaymentsForNis(string $nis, ?array $statuses = null): void
-    {
         if (!$nis) {
             return;
         }
 
-        $paymentsQuery = DB::table('payment as p')
+        $payments = DB::table('payment as p')
             ->join('users as u', 'u.id', '=', 'p.user_id')
             ->where('u.nis', $nis)
             ->whereNotNull('p.order_id')
+            ->whereIn('p.status', ['Pending', 'Failed'])
             ->select('p.order_id')
-            ->distinct();
-
-        if (!empty($statuses)) {
-            $paymentsQuery->whereIn('p.status', $statuses);
-        }
-
-        $payments = $paymentsQuery->get();
+            ->distinct()
+            ->get();
 
         foreach ($payments as $payment) {
             static::syncPaymentByOrderId($payment->order_id);
