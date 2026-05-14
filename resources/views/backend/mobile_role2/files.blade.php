@@ -13,27 +13,27 @@
 
     <section class="section">
         <div class="section-head">
-            <h3>File SK User</h3>
+            <h3>File SK Yayasan</h3>
             <span>{{ $personalFiles->count() }} file</span>
         </div>
         <div class="card list-card">
             @forelse ($personalFiles as $file)
                 <div class="list-item">
                     <div>
-                        <div class="item-title">{{ $file['label'] }}</div>
+                        {{-- <div class="item-title">{{ $file['label'] }}</div> --}}
                         <div class="item-subtitle">{{ $file['file'] }}</div>
                     </div>
                     <a href="{{ $file['path'] }}" target="_blank" class="action">Download</a>
                 </div>
             @empty
-                <div class="empty-state">Belum ada file pada kolom `users.sk01_2025` untuk akun ini.</div>
+                <div class="empty-state">Belum ada file untuk akun ini.</div>
             @endforelse
         </div>
     </section>
 
     <section class="section">
         <div class="section-head">
-            <h3>Dokumen SK Yayasan</h3>
+            <h3>File SK Yayasan</h3>
             <span>{{ $skYayasanDocuments->count() }} file</span>
         </div>
         <div class="card list-card">
@@ -47,7 +47,7 @@
                     <a href="{{ route('sk-yayasan.documents.download', $file->id) }}" class="action secondary">Download</a>
                 </div>
             @empty
-                <div class="empty-state">Belum ada dokumen pada `sk_yayasan_documents` untuk user ini.</div>
+                <div class="empty-state">Belum ada file untuk user ini.</div>
             @endforelse
         </div>
     </section>
