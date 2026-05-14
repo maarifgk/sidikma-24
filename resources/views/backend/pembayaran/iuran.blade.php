@@ -9,7 +9,7 @@
                 </div>
 
                 <div class="card-body">
-                    <form action="/iuranAddProses" method="POST" id="iuran-form" enctype="multipart/form-data">
+                    <form action="/iuranAddProses" method="POST" id="payment-form" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="_token" id="_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="result_type" id="result-type">

@@ -145,6 +145,64 @@ class MidtransPaymentSync
         return $localStatus;
     }
 
+    public static function syncPendingOrders(array $orderIds): void
+    {
+        $orderIds = collect($orderIds)
+            ->filter(fn ($orderId) => filled($orderId))
+            ->map(fn ($orderId) => (string) $orderId)
+            ->unique()
+            ->values();
+
+        foreach ($orderIds as $orderId) {
+            try {
+                $payload = static::fetchTransactionStatus($orderId);
+
+                if (!$payload) {
+                    continue;
+                }
+
+                static::syncPaymentByOrderId($orderId, $payload);
+            } catch (\Throwable $e) {
+                Log::warning('Midtrans pending payment sync failed', [
+                    'order_id' => $orderId,
+                    'message' => $e->getMessage(),
+                ]);
+            }
+        }
+    }
+
+    public static function syncPendingPaymentsForUser(?int $userId): void
+    {
+        if (!$userId) {
+            return;
+        }
+
+        $orderIds = DB::table('payment')
+            ->where('user_id', $userId)
+            ->where('status', 'Pending')
+            ->whereNotNull('order_id')
+            ->pluck('order_id')
+            ->all();
+
+        static::syncPendingOrders($orderIds);
+    }
+
+    public static function syncPendingPaymentsForTagihan(?int $tagihanId): void
+    {
+        if (!$tagihanId) {
+            return;
+        }
+
+        $orderIds = DB::table('payment')
+            ->where('tagihan_id', $tagihanId)
+            ->where('status', 'Pending')
+            ->whereNotNull('order_id')
+            ->pluck('order_id')
+            ->all();
+
+        static::syncPendingOrders($orderIds);
+    }
+
     public static function refreshTagihanStatuses(array $tagihanIds): void
     {
         $tagihanIds = collect($tagihanIds)

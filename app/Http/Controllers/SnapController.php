@@ -126,11 +126,22 @@ class SnapController extends Controller
             return response()->json(['message' => 'Invalid signature'], 403);
         }
 
+        Log::info('Midtrans callback received', [
+            'order_id' => $orderId,
+            'transaction_status' => $payload['transaction_status'] ?? null,
+            'payment_type' => $payload['payment_type'] ?? null,
+        ]);
+
         DB::beginTransaction();
 
         try {
             $status = MidtransPaymentSync::syncPaymentByOrderId($orderId, $payload);
             DB::commit();
+
+            Log::info('Midtrans callback processed', [
+                'order_id' => $orderId,
+                'local_status' => $status,
+            ]);
 
             return response()->json([
                 'message' => 'Notification processed',

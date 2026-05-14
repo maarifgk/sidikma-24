@@ -33,6 +33,11 @@ class PembayaranController extends Controller
         $data['thajaran'] = DB::select("select * from tahun_ajaran where active = 'ON'");
         $data['kelas'] = DB::select("select * from kelas");
         $data['siswa'] = DB::table('users')->join('tagihan', 'users.id', '=', 'tagihan.user_id')->join('kelas', 'kelas.id', '=', 'tagihan.kelas_id')->where('users.nis', $request->nis)->where('users.kelas_id', $request->kelas_id)->first();
+
+        if (!empty($data['siswa']->user_id)) {
+            MidtransPaymentSync::syncPendingPaymentsForUser((int) $data['siswa']->user_id);
+        }
+
         $data['pembayaran_bulanan'] = DB::select("SELECT
         IF(COUNT(DISTINCT CASE WHEN p.status = 'Lunas' THEN p.bulan_id END) = 12, 'Lunas', 'Belum Lunas') as status_bayar,
         COALESCE(SUM(CASE WHEN p.status = 'Lunas' THEN p.nilai ELSE 0 END), 0) as total_bayar, t.thajaran_id, u.nis, ta.tahun, k.nama_kelas, jp.pembayaran, t.id
@@ -96,6 +101,8 @@ class PembayaranController extends Controller
         $data['title'] = "Riwayat Pembayaran Spp";
         // $data['id_tagihan'] = $id_tagihan;
 
+        MidtransPaymentSync::syncPendingPaymentsForTagihan((int) $id_tagihan);
+
         $getDataUser[0] = DB::select("select user_id, thajaran_id, t.kelas_id, u.nis from tagihan t left join users u on t.user_id=u.id where t.id = '$id_tagihan'");
         $data['user_id'] = $getDataUser[0][0]->user_id;
         $data['thajaran_id'] = $getDataUser[0][0]->thajaran_id;
@@ -153,6 +160,7 @@ class PembayaranController extends Controller
     public function payment($id_tagihan)
     {
         $data['title'] = "Payment";
+        MidtransPaymentSync::syncPendingPaymentsForTagihan((int) $id_tagihan);
         $data['payment'] = DB::select("SELECT t.*, u.nama_lengkap, jp.pembayaran, ta.tahun, u.nis, u.email, u.no_tlp FROM tagihan t LEFT JOIN users u on u.id=t.user_id LEFT JOIN jenis_pembayaran jp on jp.id=t.jenis_pembayaran LEFT JOIN tahun_ajaran ta on ta.id=t.thajaran_id WHERE t.id = '$id_tagihan'");
         // dd($data['payment']);
         return view('backend.pembayaran.payment', $data);
@@ -218,6 +226,11 @@ class PembayaranController extends Controller
         }
 
         return redirect("/pembayaran/search?&kelas_id=$request->kelas_id&nis=$request->nis");
+    }
+
+    public function iuranAddProses(Request $request)
+    {
+        return $this->paymentAddProses($request);
     }
 
     function siswaByKelas($kelas_id)
