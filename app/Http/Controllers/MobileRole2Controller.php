@@ -39,16 +39,23 @@ class MobileRole2Controller extends Controller
             ->orderBy('users.nama_lengkap');
     }
 
-    protected function schoolSkFiles($schoolName)
+    protected function skYayasanDocuments()
     {
-        if (!$schoolName) {
-            return collect();
-        }
-
-        return DB::table('sk')
-            ->whereRaw('LOWER(sekolah) LIKE ?', ['%' . strtolower($schoolName) . '%'])
-            ->orderByDesc('tahun_sk')
-            ->orderByDesc('id')
+        return DB::table('sk_yayasan_documents as docs')
+            ->select(
+                'docs.id',
+                'docs.tahun_sk',
+                'docs.original_filename',
+                'docs.file_path',
+                'docs.source_type',
+                'docs.matched_by',
+                'templates.name as template_name'
+            )
+            ->leftJoin('sk_templates as templates', 'templates.id', '=', 'docs.sk_template_id')
+            ->where('docs.user_id', request()->user()->id)
+            ->orderByDesc('docs.tahun_sk')
+            ->orderByDesc('docs.updated_at')
+            ->orderByDesc('docs.id')
             ->get();
     }
 
@@ -94,7 +101,7 @@ class MobileRole2Controller extends Controller
         $profile = $this->profileData();
         $teammates = $this->teammateQuery()->limit(5)->get();
         $skPayments = $this->skPaymentQuery()->get();
-        $schoolSkFiles = $this->schoolSkFiles($profile->nama_kelas ?? null);
+        $skYayasanDocuments = $this->skYayasanDocuments();
 
         $data = [
             'pageTitle' => 'Dashboard',
@@ -108,13 +115,12 @@ class MobileRole2Controller extends Controller
                     ->where('status', 'Lunas')
                     ->sum('nilai'),
                 'sk_payment_lunas' => $skPayments->where('status_payment', 'Lunas')->count(),
-                'sk_file_total' => $schoolSkFiles->count() + collect([
+                'sk_file_total' => $skYayasanDocuments->count() + collect([
                     request()->user()->sk01_2025,
-                    request()->user()->skbfr2025,
                 ])->filter()->count(),
             ],
             'recentPayments' => $skPayments->take(3),
-            'schoolSkFiles' => $schoolSkFiles->take(3),
+            'skYayasanDocuments' => $skYayasanDocuments->take(3),
         ];
 
         return view('backend.mobile_role2.dashboard', $data);
@@ -226,14 +232,9 @@ class MobileRole2Controller extends Controller
 
         $personalFiles = collect([
             [
-                'label' => 'SK Yayasan 2025',
+                'label' => 'SK User 2025',
                 'file' => request()->user()->sk01_2025,
                 'path' => request()->user()->sk01_2025 ? asset('storage/dokumen/sk01_2025/' . request()->user()->sk01_2025) : null,
-            ],
-            [
-                'label' => 'SK Yayasan Sebelum 2025',
-                'file' => request()->user()->skbfr2025,
-                'path' => request()->user()->skbfr2025 ? asset('storage/dokumen/skbfr2025/' . request()->user()->skbfr2025) : null,
             ],
         ])->filter(fn ($file) => !empty($file['file']))->values();
 
@@ -242,7 +243,7 @@ class MobileRole2Controller extends Controller
             'activeMenu' => 'files',
             'profile' => $profile,
             'personalFiles' => $personalFiles,
-            'schoolSkFiles' => $this->schoolSkFiles($profile->nama_kelas ?? null),
+            'skYayasanDocuments' => $this->skYayasanDocuments(),
         ];
 
         return view('backend.mobile_role2.files', $data);

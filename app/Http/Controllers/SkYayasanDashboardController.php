@@ -140,7 +140,10 @@ class SkYayasanDashboardController extends Controller
 
     public function download(SkYayasanDocument $document)
     {
-        $this->ensureRoleOne();
+        $user = request()->user();
+
+        abort_unless($user, 403);
+        abort_unless((int) $user->role === 1 || ((int) $user->role === 2 && (int) $document->user_id === (int) $user->id), 403);
 
         abort_unless(Storage::disk('public')->exists($document->file_path), 404);
 

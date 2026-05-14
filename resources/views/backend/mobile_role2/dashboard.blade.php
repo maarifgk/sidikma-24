@@ -173,20 +173,20 @@
 
     <section class="section">
         <div class="section-head">
-            <h3>File SK Sekolah</h3>
+            <h3>Dokumen SK Yayasan</h3>
             <span><a href="{{ route('mobile.role2.files') }}">Buka file</a></span>
         </div>
         <div class="card list-card">
-            @forelse ($schoolSkFiles as $file)
+            @forelse ($skYayasanDocuments as $file)
                 <div class="list-item">
                     <div>
-                        <div class="item-title">{{ $file->sekolah }}</div>
-                        <div class="item-subtitle">{{ $file->bulan_sk }} {{ $file->tahun_sk }}</div>
+                        <div class="item-title">{{ $file->original_filename }}</div>
+                        <div class="item-subtitle">Tahun SK {{ $file->tahun_sk }}</div>
                     </div>
-                    <a href="{{ asset('storage/dokumen/' . $file->sk) }}" target="_blank" class="action secondary">Buka</a>
+                    <a href="{{ route('sk-yayasan.documents.download', $file->id) }}" class="action secondary">Download</a>
                 </div>
             @empty
-                <div class="empty-state">File SK sekolah belum tersedia untuk relasi madrasah Anda.</div>
+                <div class="empty-state">Dokumen SK Yayasan belum tersedia untuk akun ini.</div>
             @endforelse
         </div>
     </section>
