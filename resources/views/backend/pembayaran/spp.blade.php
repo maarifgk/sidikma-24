@@ -98,6 +98,7 @@
                     <h4 class="card-title">Pembayaran</h4>
                 </div>
                 <div class="card-body">
+                    @php($defaultMetodePembayaran = request()->user()->role != 1 ? 'Online' : 'Manual')
                     <form id="payment-form" class="" method="post" action="/sppAddProses">
                         @csrf
                         <input type="text" name="tagihan_id" id="" value="{{ $tagihan_id }}" hidden>
@@ -132,16 +133,11 @@
                                 <br>
                             </div>
                             <div class="col-md-12">
-                                <label>Pembayaran</label>
-                                <select id="metode_pembayaran" class="form-control" name="metode_pembayaran" required>
-                                    <option value="">Pilih Metode Pembayaran</option>
-                                    @if (request()->user()->role != 1)
-                                        <option value="Online">Online</option>
-                                    @else
-                                        <option value="Manual">Manual</option>
-                                    @endif
-
-                                </select>
+                                <label>Metode Pembayaran</label>
+                                <input type="hidden" id="metode_pembayaran" name="metode_pembayaran"
+                                    value="{{ $defaultMetodePembayaran }}">
+                                <input type="text" class="form-control" value="{{ $defaultMetodePembayaran }}"
+                                    readonly>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-body">

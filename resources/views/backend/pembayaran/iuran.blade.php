@@ -16,6 +16,7 @@
                         <input type="hidden" name="result_data" id="result-data">
 
                         @foreach ($payment as $p)
+                            @php($defaultMetodePembayaran = request()->user()->role != 1 ? 'Online' : 'Manual')
                             <input type="hidden" name="tagihan_id" value="{{ $p->id }}">
                             <input type="hidden" name="user_id" value="{{ $p->user_id }}">
                             <input type="hidden" name="kelas_id" value="{{ $p->kelas_id }}">
@@ -60,14 +61,10 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Metode Pembayaran</label>
-                                        <select id="metode_pembayaran" class="form-control" name="metode_pembayaran" required>
-                                            <option value="">Pilih Metode Pembayaran</option>
-                                            @if (request()->user()->role != 1)
-                                                <option value="Online">Online</option>
-                                            @else
-                                                <option value="Manual">Manual</option>
-                                            @endif
-                                        </select>
+                                        <input type="hidden" id="metode_pembayaran" name="metode_pembayaran"
+                                            value="{{ $defaultMetodePembayaran }}">
+                                        <input type="text" class="form-control"
+                                            value="{{ $defaultMetodePembayaran }}" readonly>
                                     </div>
                                 </div>
                             </div>

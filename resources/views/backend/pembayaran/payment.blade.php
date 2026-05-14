@@ -8,6 +8,7 @@
                     <h5 class="mb-0" style="font-size: 40px">{{ $title }}</h5>
                 </div>
                 @foreach ($payment as $p)
+                    @php($defaultMetodePembayaran = request()->user()->role != 1 ? 'Online' : 'Manual')
                     <div class="card-body">
                         <form action="/paymentAddProses" method="POST" id="payment-form" enctype="multipart/form-data">
                             @csrf
@@ -63,15 +64,10 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label" for="full_name">Metode Pembayaran</label>
-                                        <select id="metode_pembayaran" class="form-control" name="metode_pembayaran"
-                                            required>
-                                            <option value="">Pilih Metode Pembayaran</option>
-                                            @if (request()->user()->role != 1)
-                                                <option value="Online">Online</option>
-                                            @else
-                                                <option value="Manual">Manual</option>
-                                            @endif
-                                        </select>
+                                        <input type="hidden" id="metode_pembayaran" name="metode_pembayaran"
+                                            value="{{ $defaultMetodePembayaran }}">
+                                        <input type="text" class="form-control"
+                                            value="{{ $defaultMetodePembayaran }}" readonly />
                                     </div>
                                 </div>
                                 <div class="col-md-12 text-center">
