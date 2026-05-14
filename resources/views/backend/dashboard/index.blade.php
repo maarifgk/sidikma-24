@@ -1003,7 +1003,8 @@ if ($hour >= 0 && $hour <= 11) {
                 <div class="card-body px-4 py-3">
                     <h6 class="text-center text-muted text-uppercase mb-1">Grafik Pendapatan</h6>
                     <div class="small text-muted mb-3">
-                        Data pembayaran `Lunas` tahun anggaran {{ $pendapatanTahunLabel }}.
+                        Januari - {{ $grafikPendapatanMonthLabel }} {{ $grafikPendapatanYear }}.
+                        Data pembayaran `Lunas` yang masuk real-time pada periode berjalan.
                         Diperbarui {{ \Carbon\Carbon::parse($grafikPendapatanUpdatedAt)->translatedFormat('d F Y H:i') }}
                     </div>
                     <canvas id="pendapatanChart" style="max-height: 280px;"></canvas>
@@ -1017,6 +1018,10 @@ if ($hour >= 0 && $hour <= 11) {
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
             const ctx = document.getElementById('pendapatanChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+            gradient.addColorStop(0, 'rgba(40, 167, 69, 0.28)');
+            gradient.addColorStop(1, 'rgba(40, 167, 69, 0.02)');
+            const currentPointIndex = labels.length - 1;
             const pendapatanChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -1025,25 +1030,47 @@ if ($hour >= 0 && $hour <= 11) {
                         label: 'Pendapatan',
                         data: data,
                         borderColor: '#28a745',
-                        backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                        backgroundColor: gradient,
                         fill: true,
-                        tension: 0.4
+                        tension: 0.35,
+                        borderWidth: 3,
+                        pointRadius: data.map((_, index) => index === currentPointIndex ? 5 : 3),
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: data.map((_, index) => index === currentPointIndex ? '#14532d' : '#28a745'),
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
                         y: {
+                            beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
                                     return 'Rp ' + value.toLocaleString('id-ID');
                                 }
+                            },
+                            grid: {
+                                color: 'rgba(15, 23, 42, 0.08)'
                             }
                         }
                     },
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Pendapatan: Rp ' + context.parsed.y.toLocaleString('id-ID');
+                                }
+                            }
+                        }
                     }
                 }
             });

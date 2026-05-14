@@ -158,22 +158,29 @@ class DashboardController extends Controller
             ->sum('nilai');
         $data['tagihanTahunLabel'] = $currentTahunAjaranLabel;
 
+        $chartYear = $today->year;
+        $chartMonth = $today->month;
+
         $pendapatanBulanan = (clone $paidPaymentsQuery)
             ->selectRaw('MONTH(p.created_at) as bulan_angka, SUM(p.nilai) as total')
             ->whereNotNull('p.created_at')
+            ->whereYear('p.created_at', $chartYear)
+            ->whereMonth('p.created_at', '<=', $chartMonth)
             ->groupByRaw('MONTH(p.created_at)')
             ->orderByRaw('MONTH(p.created_at)')
             ->pluck('total', 'bulan_angka');
 
-        $data['grafikPendapatanLabels'] = collect(range(1, 12))
+        $data['grafikPendapatanLabels'] = collect(range(1, $chartMonth))
             ->map(fn ($month) => Carbon::create()->month($month)->translatedFormat('F'))
             ->values()
             ->all();
 
-        $data['grafikPendapatanTotals'] = collect(range(1, 12))
+        $data['grafikPendapatanTotals'] = collect(range(1, $chartMonth))
             ->map(fn ($month) => (int) ($pendapatanBulanan[$month] ?? 0))
             ->values()
             ->all();
+        $data['grafikPendapatanYear'] = $chartYear;
+        $data['grafikPendapatanMonthLabel'] = Carbon::create()->month($chartMonth)->translatedFormat('F');
 
         // Ambil 5 pembayaran lunas terbaru pada tahun ajaran aktif
         $data['paymentLatest'] = (clone $paidPaymentsQuery)
