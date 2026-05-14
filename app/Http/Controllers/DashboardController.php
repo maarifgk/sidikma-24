@@ -18,19 +18,31 @@ class DashboardController extends Controller
 
         Carbon::setLocale('id');
 
-        $activeTahunAjaran = DB::table('tahun_ajaran')
-            ->where('active', 'ON')
-            ->orderByDesc('id')
+        $today = Carbon::now();
+        $tahunAjaranStart = $today->month >= 7 ? $today->year : $today->year - 1;
+        $tahunAjaranEnd = $tahunAjaranStart + 1;
+
+        $currentTahunAjaran = DB::table('tahun_ajaran')
+            ->where('tahun', $tahunAjaranStart)
             ->first();
 
-        if (!$activeTahunAjaran) {
-            $activeTahunAjaran = DB::table('tahun_ajaran')
+        if (!$currentTahunAjaran) {
+            $currentTahunAjaran = DB::table('tahun_ajaran')
+                ->where('active', 'ON')
                 ->orderByDesc('id')
                 ->first();
         }
 
-        $activeTahunAjaranId = $activeTahunAjaran->id ?? null;
-        $activeTahunAjaranLabel = $activeTahunAjaran->tahun ?? date('Y');
+        if (!$currentTahunAjaran) {
+            $currentTahunAjaran = DB::table('tahun_ajaran')
+                ->orderByDesc('id')
+                ->first();
+        }
+
+        $currentTahunAjaranId = $currentTahunAjaran->id ?? null;
+        $currentTahunAjaranLabel = $currentTahunAjaran
+            ? ((int) $currentTahunAjaran->tahun) . '/' . ((int) $currentTahunAjaran->tahun + 1)
+            : $tahunAjaranStart . '/' . $tahunAjaranEnd;
 
         $data['rankpayment'] = DB::select(
             "SELECT u.nama_lengkap, p.user_id, k.nama_kelas, u.alamat,  SUM(p.nilai) as total
@@ -131,20 +143,20 @@ class DashboardController extends Controller
         $paidPaymentsQuery = DB::table('payment as p')
             ->join('tagihan as t', 't.id', '=', 'p.tagihan_id')
             ->where('p.status', 'Lunas')
-            ->when($activeTahunAjaranId, function ($query) use ($activeTahunAjaranId) {
-                $query->where('t.thajaran_id', $activeTahunAjaranId);
+            ->when($currentTahunAjaranId, function ($query) use ($currentTahunAjaranId) {
+                $query->where('t.thajaran_id', $currentTahunAjaranId);
             });
 
         $data['pendapatan'] = (clone $paidPaymentsQuery)->sum('p.nilai');
-        $data['pendapatanTahunLabel'] = $activeTahunAjaranLabel;
+        $data['pendapatanTahunLabel'] = $currentTahunAjaranLabel;
 
         $data['tagihanBelumSelesai'] = DB::table('tagihan')
             ->where('status', 'Belum Lunas')
-            ->when($activeTahunAjaranId, function ($query) use ($activeTahunAjaranId) {
-                $query->where('thajaran_id', $activeTahunAjaranId);
+            ->when($currentTahunAjaranId, function ($query) use ($currentTahunAjaranId) {
+                $query->where('thajaran_id', $currentTahunAjaranId);
             })
             ->sum('nilai');
-        $data['tagihanTahunLabel'] = $activeTahunAjaranLabel;
+        $data['tagihanTahunLabel'] = $currentTahunAjaranLabel;
 
         $pendapatanBulanan = (clone $paidPaymentsQuery)
             ->selectRaw('MONTH(p.created_at) as bulan_angka, SUM(p.nilai) as total')
