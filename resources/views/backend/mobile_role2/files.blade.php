@@ -20,7 +20,7 @@
             @forelse ($personalFiles as $file)
                 <div class="list-item">
                     <div>
-                        {{-- <div class="item-title">{{ $file['label'] }}</div> --}}
+                        <div class="item-title">{{ $file['label'] }}</div>
                         <div class="item-subtitle">{{ $file['file'] }}</div>
                     </div>
                     <a href="{{ $file['path'] }}" target="_blank" class="action">Download</a>
