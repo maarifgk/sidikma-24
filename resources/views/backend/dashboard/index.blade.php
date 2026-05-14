@@ -983,7 +983,7 @@ if ($hour >= 0 && $hour <= 11) {
             <div class="card shadow-lg h-100 text-center p-0 d-flex flex-column">
                 <div class="card-body d-flex flex-column justify-content-center align-items-center">
                     <h6 class="card-title text-uppercase text-muted">Pendapatan</h6>
-                    <h5 class="fw-bold">Tahun Anggaran 2025/2026</h5>
+                    <h5 class="fw-bold">Tahun Anggaran {{ $pendapatanTahunLabel }}</h5>
                     <p class="display-6 text-success">
                         Rp {{ number_format($pendapatan , 0, ',', '.') }}
                     </p>
@@ -991,9 +991,9 @@ if ($hour >= 0 && $hour <= 11) {
                 <hr class="w-100 my-0 border-top border-secondary">
                 <div class="card-body d-flex flex-column justify-content-center align-items-center">
                     <h6 class="card-title text-uppercase text-muted">Tagihan Belum Selesai</h6>
-                    <h5 class="fw-bold">Tahun Anggaran 2025</h5>
+                    <h5 class="fw-bold">Tahun Anggaran {{ $tagihanTahunLabel }}</h5>
                     <p class="display-6 text-danger">
-                        Rp {{ number_format($tagihan2025, 0, ',', '.') }}
+                        Rp {{ number_format($tagihanBelumSelesai, 0, ',', '.') }}
                     </p>
                 </div>
             </div>
@@ -1001,14 +1001,18 @@ if ($hour >= 0 && $hour <= 11) {
         <div class="col-lg-5 col-md-6">
             <div class="card shadow-lg h-100 text-center p-3 d-flex flex-column">
                 <div class="card-body px-4 py-3">
-                    <h6 class="text-center text-muted text-uppercase mb-3">Grafik Pendapatan</h6>
+                    <h6 class="text-center text-muted text-uppercase mb-1">Grafik Pendapatan</h6>
+                    <div class="small text-muted mb-3">
+                        Data pembayaran `Lunas` tahun anggaran {{ $pendapatanTahunLabel }}.
+                        Diperbarui {{ \Carbon\Carbon::parse($grafikPendapatanUpdatedAt)->translatedFormat('d F Y H:i') }}
+                    </div>
                     <canvas id="pendapatanChart" style="max-height: 280px;"></canvas>
                 </div>
             </div>
         </div>
         <script>
-            const labels = {!! json_encode($grafikPendapatan->pluck('bulan')) !!};
-            const data = {!! json_encode($grafikPendapatan->pluck('total')) !!};
+            const labels = {!! json_encode($grafikPendapatanLabels) !!};
+            const data = {!! json_encode($grafikPendapatanTotals) !!};
         </script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>

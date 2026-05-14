@@ -16,6 +16,22 @@ class DashboardController extends Controller
             return redirect()->route('mobile.role2.dashboard');
         }
 
+        Carbon::setLocale('id');
+
+        $activeTahunAjaran = DB::table('tahun_ajaran')
+            ->where('active', 'ON')
+            ->orderByDesc('id')
+            ->first();
+
+        if (!$activeTahunAjaran) {
+            $activeTahunAjaran = DB::table('tahun_ajaran')
+                ->orderByDesc('id')
+                ->first();
+        }
+
+        $activeTahunAjaranId = $activeTahunAjaran->id ?? null;
+        $activeTahunAjaranLabel = $activeTahunAjaran->tahun ?? date('Y');
+
         $data['rankpayment'] = DB::select(
             "SELECT u.nama_lengkap, p.user_id, k.nama_kelas, u.alamat,  SUM(p.nilai) as total
             FROM payment p
@@ -106,41 +122,60 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
         // ✅ Tambahkan data proposal 5 terbaru
-            $data['proposal'] = DB::table('proposal')
+        $data['proposal'] = DB::table('proposal')
             ->select('kelas_id', 'status')
             ->orderByDesc('created_at')
             ->limit(5)
             ->get();
 
-            $data['pendapatan'] = DB::table('payment')
-            ->where('status', 'Lunas')
-            ->sum('nilai');
+        $paidPaymentsQuery = DB::table('payment as p')
+            ->join('tagihan as t', 't.id', '=', 'p.tagihan_id')
+            ->where('p.status', 'Lunas')
+            ->when($activeTahunAjaranId, function ($query) use ($activeTahunAjaranId) {
+                $query->where('t.thajaran_id', $activeTahunAjaranId);
+            });
 
-            $data['tagihan2025'] = DB::table('tagihan')
+        $data['pendapatan'] = (clone $paidPaymentsQuery)->sum('p.nilai');
+        $data['pendapatanTahunLabel'] = $activeTahunAjaranLabel;
+
+        $data['tagihanBelumSelesai'] = DB::table('tagihan')
             ->where('status', 'Belum Lunas')
+            ->when($activeTahunAjaranId, function ($query) use ($activeTahunAjaranId) {
+                $query->where('thajaran_id', $activeTahunAjaranId);
+            })
             ->sum('nilai');
+        $data['tagihanTahunLabel'] = $activeTahunAjaranLabel;
 
-            $pendapatanBulanan = DB::table('payment')
-                ->selectRaw("MONTHNAME(created_at) as bulan, MONTH(created_at) as bulan_angka, SUM(nilai) as total")
-                ->where('status', 'Lunas')
-                ->groupByRaw("MONTH(created_at), MONTHNAME(created_at)")
-                ->orderByRaw("bulan_angka")
-                ->get();
+        $pendapatanBulanan = (clone $paidPaymentsQuery)
+            ->selectRaw('MONTH(p.created_at) as bulan_angka, SUM(p.nilai) as total')
+            ->whereNotNull('p.created_at')
+            ->groupByRaw('MONTH(p.created_at)')
+            ->orderByRaw('MONTH(p.created_at)')
+            ->pluck('total', 'bulan_angka');
 
-            // Ambil 5 data terbaru dari payment (kelas_id, nilai, status)
-            $data['paymentLatest'] = DB::table('payment')
-                ->select('kelas_id', 'nilai', 'status')
-                ->where('status', 'Lunas')
-                ->orderByDesc('created_at')
-                ->limit(5)
-                ->get()
-                ->map(function ($payment) {
-                    $payment->nilai = (int) preg_replace('/[^\d]/', '', (string) $payment->nilai);
+        $data['grafikPendapatanLabels'] = collect(range(1, 12))
+            ->map(fn ($month) => Carbon::create()->month($month)->translatedFormat('F'))
+            ->values()
+            ->all();
 
-                    return $payment;
-                });
+        $data['grafikPendapatanTotals'] = collect(range(1, 12))
+            ->map(fn ($month) => (int) ($pendapatanBulanan[$month] ?? 0))
+            ->values()
+            ->all();
 
-        $data['grafikPendapatan'] = $pendapatanBulanan;
+        // Ambil 5 pembayaran lunas terbaru pada tahun ajaran aktif
+        $data['paymentLatest'] = (clone $paidPaymentsQuery)
+            ->select('p.kelas_id', 'p.nilai', 'p.status', 'p.created_at')
+            ->orderByDesc('p.created_at')
+            ->limit(5)
+            ->get()
+            ->map(function ($payment) {
+                $payment->nilai = (int) preg_replace('/[^\d]/', '', (string) $payment->nilai);
+
+                return $payment;
+            });
+
+        $data['grafikPendapatanUpdatedAt'] = now();
 
         // Data tambahan untuk role 3 (Kepala Sekolah)
         if (request()->user()->role == 3) {
@@ -156,8 +191,6 @@ class DashboardController extends Controller
             $data['total_staff'] = DB::table('users')->whereIn('role', [2, 4])->where('kelas_id', request()->user()->kelas_id)->count();
             $data['recent_activities'] = DB::table('usulan')->where('kelas', request()->user()->kelas_id)->orderByDesc('created_at')->limit(5)->get();
         }
-
-        Carbon::setLocale('id');
 
         return view('backend.dashboard.index', $data);
     }
