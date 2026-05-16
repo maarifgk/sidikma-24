@@ -12,6 +12,50 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class PembayaranController extends Controller
 {
+    protected function mobilePaymentBlockedMessage(): string
+    {
+        return 'Pembayaran mobile tidak dapat dilakukan karena sekolah atau kelas ini masih memiliki tagihan iuran yang belum lunas. Silakan selesaikan iuran terlebih dahulu.';
+    }
+
+    protected function hasOutstandingIuranForKelas(?int $kelasId): bool
+    {
+        if (!$kelasId) {
+            return false;
+        }
+
+        return DB::table('tagihan')
+            ->where('kelas_id', $kelasId)
+            ->whereIn('jenis_pembayaran', [14, 16, 19])
+            ->where('status', 'Belum Lunas')
+            ->exists();
+    }
+
+    protected function validateMobileRoleTwoPayment(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user || (int) $user->role !== 2) {
+            return null;
+        }
+
+        $tagihan = DB::table('tagihan')
+            ->where('id', $request->tagihan_id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        abort_if(!$tagihan, 404);
+
+        if ((int) $tagihan->kelas_id !== (int) $user->kelas_id) {
+            abort(403);
+        }
+
+        if ($this->hasOutstandingIuranForKelas((int) $user->kelas_id)) {
+            return redirect()->route('mobile.role2.pembayaran')
+                ->with('error', $this->mobilePaymentBlockedMessage());
+        }
+
+        return null;
+    }
 
 
     public function view()
@@ -169,6 +213,10 @@ class PembayaranController extends Controller
     public function paymentAddProses(Request $request)
     {
         // dd($request->all());
+        if ($response = $this->validateMobileRoleTwoPayment($request)) {
+            return $response;
+        }
+
         $dataMidtrans = json_decode($request->result_data);
         // dd();
         $status = 'Lunas';
@@ -223,6 +271,10 @@ class PembayaranController extends Controller
             Alert::warning('Peringatan', $alertMessage);
         } else {
             Alert::error('Error', $alertMessage);
+        }
+
+        if ($request->user() && (int) $request->user()->role === 2) {
+            return redirect()->route('mobile.role2.pembayaran');
         }
 
         return redirect("/pembayaran/search?&kelas_id=$request->kelas_id&nis=$request->nis");

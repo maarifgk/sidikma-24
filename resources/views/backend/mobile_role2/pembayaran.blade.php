@@ -36,6 +36,17 @@
         </div>
     </section>
 
+    @if (!empty($hasUnpaidIuran) && $hasUnpaidIuran)
+        <section class="section">
+            <div class="card" style="border:1px solid rgba(185, 28, 28, 0.18); background:linear-gradient(180deg, rgba(254, 242, 242, 1) 0%, rgba(255, 255, 255, 1) 100%);">
+                <div style="padding:16px 18px;">
+                    <div style="font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#b91c1c;">Pembayaran Dikunci</div>
+                    <div style="margin-top:6px; color:#7f1d1d;">{{ $paymentBlockedMessage }}</div>
+                </div>
+            </div>
+        </section>
+    @endif
+
     <section class="section">
         <div class="section-head">
             <h3>Daftar Pembayaran</h3>
@@ -59,8 +70,7 @@
                             <a href="{{ url('/lainyaPdf/' . $payment->id) }}" target="_blank" class="action secondary">PDF</a>
                         @else
                             @if(!empty($hasUnpaidIuran) && $hasUnpaidIuran)
-                                {{-- Tampilkan tombol Bayar dalam keadaan disabled saat masih ada iuran belum lunas --}}
-                                <a href="#" class="action disabled" data-message="Pembayaran SK Yayasan tidak dapat dilakukan karena masih ada tagihan Iuran madrasah yang belum lunas. Silakan selesaikan Iuran terlebih dahulu.">Bayar</a>
+                                <a href="#" class="action disabled" data-message="{{ $paymentBlockedMessage }}">Bayar</a>
                             @else
                                 <a href="{{ url('/mobile/role-2/pembayaran/payment/' . $payment->id) }}" class="action">Bayar</a>
                             @endif

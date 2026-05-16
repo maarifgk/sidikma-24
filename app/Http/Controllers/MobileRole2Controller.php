@@ -7,6 +7,24 @@ use Illuminate\Support\Facades\DB;
 
 class MobileRole2Controller extends Controller
 {
+    protected function mobilePaymentBlockedMessage(): string
+    {
+        return 'Pembayaran mobile tidak dapat dilakukan karena sekolah atau kelas ini masih memiliki tagihan iuran yang belum lunas. Silakan selesaikan iuran terlebih dahulu.';
+    }
+
+    protected function hasOutstandingIuranForKelas(?int $kelasId): bool
+    {
+        if (!$kelasId) {
+            return false;
+        }
+
+        return DB::table('tagihan')
+            ->where('kelas_id', $kelasId)
+            ->whereIn('jenis_pembayaran', [14, 16, 19])
+            ->where('status', 'Belum Lunas')
+            ->exists();
+    }
+
     protected function ensureRoleTwo()
     {
         abort_unless(request()->user() && (int) request()->user()->role === 2, 403);
@@ -155,15 +173,7 @@ class MobileRole2Controller extends Controller
         $profile = $this->profileData();
         $payments = $this->skPaymentQuery()->get();
 
-        // Periksa apakah madrasah (kelas_id) masih memiliki tagihan Iuran belum lunas.
-        $hasUnpaidIuran = false;
-        if (!empty($profile) && isset($profile->kelas_id)) {
-                $hasUnpaidIuran = DB::table('tagihan')
-                    ->where('kelas_id', $profile->kelas_id)
-                    ->whereIn('jenis_pembayaran', [14, 16, 19])
-                    ->where('status', 'Belum Lunas')
-                    ->exists();
-        }
+        $hasUnpaidIuran = $this->hasOutstandingIuranForKelas($profile->kelas_id ?? null);
 
         $data = [
             'pageTitle' => 'Pembayaran SK Yayasan',
@@ -171,6 +181,7 @@ class MobileRole2Controller extends Controller
             'profile' => $profile,
             'payments' => $payments,
             'hasUnpaidIuran' => $hasUnpaidIuran,
+            'paymentBlockedMessage' => $this->mobilePaymentBlockedMessage(),
             'summary' => [
                 'total' => $payments->count(),
                 'lunas' => $payments->where('status_payment', 'Lunas')->count(),
@@ -187,31 +198,25 @@ class MobileRole2Controller extends Controller
         $this->ensureRoleTwo();
         MidtransPaymentSync::syncPendingPaymentsForTagihan((int) $id_tagihan);
 
-        $payment = DB::select("SELECT t.*, u.nama_lengkap, jp.pembayaran, ta.tahun, u.nis, u.email, u.no_tlp FROM tagihan t LEFT JOIN users u on u.id=t.user_id LEFT JOIN jenis_pembayaran jp on jp.id=t.jenis_pembayaran LEFT JOIN tahun_ajaran ta on ta.id=t.thajaran_id WHERE t.id = '$id_tagihan'");
+        $payment = DB::table('tagihan as t')
+            ->select('t.*', 'u.nama_lengkap', 'jp.pembayaran', 'ta.tahun', 'u.nis', 'u.email', 'u.no_tlp')
+            ->leftJoin('users as u', 'u.id', '=', 't.user_id')
+            ->leftJoin('jenis_pembayaran as jp', 'jp.id', '=', 't.jenis_pembayaran')
+            ->leftJoin('tahun_ajaran as ta', 'ta.id', '=', 't.thajaran_id')
+            ->where('t.id', $id_tagihan)
+            ->where('t.user_id', request()->user()->id)
+            ->get();
 
         // If no payment found, abort 404
-        if (empty($payment)) {
+        if ($payment->isEmpty()) {
             abort(404);
         }
 
-        // Jika tagihan ini adalah SK/Yayasan, cek apakah madrasah (kelas) masih memiliki tagihan Iuran yang belum lunas.
-        // Bila iya, blok akses pembayaran SK untuk user role 2 sampai Iuran lunas.
         $paymentItem = $payment[0];
-        $pembayaranLabel = strtolower($paymentItem->pembayaran ?? '');
 
-        if (str_contains($pembayaranLabel, 'sk') || str_contains($pembayaranLabel, 'yayasan')) {
-            $kelasId = request()->user()->kelas_id;
-
-                $hasUnpaidIuran = DB::table('tagihan')
-                    ->where('kelas_id', $kelasId)
-                    ->whereIn('jenis_pembayaran', [14, 16, 19]) // Cek jenis pembayaran 14, 16, 19
-                    ->where('status', 'Belum Lunas')
-                    ->exists();
-
-            if ($hasUnpaidIuran) {
-                return redirect()->route('mobile.role2.pembayaran')
-                    ->with('error', 'Pembayaran SK Yayasan tidak dapat dilakukan karena masih ada tagihan Iuran madrasah yang belum lunas. Silakan selesaikan Iuran terlebih dahulu.');
-            }
+        if ($this->hasOutstandingIuranForKelas(request()->user()->kelas_id)) {
+            return redirect()->route('mobile.role2.pembayaran')
+                ->with('error', $this->mobilePaymentBlockedMessage());
         }
 
         $data = [
