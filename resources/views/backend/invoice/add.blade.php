@@ -94,8 +94,10 @@
                                 <td class="text-center">
                                     @if(($tagihan->status ?? '') == 'Lunas')
                                         <span class="badge bg-success">Lunas</span>
+                                    @elseif(($tagihan->status ?? '') == 'Pending')
+                                        <span class="badge bg-warning text-dark">Pending</span>
                                     @else
-                                        <span class="badge bg-warning text-dark">Belum Lunas</span>
+                                        <span class="badge bg-danger">Belum Lunas</span>
                                     @endif
                                 </td>
                             </tr>

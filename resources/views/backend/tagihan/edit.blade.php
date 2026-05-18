@@ -67,6 +67,7 @@
                                     <label class="form-label" for="status">Status</label>
                                     <select class="form-control" name="status" id="status" required>
                                         <option value="Belum Lunas" {{ $tagihan->status == 'Belum Lunas' ? 'selected' : '' }}>Belum Lunas</option>
+                                        <option value="Pending" {{ $tagihan->status == 'Pending' ? 'selected' : '' }}>Pending</option>
                                         <option value="Lunas" {{ $tagihan->status == 'Lunas' ? 'selected' : '' }}>Lunas</option>
                                     </select>
                                 </div>

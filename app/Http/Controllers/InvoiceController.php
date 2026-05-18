@@ -64,7 +64,7 @@ class InvoiceController extends Controller
         }
 
         $data['totalLunas'] = (clone $tagihanQuery)->where('status', 'Lunas')->count();
-        $data['totalBelumLunas'] = (clone $tagihanQuery)->where('status', 'Belum Lunas')->count();
+        $data['totalBelumLunas'] = (clone $tagihanQuery)->whereIn('status', ['Belum Lunas', 'Pending'])->count();
 
         return view('backend.invoice.view', $data);
     }
@@ -339,7 +339,7 @@ class InvoiceController extends Controller
     // Statistik
     $data['totalTagihan']     = $data['tagihan']->count();
     $data['totalLunas']       = $data['tagihan']->where('status', 'Lunas')->count();
-    $data['totalBelumLunas']  = $data['tagihan']->where('status', 'Belum Lunas')->count();
+    $data['totalBelumLunas']  = $data['tagihan']->whereIn('status', ['Belum Lunas', 'Pending'])->count();
 
     // untuk header
     $data['siswa_dipilih'] = $siswa;

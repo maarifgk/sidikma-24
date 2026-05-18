@@ -21,7 +21,7 @@ class MobileRole2Controller extends Controller
         return DB::table('tagihan')
             ->where('kelas_id', $kelasId)
             ->whereIn('jenis_pembayaran', [14, 16, 19])
-            ->where('status', 'Belum Lunas')
+            ->whereIn('status', ['Belum Lunas', 'Pending'])
             ->exists();
     }
 

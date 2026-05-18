@@ -244,12 +244,37 @@ class MidtransPaymentSync
                     ->distinct()
                     ->count('bulan_id');
 
-                $status = $paidMonths >= 12 ? 'Lunas' : 'Belum Lunas';
+                $hasPendingMonths = DB::table('payment')
+                    ->where('tagihan_id', $tagihan->id)
+                    ->where('status', 'Pending')
+                    ->whereNotNull('bulan_id')
+                    ->exists();
+
+                if ($paidMonths >= 12) {
+                    $status = 'Lunas';
+                } elseif ($hasPendingMonths) {
+                    $status = 'Pending';
+                } else {
+                    $status = 'Belum Lunas';
+                }
             } else {
-                $status = DB::table('payment')
+                $hasPaid = DB::table('payment')
                     ->where('tagihan_id', $tagihan->id)
                     ->where('status', 'Lunas')
-                    ->exists() ? 'Lunas' : 'Belum Lunas';
+                    ->exists();
+
+                $hasPending = DB::table('payment')
+                    ->where('tagihan_id', $tagihan->id)
+                    ->where('status', 'Pending')
+                    ->exists();
+
+                if ($hasPaid) {
+                    $status = 'Lunas';
+                } elseif ($hasPending) {
+                    $status = 'Pending';
+                } else {
+                    $status = 'Belum Lunas';
+                }
             }
 
             DB::table('tagihan')

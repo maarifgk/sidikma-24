@@ -151,7 +151,7 @@ class DashboardController extends Controller
         $data['pendapatanTahunLabel'] = $currentTahunAjaranLabel;
 
         $data['tagihanBelumSelesai'] = DB::table('tagihan')
-            ->where('status', 'Belum Lunas')
+            ->whereIn('status', ['Belum Lunas', 'Pending'])
             ->when($currentTahunAjaranId, function ($query) use ($currentTahunAjaranId) {
                 $query->where('thajaran_id', $currentTahunAjaranId);
             })
