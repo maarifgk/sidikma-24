@@ -296,9 +296,9 @@ class PembayaranController extends Controller
 
         if ($request->metode_pembayaran == "Online" && !empty($data[0]['order_id'])) {
             [$status] = $this->syncInsertedOnlinePaymentStatus($data[0]['order_id'], $status);
-        } else {
-            MidtransPaymentSync::refreshTagihanStatuses([(int) $request->tagihan_id]);
         }
+
+        MidtransPaymentSync::refreshTagihanStatuses([(int) $request->tagihan_id]);
 
         Helper::sendWhatsappMessage(
             $getusers->no_tlp ?? null,
@@ -361,9 +361,9 @@ class PembayaranController extends Controller
 
         if ($request->metode_pembayaran == "Online" && !empty($data['order_id'])) {
             [$status, $alertType, $alertMessage] = $this->syncInsertedOnlinePaymentStatus($data['order_id'], $status);
-        } else {
-            MidtransPaymentSync::refreshTagihanStatuses([(int) $request->tagihan_id]);
         }
+
+        MidtransPaymentSync::refreshTagihanStatuses([(int) $request->tagihan_id]);
 
         Helper::sendWhatsappMessage(
             $getusers->no_tlp ?? null,
