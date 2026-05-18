@@ -90,6 +90,7 @@ class PembayaranController extends Controller
     protected function handleDuplicateOnlineOrder(string $orderId, Request $request)
     {
         [$status, $alertType, $alertMessage] = $this->syncInsertedOnlinePaymentStatus($orderId, 'Pending');
+        MidtransPaymentSync::refreshTagihanStatuses([(int) $request->tagihan_id]);
 
         if ($alertType == 'success') {
             Alert::success('Success', 'Transaksi ini sudah tercatat dan statusnya diperbarui.');
