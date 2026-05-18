@@ -90,7 +90,7 @@ class MobileRole2Controller extends Controller
                 't.status as status_tagihan',
                 'ta.tahun',
                 'jp.pembayaran',
-                DB::raw("CASE WHEN t.status = 'Lunas' THEN 'Lunas' ELSE p.status END as status_payment"),
+                'p.status as status_payment',
                 'p.pdf_url',
                 'p.metode_pembayaran',
                 'p.created_at as paid_at'

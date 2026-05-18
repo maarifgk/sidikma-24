@@ -141,7 +141,7 @@ class PembayaranController extends Controller
                 'p.order_id',
                 'p.pdf_url',
                 'p.metode_pembayaran',
-                DB::raw("CASE WHEN t.status = 'Lunas' THEN 'Lunas' ELSE p.status END as status_payment")
+                'p.status as status_payment'
             )
             ->leftJoin('users as u', 't.user_id', '=', 'u.id')
             ->leftJoin('tahun_ajaran as ta', 'ta.id', '=', 't.thajaran_id')
