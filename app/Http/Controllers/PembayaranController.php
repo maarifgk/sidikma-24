@@ -23,6 +23,19 @@ class PembayaranController extends Controller
             ->exists();
     }
 
+    protected function findExistingPaymentForCurrentTransaction(?string $orderId, Request $request)
+    {
+        if (!$orderId) {
+            return null;
+        }
+
+        return DB::table('payment')
+            ->where('order_id', $orderId)
+            ->where('user_id', $request->user_id)
+            ->where('tagihan_id', $request->tagihan_id)
+            ->first();
+    }
+
     protected function alertMetaForStatus(string $status): array
     {
         if ($status === 'Lunas') {
@@ -341,7 +354,13 @@ class PembayaranController extends Controller
         [$status, $alertType, $alertMessage] = $this->resolvePaymentStatus($request, $dataMidtrans);
         $orderId = isset($dataMidtrans->order_id) == false ? null : $dataMidtrans->order_id;
 
-        if ($request->metode_pembayaran == "Online" && $this->hasExistingOrderId($orderId)) {
+        $existingPayment = null;
+
+        if ($request->metode_pembayaran == "Online") {
+            $existingPayment = $this->findExistingPaymentForCurrentTransaction($orderId, $request);
+        }
+
+        if ($request->metode_pembayaran == "Online" && !$existingPayment && $this->hasExistingOrderId($orderId)) {
             return $this->handleDuplicateOnlineOrder($orderId, $request);
         }
 
@@ -358,7 +377,20 @@ class PembayaranController extends Controller
         ];
         // dd($data);
         $getusers = DB::table('users')->where('id', $request->user_id)->first();
-        DB::table('payment')->insert($data);
+
+        if ($existingPayment) {
+            DB::table('payment')
+                ->where('id', $existingPayment->id)
+                ->update([
+                    'kelas_id' => $request->kelas_id,
+                    'nilai' => $data['nilai'],
+                    'pdf_url' => $data['pdf_url'],
+                    'metode_pembayaran' => $data['metode_pembayaran'],
+                    'status' => $data['status'],
+                ]);
+        } else {
+            DB::table('payment')->insert($data);
+        }
 
         if ($request->metode_pembayaran == "Online" && !empty($data['order_id'])) {
             [$status, $alertType, $alertMessage] = $this->syncInsertedOnlinePaymentStatus($data['order_id'], $status);

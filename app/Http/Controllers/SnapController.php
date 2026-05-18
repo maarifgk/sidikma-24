@@ -27,6 +27,49 @@ class SnapController extends Controller
         );
     }
 
+    protected function createPendingPaymentRecord(Request $request, string $orderId, int $total): void
+    {
+        $tagihanId = (int) $request->input('tagihan_id');
+        $userId = (int) $request->input('user_id');
+
+        if (!$tagihanId || !$userId) {
+            return;
+        }
+
+        $tagihan = DB::table('tagihan')
+            ->select('id', 'user_id', 'kelas_id')
+            ->where('id', $tagihanId)
+            ->where('user_id', $userId)
+            ->first();
+
+        if (!$tagihan) {
+            return;
+        }
+
+        $alreadyExists = DB::table('payment')
+            ->where('order_id', $orderId)
+            ->where('user_id', $userId)
+            ->where('tagihan_id', $tagihanId)
+            ->exists();
+
+        if ($alreadyExists) {
+            return;
+        }
+
+        DB::table('payment')->insert([
+            'user_id' => $userId,
+            'tagihan_id' => $tagihanId,
+            'kelas_id' => $tagihan->kelas_id,
+            'nilai' => $total,
+            'order_id' => $orderId,
+            'metode_pembayaran' => 'Online',
+            'status' => 'Pending',
+            'created_at' => now(),
+        ]);
+
+        MidtransPaymentSync::refreshTagihanStatuses([$tagihanId]);
+    }
+
     /**
      * Generate Snap Token untuk pembayaran ONLINE
      */
@@ -94,6 +137,7 @@ class SnapController extends Controller
 
             // 🔥 Request token ke Midtrans
             $snapToken = Snap::getSnapToken($transaction_data);
+            $this->createPendingPaymentRecord($request, $transaction_details['order_id'], (int) $total);
 
             return response()->json($snapToken);
 
