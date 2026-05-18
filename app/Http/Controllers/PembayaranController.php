@@ -12,6 +12,19 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class PembayaranController extends Controller
 {
+    protected function alertMetaForStatus(string $status): array
+    {
+        if ($status === 'Lunas') {
+            return ['success', 'Pembayaran Berhasil'];
+        }
+
+        if ($status === 'Pending') {
+            return ['warning', 'Segera melakukan pembayaran!!!'];
+        }
+
+        return ['error', 'Pembayaran Gagal'];
+    }
+
     protected function resolvePaymentStatus(Request $request, $dataMidtrans = null): array
     {
         $status = 'Lunas';
@@ -42,6 +55,25 @@ class PembayaranController extends Controller
         }
 
         return ['Failed', 'error', 'Pembayaran Gagal'];
+    }
+
+    protected function syncInsertedOnlinePaymentStatus(?string $orderId, string $currentStatus): array
+    {
+        if (!$orderId) {
+            return [$currentStatus, ...$this->alertMetaForStatus($currentStatus)];
+        }
+
+        try {
+            $syncedStatus = MidtransPaymentSync::syncPaymentByOrderId($orderId);
+
+            if ($syncedStatus) {
+                return [$syncedStatus, ...$this->alertMetaForStatus($syncedStatus)];
+            }
+        } catch (\Throwable $e) {
+            // Keep the local status if Midtrans reconciliation is temporarily unavailable.
+        }
+
+        return [$currentStatus, ...$this->alertMetaForStatus($currentStatus)];
     }
 
     protected function mobilePaymentBlockedMessage(): string
@@ -222,7 +254,13 @@ class PembayaranController extends Controller
         Helper::log_transaction($params);
         $getusers = DB::table('users')->where('id', $request->user_id)->first();
         DB::table('payment')->insert($data);
-        MidtransPaymentSync::refreshTagihanStatuses([(int) $request->tagihan_id]);
+
+        if ($request->metode_pembayaran == "Online" && !empty($data[0]['order_id'])) {
+            [$status] = $this->syncInsertedOnlinePaymentStatus($data[0]['order_id'], $status);
+        } else {
+            MidtransPaymentSync::refreshTagihanStatuses([(int) $request->tagihan_id]);
+        }
+
         Helper::sendWhatsappMessage(
             $getusers->no_tlp ?? null,
             'Terima kasih, pembayaran Bulanan anda berhasil dengan nama siswa '
@@ -231,7 +269,16 @@ class PembayaranController extends Controller
                 . ($getusers->nis ?? '-')
                 . '. Silahkan cek tagihan anda di dashboard siswa'
         );
-        $request->metode_pembayaran == "Manual" ? Alert::success('Success', 'Pembayaran Berhasil') : Alert::warning('Peringatan', 'Segera melakukan pembayaran!!!');
+
+        [$alertType, $alertMessage] = $this->alertMetaForStatus($status);
+        if ($alertType == 'success') {
+            Alert::success('Success', $alertMessage);
+        } elseif ($alertType == 'warning') {
+            Alert::warning('Peringatan', $alertMessage);
+        } else {
+            Alert::error('Error', $alertMessage);
+        }
+
         return redirect("/pembayaran/spp/$request->tagihan_id");
     }
     public function payment($id_tagihan)
@@ -267,7 +314,13 @@ class PembayaranController extends Controller
         // dd($data);
         $getusers = DB::table('users')->where('id', $request->user_id)->first();
         DB::table('payment')->insert($data);
-        MidtransPaymentSync::refreshTagihanStatuses([(int) $request->tagihan_id]);
+
+        if ($request->metode_pembayaran == "Online" && !empty($data['order_id'])) {
+            [$status, $alertType, $alertMessage] = $this->syncInsertedOnlinePaymentStatus($data['order_id'], $status);
+        } else {
+            MidtransPaymentSync::refreshTagihanStatuses([(int) $request->tagihan_id]);
+        }
+
         Helper::sendWhatsappMessage(
             $getusers->no_tlp ?? null,
             'Terima kasih, pembayaran dengan jumlah '
