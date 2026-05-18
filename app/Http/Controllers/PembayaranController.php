@@ -198,6 +198,7 @@ class PembayaranController extends Controller
     public function sppAddProses(Request $request)
     {
         $dataMidtrans = json_decode($request->result_data);
+        [$status] = $this->resolvePaymentStatus($request, $dataMidtrans);
 
         foreach ($request->bulan as $key => $bu) {
 
@@ -210,7 +211,7 @@ class PembayaranController extends Controller
                 'order_id' => isset($dataMidtrans->order_id) == false ? null : $dataMidtrans->order_id,
                 'pdf_url' => isset($dataMidtrans->pdf_url) == false ? null : $dataMidtrans->pdf_url,
                 'metode_pembayaran' => $request->metode_pembayaran,
-                'status' => $request->metode_pembayaran == "Online" ? "Pending" : 'Lunas',
+                'status' => $status,
                 'created_at' => now(),
             ];
             // dd($key);
