@@ -12,6 +12,38 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class PembayaranController extends Controller
 {
+    protected function resolvePaymentStatus(Request $request, $dataMidtrans = null): array
+    {
+        $status = 'Lunas';
+        $alertType = 'success';
+        $alertMessage = 'Pembayaran Berhasil';
+
+        if ($request->metode_pembayaran !== 'Online') {
+            return [$status, $alertType, $alertMessage];
+        }
+
+        $transactionStatus = data_get($dataMidtrans, 'transaction_status');
+        $fraudStatus = data_get($dataMidtrans, 'fraud_status');
+
+        if ($transactionStatus) {
+            $status = MidtransPaymentSync::mapTransactionStatus($transactionStatus, $fraudStatus);
+        } elseif ($request->result_type === 'pending') {
+            $status = 'Pending';
+        } elseif ($request->result_type !== 'success') {
+            $status = 'Failed';
+        }
+
+        if ($status === 'Lunas') {
+            return ['Lunas', 'success', 'Pembayaran Berhasil'];
+        }
+
+        if ($status === 'Pending') {
+            return ['Pending', 'warning', 'Segera melakukan pembayaran!!!'];
+        }
+
+        return ['Failed', 'error', 'Pembayaran Gagal'];
+    }
+
     protected function mobilePaymentBlockedMessage(): string
     {
         return 'Pembayaran mobile tidak dapat dilakukan karena sekolah atau kelas ini masih memiliki tagihan iuran yang belum lunas. Silakan selesaikan iuran terlebih dahulu.';
@@ -109,7 +141,7 @@ class PembayaranController extends Controller
                 'p.order_id',
                 'p.pdf_url',
                 'p.metode_pembayaran',
-                'p.status as status_payment'
+                DB::raw("CASE WHEN t.status = 'Lunas' THEN 'Lunas' ELSE p.status END as status_payment")
             )
             ->leftJoin('users as u', 't.user_id', '=', 'u.id')
             ->leftJoin('tahun_ajaran as ta', 'ta.id', '=', 't.thajaran_id')
@@ -218,26 +250,7 @@ class PembayaranController extends Controller
         }
 
         $dataMidtrans = json_decode($request->result_data);
-        // dd();
-        $status = 'Lunas';
-        $alertType = 'success';
-        $alertMessage = 'Pembayaran Berhasil';
-
-        if ($request->metode_pembayaran == "Online") {
-            if ($request->result_type == 'success') {
-                $status = 'Lunas';
-                $alertType = 'success';
-                $alertMessage = 'Pembayaran Berhasil';
-            } elseif ($request->result_type == 'pending') {
-                $status = 'Pending';
-                $alertType = 'warning';
-                $alertMessage = 'Segera melakukan pembayaran!!!';
-            } else {
-                $status = 'Failed';
-                $alertType = 'error';
-                $alertMessage = 'Pembayaran Gagal';
-            }
-        }
+        [$status, $alertType, $alertMessage] = $this->resolvePaymentStatus($request, $dataMidtrans);
 
         $data = [
             'user_id' => $request->user_id,
