@@ -182,6 +182,8 @@
                     cache: false,
                     data: {
                         _token: $('#_token').val(),
+                        tagihan_id: $('input[name="tagihan_id"]').val(),
+                        user_id: $('input[name="user_id"]').val(),
                         total: _total.replace("Rp.", '').replace(".", '').replace(".", '')
 
                     },

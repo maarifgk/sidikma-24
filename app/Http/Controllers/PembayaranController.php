@@ -12,6 +12,17 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class PembayaranController extends Controller
 {
+    protected function hasExistingOrderId(?string $orderId): bool
+    {
+        if (!$orderId) {
+            return false;
+        }
+
+        return DB::table('payment')
+            ->where('order_id', $orderId)
+            ->exists();
+    }
+
     protected function alertMetaForStatus(string $status): array
     {
         if ($status === 'Lunas') {
@@ -74,6 +85,29 @@ class PembayaranController extends Controller
         }
 
         return [$currentStatus, ...$this->alertMetaForStatus($currentStatus)];
+    }
+
+    protected function handleDuplicateOnlineOrder(string $orderId, Request $request)
+    {
+        [$status, $alertType, $alertMessage] = $this->syncInsertedOnlinePaymentStatus($orderId, 'Pending');
+
+        if ($alertType == 'success') {
+            Alert::success('Success', 'Transaksi ini sudah tercatat dan statusnya diperbarui.');
+        } elseif ($alertType == 'warning') {
+            Alert::warning('Peringatan', 'Transaksi ini sudah tercatat dan masih menunggu pembayaran.');
+        } else {
+            Alert::error('Error', 'Transaksi ini sudah tercatat tetapi statusnya belum bisa dipastikan.');
+        }
+
+        if ($request->user() && (int) $request->user()->role === 2) {
+            return redirect()->route('mobile.role2.pembayaran');
+        }
+
+        if ($request->filled('nis')) {
+            return redirect("/pembayaran/search?&kelas_id=$request->kelas_id&nis=$request->nis");
+        }
+
+        return redirect("/pembayaran/spp/$request->tagihan_id");
     }
 
     protected function mobilePaymentBlockedMessage(): string
@@ -231,6 +265,11 @@ class PembayaranController extends Controller
     {
         $dataMidtrans = json_decode($request->result_data);
         [$status] = $this->resolvePaymentStatus($request, $dataMidtrans);
+        $orderId = isset($dataMidtrans->order_id) == false ? null : $dataMidtrans->order_id;
+
+        if ($request->metode_pembayaran == "Online" && $this->hasExistingOrderId($orderId)) {
+            return $this->handleDuplicateOnlineOrder($orderId, $request);
+        }
 
         foreach ($request->bulan as $key => $bu) {
 
@@ -240,7 +279,7 @@ class PembayaranController extends Controller
                 'tagihan_id' => $request->tagihan_id,
                 'kelas_id' => $request->kelas_id,
                 'nilai' => $request->getNilai,
-                'order_id' => isset($dataMidtrans->order_id) == false ? null : $dataMidtrans->order_id,
+                'order_id' => $orderId,
                 'pdf_url' => isset($dataMidtrans->pdf_url) == false ? null : $dataMidtrans->pdf_url,
                 'metode_pembayaran' => $request->metode_pembayaran,
                 'status' => $status,
@@ -299,13 +338,18 @@ class PembayaranController extends Controller
 
         $dataMidtrans = json_decode($request->result_data);
         [$status, $alertType, $alertMessage] = $this->resolvePaymentStatus($request, $dataMidtrans);
+        $orderId = isset($dataMidtrans->order_id) == false ? null : $dataMidtrans->order_id;
+
+        if ($request->metode_pembayaran == "Online" && $this->hasExistingOrderId($orderId)) {
+            return $this->handleDuplicateOnlineOrder($orderId, $request);
+        }
 
         $data = [
             'user_id' => $request->user_id,
             'tagihan_id' => $request->tagihan_id,
             'kelas_id' => $request->kelas_id,
             'nilai' => str_replace(',', '', str_replace('Rp. ', '', $request->nilai)),
-            'order_id' => isset($dataMidtrans->order_id) == false ? null : $dataMidtrans->order_id,
+            'order_id' => $orderId,
             'pdf_url' => isset($dataMidtrans->pdf_url) == false ? null : $dataMidtrans->pdf_url,
             'metode_pembayaran' => $request->metode_pembayaran,
             'status' => $status,

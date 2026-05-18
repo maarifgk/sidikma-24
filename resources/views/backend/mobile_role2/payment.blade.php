@@ -118,6 +118,8 @@
 
                 var tokenData = {
                     _token: document.getElementById('_token').value,
+                    tagihan_id: document.getElementById('tagihan_id').value,
+                    user_id: document.getElementById('user_id').value,
                     nama_lengkap: document.getElementById('nama_lengkap') ? document.getElementById('nama_lengkap').value : '',
                     pembayaran: document.getElementById('pembayaran') ? document.getElementById('pembayaran').value : '',
                     tahun: document.getElementById('tahun') ? document.getElementById('tahun').value : '',

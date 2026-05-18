@@ -10,9 +10,23 @@ use App\Providers\Helper;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SnapController extends Controller
 {
+    protected function buildOrderId(Request $request): string
+    {
+        $userId = preg_replace('/\D+/', '', (string) $request->input('user_id', '0')) ?: '0';
+        $tagihanId = preg_replace('/\D+/', '', (string) $request->input('tagihan_id', '0')) ?: '0';
+
+        return sprintf(
+            'ORD-%s-%s-%s',
+            $userId,
+            $tagihanId,
+            Str::upper(Str::random(10))
+        );
+    }
+
     /**
      * Generate Snap Token untuk pembayaran ONLINE
      */
@@ -49,7 +63,7 @@ class SnapController extends Controller
             //  DATA TRANSAKSI
             // -------------------------------------------
             $transaction_details = [
-                'order_id' => uniqid(),
+                'order_id' => $this->buildOrderId($request),
                 'gross_amount' => (int) $total,
             ];
 

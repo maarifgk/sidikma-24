@@ -98,6 +98,8 @@
                         cache: false,
                         data: {
                             _token: $('#_token').val(),
+                            tagihan_id: $('#tagihan_id').val(),
+                            user_id: $('#user_id').val(),
                             nama_lengkap: $('#nama_lengkap').val(),
                             pembayaran: $('#pembayaran').val(),
                             tahun: $('#tahun').val(),

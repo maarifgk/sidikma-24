@@ -118,7 +118,7 @@ class MidtransPaymentSync
         );
 
         $payments = DB::table('payment')
-            ->select('id', 'tagihan_id', 'pdf_url')
+            ->select('id', 'user_id', 'tagihan_id', 'bulan_id', 'pdf_url')
             ->where('order_id', $orderId)
             ->get();
 
@@ -129,6 +129,21 @@ class MidtransPaymentSync
             ]);
 
             return $localStatus;
+        }
+
+        $distinctUsers = $payments->pluck('user_id')->filter()->unique()->values();
+        $distinctTagihan = $payments->pluck('tagihan_id')->filter()->unique()->values();
+
+        if ($distinctUsers->count() > 1 || $distinctTagihan->count() > 1) {
+            Log::error('Midtrans order_id collision detected; refusing bulk status sync', [
+                'order_id' => $orderId,
+                'payment_ids' => $payments->pluck('id')->all(),
+                'user_ids' => $distinctUsers->all(),
+                'tagihan_ids' => $distinctTagihan->all(),
+                'transaction_status' => $payload['transaction_status'] ?? null,
+            ]);
+
+            return null;
         }
 
         DB::table('payment')
