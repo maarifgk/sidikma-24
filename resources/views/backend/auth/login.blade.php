@@ -565,7 +565,7 @@
                     </form>
 
                     <p class="login-note">
-                         Tampilan login telah dioptimalkan agar tetap nyaman digunakan pada layar besar maupun layar kecil.
+                         segsrg Tampilan login telah dioptimalkan agar tetap nyaman digunakan pada layar besar maupun layar kecil.
                     </p>
                 </div>
             </section>
