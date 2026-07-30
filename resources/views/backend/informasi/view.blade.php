@@ -8,7 +8,7 @@
                         <div class="card-body">
                             <h6 class="card-title mb-1 text-nowrap">
                             </h6>
-                            <small class="d-block mb-3 text-nowrap">Total Pembayaran</small>
+                            <small class="d-block mb-3 text-nowrap">Total Pembayaran </small>
                             <h5 class="card-title text-primary mb-1">Rp. </h5>
                             {{-- <small class="d-block mb-4 pb-1 text-muted">78% of target</small> --}}
                             <a href="/profile" class="btn btn-sm btn-primary">View profile</a>
