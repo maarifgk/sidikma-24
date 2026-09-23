@@ -78,7 +78,7 @@ class BendaharaController extends Controller
             'uraian' => 'required|string',
             'pemasukan' => 'nullable|numeric',
             'pengeluaran' => 'nullable|numeric',
-            'bukti_transaksi' => 'nullable|file|mimes:jpeg,jpg,png,pdf|max:2048'
+            'bukti_transaksi' => 'nullable|file|mimes:jpeg,jpg,png,pdf|max:1048576'
         ];
 
         if ($type == 'pemasukan') {
@@ -140,7 +140,7 @@ class BendaharaController extends Controller
             'uraian' => 'required|string',
             'pemasukan' => 'nullable|numeric',
             'pengeluaran' => 'nullable|numeric',
-            'bukti_transaksi' => 'nullable|file|mimes:jpeg,jpg,png,pdf|max:2048'
+            'bukti_transaksi' => 'nullable|file|mimes:jpeg,jpg,png,pdf|max:1048576'
         ]);
 
         $item = Bendahara::findOrFail($id);

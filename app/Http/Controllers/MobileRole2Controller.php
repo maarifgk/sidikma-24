@@ -12,16 +12,59 @@ class MobileRole2Controller extends Controller
         return 'Pembayaran mobile tidak dapat dilakukan karena sekolah atau kelas ini masih memiliki tagihan iuran yang belum lunas. Silakan selesaikan iuran terlebih dahulu.';
     }
 
-    protected function hasOutstandingIuranForKelas(?int $kelasId): bool
+    protected function hasOutstandingIuranForKelas(
+        ?int $kelasId,
+        ?int $tahunAjaranId = null,
+        ?int $excludedTagihanId = null
+    ): bool
     {
         if (!$kelasId) {
             return false;
         }
 
-        return DB::table('tagihan')
-            ->where('kelas_id', $kelasId)
-            ->whereIn('jenis_pembayaran', [14, 16, 19])
-            ->whereIn('status', ['Belum Lunas', 'Pending'])
+        $requiredPeriodId = DB::table('tagihan as prerequisite')
+            ->join('jenis_pembayaran as prerequisite_type', 'prerequisite_type.id', '=', 'prerequisite.jenis_pembayaran')
+            ->join('users as prerequisite_school', 'prerequisite_school.id', '=', 'prerequisite.user_id')
+            ->where('prerequisite.kelas_id', $kelasId)
+            ->where('prerequisite_school.role', 3)
+            ->where('prerequisite_school.kelas_id', $kelasId)
+            ->whereRaw('LOWER(prerequisite_type.pembayaran) LIKE ?', ['%iuran%'])
+            ->whereRaw('LOWER(prerequisite_type.pembayaran) NOT LIKE ?', ['%sk%'])
+            ->whereRaw('LOWER(prerequisite_type.pembayaran) NOT LIKE ?', ['%yayasan%'])
+            ->when($tahunAjaranId, function ($query) use ($tahunAjaranId) {
+                $query->where('prerequisite.thajaran_id', '<', $tahunAjaranId);
+            })
+            ->max('prerequisite.thajaran_id');
+
+        if (!$requiredPeriodId) {
+            return false;
+        }
+
+        return DB::table('tagihan as t')
+            ->join('jenis_pembayaran as jp', 'jp.id', '=', 't.jenis_pembayaran')
+            ->join('users as school', 'school.id', '=', 't.user_id')
+            ->where('t.kelas_id', $kelasId)
+            ->where('school.role', 3)
+            ->where('school.kelas_id', $kelasId)
+            ->whereRaw('LOWER(jp.pembayaran) LIKE ?', ['%iuran%'])
+            ->whereRaw('LOWER(jp.pembayaran) NOT LIKE ?', ['%sk%'])
+            ->whereRaw('LOWER(jp.pembayaran) NOT LIKE ?', ['%yayasan%'])
+            ->where('t.thajaran_id', $requiredPeriodId)
+            ->when($excludedTagihanId, function ($query) use ($excludedTagihanId) {
+                $query->where('t.id', '!=', $excludedTagihanId);
+            })
+            // Pembayaran tunai/manual dapat dilunasi langsung oleh admin pada
+            // tagihan tanpa menghasilkan baris pada tabel payment.
+            ->where(function ($query) {
+                $query->whereNull('t.status')
+                    ->orWhereRaw('LOWER(TRIM(t.status)) != ?', ['lunas']);
+            })
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('payment')
+                    ->whereColumn('payment.tagihan_id', 't.id')
+                    ->whereRaw('LOWER(TRIM(payment.status)) = ?', ['lunas']);
+            })
             ->exists();
     }
 
@@ -79,28 +122,35 @@ class MobileRole2Controller extends Controller
 
     protected function skPaymentQuery()
     {
-        $latestPayments = DB::table('payment')
-            ->select(DB::raw('MAX(id) as last_payment_id'), 'tagihan_id')
+        // A paid transaction must win over later retry attempts that are pending
+        // or failed. Otherwise an already paid bill appears unpaid again.
+        $effectivePayments = DB::table('payment')
+            ->selectRaw("COALESCE(MAX(CASE WHEN LOWER(TRIM(status)) = 'lunas' THEN id END), MAX(CASE WHEN LOWER(TRIM(status)) = 'pending' THEN id END), MAX(id)) as effective_payment_id, tagihan_id")
             ->groupBy('tagihan_id');
 
         return DB::table('tagihan as t')
             ->select(
                 't.id',
+                't.thajaran_id',
                 't.nilai',
                 't.status as status_tagihan',
                 'ta.tahun',
                 'jp.pembayaran',
-                'p.status as status_payment',
+                DB::raw("CASE
+                    WHEN LOWER(TRIM(t.status)) = 'lunas' OR LOWER(TRIM(p.status)) = 'lunas' THEN 'Lunas'
+                    WHEN LOWER(TRIM(t.status)) = 'pending' OR LOWER(TRIM(p.status)) = 'pending' THEN 'Pending'
+                    ELSE p.status
+                END as status_payment"),
                 'p.pdf_url',
                 'p.metode_pembayaran',
                 'p.created_at as paid_at'
             )
             ->leftJoin('tahun_ajaran as ta', 'ta.id', '=', 't.thajaran_id')
             ->leftJoin('jenis_pembayaran as jp', 'jp.id', '=', 't.jenis_pembayaran')
-            ->leftJoinSub($latestPayments, 'lp', function ($join) {
-                $join->on('lp.tagihan_id', '=', 't.id');
+            ->leftJoinSub($effectivePayments, 'ep', function ($join) {
+                $join->on('ep.tagihan_id', '=', 't.id');
             })
-            ->leftJoin('payment as p', 'p.id', '=', 'lp.last_payment_id')
+            ->leftJoin('payment as p', 'p.id', '=', 'ep.effective_payment_id')
             ->where('t.user_id', request()->user()->id)
             ->where('t.jenis_pembayaran', '!=', 1)
             ->where(function ($query) {
@@ -173,7 +223,11 @@ class MobileRole2Controller extends Controller
         $profile = $this->profileData();
         $payments = $this->skPaymentQuery()->get();
 
-        $hasUnpaidIuran = $this->hasOutstandingIuranForKelas($profile->kelas_id ?? null);
+        $tahunAjaranTagihan = optional($payments->first())->thajaran_id;
+        $hasUnpaidIuran = $this->hasOutstandingIuranForKelas(
+            $profile->kelas_id ?? null,
+            $tahunAjaranTagihan ? (int) $tahunAjaranTagihan : null
+        );
 
         $data = [
             'pageTitle' => 'Pembayaran SK Yayasan',
@@ -214,7 +268,11 @@ class MobileRole2Controller extends Controller
 
         $paymentItem = $payment[0];
 
-        if ($this->hasOutstandingIuranForKelas(request()->user()->kelas_id)) {
+        if ($this->hasOutstandingIuranForKelas(
+            request()->user()->kelas_id,
+            isset($paymentItem->thajaran_id) ? (int) $paymentItem->thajaran_id : null,
+            (int) $paymentItem->id
+        )) {
             return redirect()->route('mobile.role2.pembayaran')
                 ->with('error', $this->mobilePaymentBlockedMessage());
         }

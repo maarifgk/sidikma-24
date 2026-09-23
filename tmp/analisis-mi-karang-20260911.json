@@ -1,0 +1,97 @@
+{
+  "date": "2026-09-11",
+  "school": "MI KARANG",
+  "source": "Koordinat disalin dari dua screenshot pengguna; bukan pembacaan database hosting.",
+  "known_boundary": [
+    {
+      "lat": -8.0450035,
+      "lng": 110.5040693
+    },
+    {
+      "lat": -8.0456409,
+      "lng": 110.503954
+    },
+    {
+      "lat": -8.0459065,
+      "lng": 110.5044315
+    }
+  ],
+  "missing_boundary": "Titik 4 belum tersedia; hasil hanya menyatakan posisi terhadap sisi barat T1–T2.",
+  "teachers": [
+    {
+      "name": "SUDARMANTO",
+      "lat": -8.0453019,
+      "lng": 110.504342,
+      "time": "08:17:11",
+      "x": 30.02443254121146,
+      "y": -33.180566110752224,
+      "side": "timur sisi T1–T2",
+      "distance_m": 35.40402262494406,
+      "projection": 0.38008334774949765,
+      "nearest": {
+        "x": -4.825005581558392,
+        "y": -26.938652898059626
+      }
+    },
+    {
+      "name": "SEPTA PARASTA DHANI",
+      "lat": -8.0451864,
+      "lng": 110.5039138,
+      "time": "08:12:35",
+      "x": -17.12064268409072,
+      "y": -20.3375520833376,
+      "side": "barat/luar sisi T1–T2",
+      "distance_m": 13.266841108827387,
+      "projection": 0.3199486189050275,
+      "nearest": {
+        "x": -4.061619329469024,
+        "y": -22.67656512954266
+      }
+    },
+    {
+      "name": "SITI PURWANINGSIH",
+      "lat": -8.0450077,
+      "lng": 110.504037,
+      "time": "08:12:25",
+      "x": -3.5562492523649905,
+      "y": -0.4670186918341603,
+      "side": "barat/luar sisi T1–T2",
+      "distance_m": 3.418204744933201,
+      "projection": 0.01509215100380548,
+      "nearest": {
+        "x": -0.19158880088342353,
+        "y": -1.0696659555960653
+      }
+    },
+    {
+      "name": "TATIK MARYATI",
+      "lat": -8.0453055,
+      "lng": 110.5043422,
+      "time": "07:40:23",
+      "x": 30.046452660677886,
+      "y": -33.580867846610076,
+      "side": "timur sisi T1–T2",
+      "distance_m": 35.49627308810513,
+      "projection": 0.38550181685780766,
+      "nearest": {
+        "x": -4.893790872589685,
+        "y": -27.322690397760415
+      }
+    }
+  ],
+  "nearby_teacher_distance_m": 0.40090692859082017,
+  "maximum_gps_accuracy_confirmed_by_user_m": 50,
+  "actual_gps_accuracy_per_attempt": null,
+  "local_accuracy_check_at_limit_50": {
+    "accepted": [
+      5,
+      30,
+      49,
+      50
+    ],
+    "rejected": [
+      51
+    ],
+    "note": "Pengujian memakai polygon sintetis; bukan pengujian akun produksi."
+  }
+}

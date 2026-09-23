@@ -153,8 +153,13 @@
                               <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label" for="image">Foto</label>
-                                    <input type="file" class="form-control" id="image" name="image"
-                                        placeholder="Masukan Image"  />
+                                    <input type="file"
+                                        class="form-control @error('image') is-invalid @enderror"
+                                        id="image" name="image" accept=".jpg,.jpeg,.png,.gif,.webp,image/*" />
+                                    <small class="form-text text-muted">Opsional. Format JPG, PNG, GIF, atau WEBP, maksimal 10 MB.</small>
+                                    @error('image')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">

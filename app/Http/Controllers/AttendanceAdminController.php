@@ -23,6 +23,10 @@ class AttendanceAdminController extends Controller
     protected function ensurePresensiAdmin(): void
     {
         abort_unless(request()->user() && in_array((int) request()->user()->role, [1, 3], true), 403);
+        if (!$this->isRoleOne()) {
+            abort_unless($this->kelasId() && DB::table('kelas')->where('id', $this->kelasId())->exists(),
+                403, 'Akun admin belum terhubung ke sekolah yang tersedia.');
+        }
     }
 
     protected function isRoleOne(): bool
@@ -223,6 +227,7 @@ class AttendanceAdminController extends Controller
             'latestActivities' => $latestActivities,
             'attendanceMapPoints' => $attendanceMapPoints,
             'geofencePolygon' => $setting ? $this->validator->normalizePolygon($setting->geofence_polygon) : [],
+            'schoolGeofence' => $setting ? $this->validator->getSchoolGeofence($setting) : ['mode' => 'polygon', 'polygon' => []],
         ], $this->filtersMeta($selectedKelasId)));
     }
 
@@ -231,6 +236,7 @@ class AttendanceAdminController extends Controller
         $this->ensurePresensiAdmin();
 
         $selectedKelasId = $this->selectedKelasId(request(), true);
+        abort_unless($selectedKelasId, 422, 'Sekolah belum tersedia.');
 
         return view('backend.presensi.settings', array_merge([
             'setting' => $this->validator->settingForKelas($selectedKelasId),
@@ -248,16 +254,23 @@ class AttendanceAdminController extends Controller
             'late_tolerance_minutes' => 'required|integer|min:0|max:240',
             'max_gps_accuracy' => 'nullable|numeric|min:1|max:100',
             'geofence_polygon' => 'nullable|string',
+            'geofence_mode' => 'sometimes|required|in:polygon,radius',
+            'center_latitude' => 'required_if:geofence_mode,radius|nullable|numeric|between:-90,90',
+            'center_longitude' => 'required_if:geofence_mode,radius|nullable|numeric|between:-180,180',
+            'radius_meters' => 'required_if:geofence_mode,radius|nullable|numeric|min:1|max:5000',
         ]);
 
         $selectedKelasId = $this->selectedKelasId($request, true);
+        abort_unless($selectedKelasId, 422, 'Sekolah belum tersedia.');
 
         $maxGpsAccuracy = $request->filled('max_gps_accuracy')
             ? $request->input('max_gps_accuracy')
-            : 2;
+            : 100;
 
-        $polygon = null;
-        if ($request->filled('geofence_polygon')) {
+        $setting = $this->validator->settingForKelas($selectedKelasId);
+        $mode = $request->input('geofence_mode', $setting->geofence_mode ?? 'polygon');
+        $polygon = $mode === 'radius' ? $setting->geofence_polygon : null;
+        if ($mode === 'polygon' && $request->filled('geofence_polygon')) {
             $decodedPolygon = json_decode($request->input('geofence_polygon'), true);
             $normalizedPolygon = $this->validator->normalizePolygon($decodedPolygon);
 
@@ -270,8 +283,14 @@ class AttendanceAdminController extends Controller
             $polygon = $normalizedPolygon;
         }
 
-        $setting = $this->validator->settingForKelas($selectedKelasId);
-        $setting->update([
+        $locationPayload = [];
+        if ($request->has('geofence_mode')) {
+            $locationPayload['geofence_mode'] = $request->input('geofence_mode');
+            if ($request->input('geofence_mode') === 'radius') {
+                $locationPayload += $request->only(['center_latitude', 'center_longitude', 'radius_meters']);
+            }
+        }
+        $setting->update(array_merge([
             'enable_check_in' => $request->boolean('enable_check_in'),
             'enable_check_out' => $request->boolean('enable_check_out'),
             'enable_permission' => $request->boolean('enable_permission'),
@@ -282,7 +301,7 @@ class AttendanceAdminController extends Controller
             'max_gps_accuracy' => $maxGpsAccuracy,
             'enable_fake_gps_detection' => $request->boolean('enable_fake_gps_detection'),
             'require_selfie' => $request->boolean('require_selfie'),
-        ]);
+        ], $locationPayload));
 
         return redirect()->route('presensi.settings', ['kelas_id' => $selectedKelasId])
             ->with('success', 'Pengaturan presensi berhasil disimpan.');

@@ -21,7 +21,7 @@ class ModulController extends Controller
             'semester' => 'required',
             'bab' => 'required',
             'mapel' => 'required',
-            'file' => 'required|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx|max:40000'
+            'file' => 'required|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx|max:1048576'
         ]);
 
         // 📂 simpan ke public_html/modul/

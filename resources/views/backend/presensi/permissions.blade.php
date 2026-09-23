@@ -2,9 +2,10 @@
 
 @section('content')
     @if(session('success'))
+        <div id="attendanceSuccessMessage" hidden data-message="{{ session('success') }}"></div>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire('Berhasil', '{{ session('success') }}', 'success');
+                Swal.fire('Berhasil', document.getElementById('attendanceSuccessMessage').dataset.message, 'success');
             });
         </script>
     @endif

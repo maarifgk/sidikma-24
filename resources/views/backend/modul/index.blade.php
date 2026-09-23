@@ -64,7 +64,7 @@
                 <div class="mb-3">
                     <label>Upload File Modul</label>
                     <input type="file" name="file" class="form-control" required>
-                    <small class="text-muted">Format: PDF/DOC/PPT/XLS (max 20MB)</small>
+                    <small class="text-muted">Format: PDF/DOC/PPT/XLS (maksimal 1 GB)</small>
                 </div>
                 <button type="submit" class="btn btn-primary">Upload</button>
             </form>

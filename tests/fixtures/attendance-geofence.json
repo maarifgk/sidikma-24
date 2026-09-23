@@ -1,0 +1,22 @@
+{
+  "description": "Synthetic area around the reported coordinate; not the actual MI PIJENAN boundary.",
+  "polygon": [
+    {"lat": -8.0181, "lng": 110.4854},
+    {"lat": -8.0181, "lng": 110.4856},
+    {"lat": -8.0179, "lng": 110.4856},
+    {"lat": -8.0179, "lng": 110.4854}
+  ],
+  "cases": [
+    {"name": "reported coordinate inside a synthetic area", "lat": -8.018018, "lng": 110.4854835, "inside": true},
+    {"name": "south edge", "lat": -8.0181, "lng": 110.4855, "inside": true},
+    {"name": "north edge", "lat": -8.0179, "lng": 110.4855, "inside": true},
+    {"name": "west edge", "lat": -8.0180, "lng": 110.4854, "inside": true},
+    {"name": "east edge", "lat": -8.0180, "lng": 110.4856, "inside": true},
+    {"name": "south west corner", "lat": -8.0181, "lng": 110.4854, "inside": true},
+    {"name": "south east corner", "lat": -8.0181, "lng": 110.4856, "inside": true},
+    {"name": "north east corner", "lat": -8.0179, "lng": 110.4856, "inside": true},
+    {"name": "north west corner", "lat": -8.0179, "lng": 110.4854, "inside": true},
+    {"name": "outside by about five meters", "lat": -8.01815, "lng": 110.4855, "inside": false},
+    {"name": "outside by two centimeters", "lat": -8.0181002, "lng": 110.4855, "inside": false}
+  ]
+}

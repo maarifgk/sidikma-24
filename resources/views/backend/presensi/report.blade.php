@@ -139,22 +139,10 @@
                             <td>{{ $attendance->check_in_time ? $attendance->check_in_time->format('H:i:s') : '-' }}</td>
                             <td>{{ $attendance->check_out_time ? $attendance->check_out_time->format('H:i:s') : '-' }}</td>
                             <td>
-                                @if($attendance->check_in_latitude !== null && $attendance->check_in_longitude !== null)
-                                    {{ $attendance->check_in_latitude }}, {{ $attendance->check_in_longitude }}
-                                @elseif($attendance->check_type === 'datang')
-                                    {{ $attendance->latitude }}, {{ $attendance->longitude }}
-                                @else
-                                    -
-                                @endif
+                                @include('backend.presensi.location', ['prefix' => 'check_in'])
                             </td>
                             <td>
-                                @if($attendance->check_out_latitude !== null && $attendance->check_out_longitude !== null)
-                                    {{ $attendance->check_out_latitude }}, {{ $attendance->check_out_longitude }}
-                                @elseif($attendance->check_type === 'pulang')
-                                    {{ $attendance->latitude }}, {{ $attendance->longitude }}
-                                @else
-                                    -
-                                @endif
+                                @include('backend.presensi.location', ['prefix' => 'check_out'])
                             </td>
                             <td>{{ $attendance->combined_note ?? '-' }}</td>
                             <td>

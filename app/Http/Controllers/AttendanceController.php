@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\AttendancePermission;
+use App\Models\AttendanceSetting;
 use App\Services\AttendanceValidationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AttendanceController extends Controller
 {
@@ -36,6 +38,8 @@ class AttendanceController extends Controller
     public function index()
     {
         $this->ensureRoleTwo();
+        abort_unless(request()->user()->kelas_id && DB::table('kelas')->where('id', request()->user()->kelas_id)->exists(),
+            422, 'Akun belum terhubung ke sekolah yang tersedia. Hubungi admin sekolah.');
 
         $setting = $this->validator->settingForKelas(request()->user()->kelas_id);
         abort_if(!$setting->enable_check_in && !$setting->enable_check_out, 403);
@@ -71,21 +75,57 @@ class AttendanceController extends Controller
         ]);
     }
 
+    public function locationContext(Request $request)
+    {
+        $this->ensureRoleTwo();
+        $schoolId = $request->user()->kelas_id;
+        $setting = AttendanceSetting::where('kelas_id', $schoolId)->first();
+        $schoolName = $schoolId ? DB::table('kelas')->where('id', $schoolId)->value('nama_kelas') : null;
+        if (!$setting || !$schoolName) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sekolah akun atau pengaturan presensi belum tersedia. Hubungi admin sekolah.',
+            ], 422)->header('Cache-Control', 'no-store, private');
+        }
+
+        return response()->json([
+            'success' => true,
+            'user_id' => (int) $request->user()->id,
+            'school_name' => $schoolName,
+            'location_context' => $this->validator->locationContext($setting, (int) $request->user()->id),
+        ])->header('Cache-Control', 'no-store, private');
+    }
+
     public function store(Request $request)
     {
         $this->ensureRoleTwo();
+        if (!$request->user()->kelas_id || !DB::table('kelas')->where('id', $request->user()->kelas_id)->exists()) {
+            return response()->json(['success' => false,
+                'message' => 'Akun belum terhubung ke sekolah yang tersedia. Hubungi admin sekolah.'], 422);
+        }
 
         $request->validate([
             'check_type' => 'required|in:datang,pulang',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'gps_accuracy' => 'required|numeric',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'gps_accuracy' => 'required|numeric|min:0',
+            'location_settings_version' => 'nullable|string|size:64',
             'early_checkout_reason' => 'nullable|string|max:1000',
-            'selfie' => 'nullable|image|max:4096',
+            'selfie' => 'nullable|image|max:1048576',
         ]);
 
         $setting = $this->validator->settingForKelas($request->user()->kelas_id);
         $checkType = $request->input('check_type');
+
+        if ($request->filled('location_settings_version')
+            && !hash_equals($this->validator->locationContext($setting, (int) $request->user()->id)['version'], $request->input('location_settings_version'))) {
+            // No rejected attendance is created for an obsolete school boundary.
+            return response()->json([
+                'success' => false,
+                'rejection_code' => 'location_settings_changed',
+                'message' => 'Pengaturan lokasi sekolah berubah. Ambil ulang lokasi dengan pengaturan terbaru.',
+            ], 409);
+        }
 
         if ($setting->require_selfie && !$request->hasFile('selfie')) {
             return response()->json([
@@ -115,6 +155,16 @@ class AttendanceController extends Controller
         }
 
         $result = $this->validator->validateAttendance($request, $setting, $checkType);
+        if (app()->environment(['local', 'testing'])) {
+            Log::debug('Attendance geofence validation', [
+                'user_id' => $request->user()->id, 'school_id' => $setting->kelas_id,
+                'school_latitude' => $setting->center_latitude, 'school_longitude' => $setting->center_longitude,
+                'user_latitude' => (float) $request->input('latitude'), 'user_longitude' => (float) $request->input('longitude'),
+                'gps_accuracy' => (float) $request->input('gps_accuracy'), 'attendance_type' => $checkType,
+                'accepted' => $result['accepted'], 'rejection_code' => $result['rejection_code'],
+                'location' => $result['location'],
+            ]);
+        }
         $selfiePath = null;
 
         if ($request->hasFile('selfie')) {
@@ -183,6 +233,7 @@ class AttendanceController extends Controller
             'success' => $result['accepted'],
             'message' => $result['message'],
             'status' => $result['status'],
+            'rejection_code' => $result['rejection_code'],
         ], $result['accepted'] ? 200 : 422);
     }
 
@@ -219,7 +270,7 @@ class AttendanceController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'reason' => 'required|string|max:2000',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
+            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:1048576',
         ]);
 
         $attachmentPath = null;

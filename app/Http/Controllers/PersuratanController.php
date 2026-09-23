@@ -147,6 +147,9 @@ class PersuratanController extends Controller
         if (request()->user()->role != 1) {
             abort(403);
         }
+        $request->validate([
+            'link_persuratan' => ['nullable', 'url', 'regex:/^https:\/\/(drive|docs)\.google\.com\//i'],
+        ], ['link_persuratan.regex' => 'Gunakan link file dari Google Drive.']);
         try {
             $id = $request->id ?? 1;
             $payload = [

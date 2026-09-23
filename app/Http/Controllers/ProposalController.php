@@ -203,6 +203,9 @@ class ProposalController extends Controller
         if (request()->user()->role != 1) {
             abort(403);
         }
+        $request->validate([
+            'link_proposal' => ['nullable', 'url', 'regex:/^https:\/\/(drive|docs)\.google\.com\//i'],
+        ], ['link_proposal.regex' => 'Gunakan link file dari Google Drive.']);
         try {
             $id = $request->id ?? 1;
             $payload = [

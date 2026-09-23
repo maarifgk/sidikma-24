@@ -56,7 +56,7 @@
                                             @php $link = $decoded['link_proposal'] ?? null; @endphp
                                             @if (!empty($link))
                                                 <div class="mt-2">
-                                                    <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">Download / Info</a>
+                                                    <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">Buka File Template</a>
                                                 </div>
                                             @endif
                                         </td>

@@ -45,7 +45,7 @@ class UpdateSipinterController extends Controller
             'status_tanah' => 'required|string',
             'pengelolaakta' => 'required|string',
             'akta' => 'required|string',
-            'updatesipinter' => 'required|file|mimes:pdf|max:2048', // Hanya PDF, max 2MB
+            'updatesipinter' => 'required|file|mimes:pdf|max:1048576', // Hanya PDF, maksimal 1 GB
         ]);
 
         // Cek dan buat folder jika belum ada

@@ -90,6 +90,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/profile', [MobileRole2Controller::class, 'profile'])->name('profile');
         Route::get('/presensi', [AttendanceController::class, 'index'])->name('presensi');
         Route::post('/presensi', [AttendanceController::class, 'store'])->name('presensi.store');
+        Route::get('/presensi/lokasi', [AttendanceController::class, 'locationContext'])->name('presensi.location-context');
         Route::get('/izin', [AttendanceController::class, 'permission'])->name('izin');
         Route::post('/izin', [AttendanceController::class, 'storePermission'])->name('izin.store');
     });

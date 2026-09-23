@@ -21,7 +21,7 @@ Pengaturan presensi per sekolah/madrasah berdasarkan `kelas_id`.
 - `geofence_polygon`: JSON polygon area sekolah, minimal 3 titik `{lat,lng}`.
 - `check_in_time`, `check_out_time`: jam masuk/pulang.
 - `late_tolerance_minutes`: toleransi terlambat.
-- `max_gps_accuracy`: batas akurasi GPS, default 3 meter.
+- `max_gps_accuracy`: batas maksimum ketidakpastian GPS, default 100 meter untuk pengaturan baru. Contoh: batas 30 meter menerima GPS 5, 10, dan 30 meter; angka lebih kecil berarti lebih akurat. Batas ini terpisah dari polygon area sekolah.
 - `enable_fake_gps_detection`: aktif/nonaktif anti fake GPS.
 - `require_selfie`: wajib/opsional foto selfie.
 
@@ -54,7 +54,7 @@ Pengajuan izin.
 2. Role 3 mengaktifkan fitur datang/pulang/izin, mengisi jam, toleransi, batas akurasi, polygon geofence, dan pilihan selfie/fake GPS.
 3. Jika fitur aktif, menu `Presensi` dan/atau `Izin` tampil di mobile Role 2.
 4. Role 2 menekan tombol `Datang` atau `Pulang`.
-5. Browser mengambil GPS dengan `enableHighAccuracy`.
+5. Browser mencari GPS dengan `watchPosition`, `enableHighAccuracy`, dan `maximumAge: 0` hingga 30 detik. Sampel pertama yang memenuhi batas maksimum sekolah digunakan; sampel kurang akurat ditunggu sampai membaik.
 6. Data dikirim ke server: koordinat, akurasi, flag mock location jika tersedia, selfie bila ada.
 7. Server memvalidasi:
    - fitur aktif,
@@ -65,12 +65,14 @@ Pengajuan izin.
    - belum presensi dengan jenis yang sama pada tanggal berjalan.
 8. Server menyimpan log presensi. Presensi gagal tetap dicatat sebagai `ditolak` untuk audit.
 9. UI menampilkan SweetAlert:
-   - `Akurasi lokasi tidak valid, silakan mendekat ke area sekolah`
+   - Pesan akurasi menyebut ketidakpastian GPS terukur dan batas maksimum sekolah, disertai petunjuk mencoba ulang.
    - `Terdeteksi penggunaan lokasi palsu (Fake GPS)`
    - `Anda berada di luar area sekolah`
    - `Presensi berhasil`
 
 ## Catatan Anti Fake GPS
+
+Panduan pemasangan koreksi validasi akurasi: [PRESENSI_AKURASI_PERBAIKAN.md](PRESENSI_AKURASI_PERBAIKAN.md).
 
 Web Geolocation standar tidak menyediakan sinyal mock location yang konsisten di semua browser. Implementasi saat ini menerima beberapa flag yang bisa dikirim dari WebView/native Android:
 

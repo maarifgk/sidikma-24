@@ -86,14 +86,15 @@
                         </div>
 
                         <hr>
-                        <h6>Links PDF (opsional)</h6>
+                        <h6>Link File Google Drive (Word/PDF)</h6>
                         <div class="mb-3">
-                            <label class="form-label">Link Surat Permohonan (PDF)</label>
-                            <input type="url" name="link_permohonan" class="form-control" value="{{ old('link_permohonan', $values['link_permohonan'] ?? '') }}" placeholder="https://...">
+                            <label class="form-label">Link Google Drive Surat Permohonan</label>
+                            <input type="url" name="link_permohonan" class="form-control" value="{{ old('link_permohonan', $values['link_permohonan'] ?? '') }}" placeholder="https://drive.google.com/file/d/...">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Link Surat Pernyataan (PDF)</label>
-                            <input type="url" name="link_pernyataan" class="form-control" value="{{ old('link_pernyataan', $values['link_pernyataan'] ?? '') }}" placeholder="https://...">
+                            <label class="form-label">Link Google Drive Surat Pernyataan</label>
+                            <input type="url" name="link_pernyataan" class="form-control" value="{{ old('link_pernyataan', $values['link_pernyataan'] ?? '') }}" placeholder="https://drive.google.com/file/d/...">
+                            <small class="text-muted">Atur akses file menjadi “Siapa saja yang memiliki link”.</small>
                         </div>
 
                         <button type="submit" class="btn btn-primary">Simpan</button>

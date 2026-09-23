@@ -74,7 +74,7 @@ class UploadSKController extends Controller
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'file_sk' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:2048'
+            'file_sk' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:1048576'
         ]);
 
         $user = \App\Models\User::find($request->user_id);

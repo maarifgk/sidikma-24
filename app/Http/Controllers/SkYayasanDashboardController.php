@@ -49,7 +49,7 @@ class SkYayasanDashboardController extends Controller
             'user_id' => 'required|integer|exists:users,id',
             'tahun_sk' => 'required|integer|min:2000|max:2100',
             'sk_template_id' => 'nullable|integer|exists:sk_templates,id',
-            'file_sk' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'file_sk' => 'required|file|mimes:pdf,jpg,jpeg,png|max:1048576',
         ]);
 
         $user = $this->usersQuery()->where('users.id', (int) $validated['user_id'])->first();
@@ -78,7 +78,7 @@ class SkYayasanDashboardController extends Controller
             'sk_template_id' => 'nullable|integer|exists:sk_templates,id',
             'kelas_id' => 'nullable|integer|exists:kelas,id',
             'files' => 'required|array|min:1',
-            'files.*' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'files.*' => 'required|file|mimes:pdf,jpg,jpeg,png|max:1048576',
         ]);
 
         $candidateUsers = $this->usersQuery()
@@ -158,7 +158,7 @@ class SkYayasanDashboardController extends Controller
             'user_id' => 'required|integer|exists:users,id',
             'tahun_sk' => 'required|integer|min:2000|max:2100',
             'sk_template_id' => 'nullable|integer|exists:sk_templates,id',
-            'file_sk' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'file_sk' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:1048576',
         ]);
 
         $user = $this->usersQuery()->where('users.id', (int) $validated['user_id'])->first();

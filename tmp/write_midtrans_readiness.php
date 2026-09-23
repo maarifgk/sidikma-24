@@ -1,0 +1,21 @@
+<?php
+$ts=date(DATE_ATOM);$dir='C:/laragon/www/yayasan-app/storage/app/audits/midtrans/'.date('Ymd_His');mkdir($dir,0777,true);
+$checks=[
+ ['area'=>'SDK/package','status'=>'BLOCKED','finding'=>'Tidak ditemukan package/SDK Midtrans atau Xendit di composer.json/composer.lock.'],
+ ['area'=>'Configuration','status'=>'REQUIRES_CONFIGURATION','finding'=>'Tidak ditemukan konfigurasi MIDTRANS_* aktif. Nilai secret tidak ditampilkan.'],
+ ['area'=>'Environment separation','status'=>'REQUIRES_CONFIGURATION','finding'=>'Sandbox/production Midtrans belum terkonfigurasi dan belum dapat diverifikasi.'],
+ ['area'=>'Transaction route/controller/service','status'=>'BLOCKED','finding'=>'Tidak ditemukan route, controller, atau service pembuatan transaksi Midtrans.'],
+ ['area'=>'Payment transaction model','status'=>'REQUIRES_SECURITY_REVIEW','finding'=>'PaymentTransaction tersedia dan memiliki gateway_order_id sebagai string, tetapi belum memiliki alur gateway aktif.'],
+ ['area'=>'Invoice relation','status'=>'READY_FOR_SANDBOX_TEST','finding'=>'PaymentTransaction memiliki relasi belongsTo ke PaymentInvoice melalui payment_invoice_id.'],
+ ['area'=>'Webhook/callback','status'=>'BLOCKED','finding'=>'Tidak ditemukan endpoint webhook/status callback.'],
+ ['area'=>'Signature verification','status'=>'BLOCKED','finding'=>'Tidak ditemukan verifikasi signature callback.'],
+ ['area'=>'Server-side amount validation','status'=>'REQUIRES_SECURITY_REVIEW','finding'=>'Belum ada checkout gateway yang dapat diaudit untuk validasi nominal server-side.'],
+ ['area'=>'Order idempotency','status'=>'REQUIRES_SECURITY_REVIEW','finding'=>'gateway_order_id hanya memiliki index biasa; belum ada service idempotensi atau unique policy untuk transaksi baru.'],
+ ['area'=>'Status mapping','status'=>'PARTIAL','finding'=>'Mapping legacy tersedia di SidikmaFinanceData, tetapi mapping Midtrans settlement/capture/pending/deny/cancel/expire/failure belum tersedia.'],
+ ['area'=>'Legacy separation','status'=>'READY_FOR_SANDBOX_TEST','finding'=>'Kolom legacy_payment_id, legacy_invoice_id, dan legacy_snapshot memisahkan histori SIDIKMA dari transaksi baru secara struktur.'],
+ ['area'=>'Authorization','status'=>'PARTIAL','finding'=>'Policy dan role aplikasi tersedia, tetapi authorization checkout/webhook Midtrans belum ada.'],
+ ['area'=>'Logging/audit','status'=>'PARTIAL','finding'=>'Activity/audit infrastructure tersedia, tetapi event gateway dan rekonsiliasi belum diimplementasikan.'],
+ ['area'=>'Orphan/mismatch handling','status'=>'REQUIRES_SECURITY_REVIEW','finding'=>'Dry-run migration mendeteksi orphan dan nominal invalid; gateway flow baru belum memiliki handler khusus.'],
+ ['area'=>'Credential security','status'=>'REQUIRES_SECURITY_REVIEW','finding'=>'Belum ada konfigurasi gateway untuk diaudit; secret harus tetap di environment/secret manager dan tidak boleh dilog.'],
+];
+$out=['generated_at'=>$ts,'classification'=>'BLOCKED','production_ready'=>false,'sandbox_ready'=>false,'midtrans_api_called'=>false,'secrets_exposed'=>false,'checks'=>$checks,'required_before_sandbox'=>['install official Midtrans SDK','configure sandbox server/client key via environment','implement server-side checkout amount from invoice','implement string order id and idempotency','implement signed webhook and retry-safe handler','implement status mapping and audit logging','add authorization and orphan/mismatch handling'],'required_before_production'=>['sandbox end-to-end test','webhook signature verification test','replay/idempotency test','credential rotation review','production endpoint/config review','monitoring and reconciliation review']];file_put_contents($dir.'/midtrans-readiness.json',json_encode($out,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));$md="# Midtrans Readiness Audit\n\nClassification: **BLOCKED**\n\nProduction ready: **No**\nSandbox ready: **No**\nMidtrans API called: **No**\nSecrets exposed: **No**\n\n## Findings\n\n| Area | Status | Finding |\n|---|---|---|\n";foreach($checks as $c)$md.="| {$c['area']} | {$c['status']} | {$c['finding']} |\n";$md.="\n## Conclusion\n\nIntegrasi Midtrans belum tersedia. Aplikasi belum siap sandbox maupun production. Tidak ada database, source code, `.env`, migration, atau data transaksi yang diubah.\n";file_put_contents($dir.'/midtrans-readiness.md',$md);echo $dir,PHP_EOL;

@@ -52,7 +52,7 @@
                                             {{ e($decoded['label_4'] ?? '') }}
                                             @php $link = $decoded['link_aktivasi'] ?? null; @endphp
                                             @if (!empty($link))
-                                                <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">Download PDF</a>
+                                                <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">Buka File Template</a>
                                             @endif
                                         </td>
                                     </tr>

@@ -436,7 +436,7 @@ class SkTemplateController extends Controller
             'tembusan_title_font_size' => 'required|numeric|between:8,40',
             'tembusan_items_font_size' => 'required|numeric|between:8,40',
             'logo_url' => 'nullable|string',
-            'logo_file' => 'nullable|file|mimes:jpg,jpeg,png,webp,svg|max:4096',
+            'logo_file' => 'nullable|file|mimes:jpg,jpeg,png,webp,svg|max:1048576',
         ]);
 
         if ($request->hasFile('logo_file')) {

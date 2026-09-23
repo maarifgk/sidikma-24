@@ -37,9 +37,9 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Link PDF Permohonan (opsional)</label>
-                    <input type="url" name="link_aktivasi" class="form-control" value="{{ old('link_aktivasi', $decoded['link_aktivasi'] ?? '') }}">
-                    <small class="text-muted">Masukkan URL lengkap atau path jika perlu.</small>
+                    <label class="form-label">Link File Google Drive (Word/PDF)</label>
+                    <input type="url" name="link_aktivasi" class="form-control" placeholder="https://drive.google.com/file/d/..." value="{{ old('link_aktivasi', $decoded['link_aktivasi'] ?? '') }}">
+                    <small class="text-muted">Atur akses file Google Drive menjadi “Siapa saja yang memiliki link”.</small>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Simpan</button>

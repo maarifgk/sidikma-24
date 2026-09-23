@@ -1,0 +1,9 @@
+{
+    "source": "Empat titik batas yang diberikan pengguna; bukan koordinat percobaan GPS perangkat.",
+    "polygon": [
+        {"lat": -7.8260874, "lng": 110.7824557},
+        {"lat": -7.8254603, "lng": 110.7827508},
+        {"lat": -7.8252105, "lng": 110.7820051},
+        {"lat": -7.8258722, "lng": 110.7817341}
+    ]
+}

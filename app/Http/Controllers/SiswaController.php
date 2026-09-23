@@ -45,15 +45,28 @@ class SiswaController extends Controller
     }
     public function addSiswa(Request $request)
     {
+        $request->validate([
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:10240',
+        ], [
+            'image.image' => 'File foto harus berupa gambar.',
+            'image.mimes' => 'Format foto harus JPG, JPEG, PNG, GIF, atau WEBP.',
+            'image.max' => 'Ukuran foto maksimal 10 MB.',
+        ]);
+
         $isPnsJurusan = in_array((int) $request->jurusan_id, [5, 8], true);
-        $file_path = public_path() . '/storage/images/users/' . $request->image;
-        File::delete($file_path);
-        $image = $request->file('image');
-        $filename = $image->getClientOriginalName();
-        // Simpan ke public_html
-        $destinationPath = $_SERVER['DOCUMENT_ROOT'] . '/storage/images/users/';
-        $image->move($destinationPath, $filename);
-        //$image->move(public_path('storage/images/users'), $filename);
+        $filename = null;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $filename = time() . '_' . $image->getClientOriginalName();
+            $destinationPath = public_path('storage/images/users');
+
+            if (!File::isDirectory($destinationPath)) {
+                File::makeDirectory($destinationPath, 0755, true);
+            }
+
+            $image->move($destinationPath, $filename);
+        }
         
         //$file_path = public_path() . '/storage/dokumen/sk/' . $request->sk;
         //File::delete($file_path);
@@ -64,7 +77,7 @@ class SiswaController extends Controller
             'nis' => $request->nis,
             'nama_lengkap' => $request->nama_lengkap,
             'email' => $request->email,
-            'no_tlp' => $request-> Kosong,
+            'no_tlp' => $request->no_tlp,
             'nuptk' => $request->nuptk,
             'nip' => $isPnsJurusan ? $request->nip : null,
             'pangkat_golongan' => $isPnsJurusan ? $request->pangkat_golongan : null,
@@ -80,7 +93,7 @@ class SiswaController extends Controller
             'password' => Hash::make($request->password),
             'alamat' => $request->alamat,
             'status' => "ON",
-            'image' => $request->file('image')->getClientOriginalName(),
+            'image' => $filename,
             //'sk' => $request->file('sk')->getClientOriginalName(),
             'periode' => $request->periode,
             'role' => 2,

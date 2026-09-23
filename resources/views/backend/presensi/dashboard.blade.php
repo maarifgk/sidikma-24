@@ -196,22 +196,31 @@
 @endsection
 
 @section('js')
+<div id="attendanceDashboardData" hidden
+    data-hadir="{{ json_encode($chart->pluck('hadir')) }}"
+    data-izin="{{ json_encode($chart->pluck('izin')) }}"
+    data-dates="{{ json_encode($chart->pluck('date')) }}"
+    data-map-points="{{ json_encode($attendanceMapPoints) }}"
+    data-polygon="{{ json_encode($geofencePolygon) }}"
+    data-geofence="{{ json_encode($schoolGeofence ?? ['mode' => 'polygon', 'polygon' => $geofencePolygon]) }}"></div>
 <script src="{{ asset('assets/vendor/libs/leaflet/leaflet.js') }}"></script>
 <script>
+    const dashboardData = document.getElementById('attendanceDashboardData').dataset;
     new ApexCharts(document.querySelector('#attendanceChart'), {
         chart: { type: 'area', height: 320, toolbar: { show: false } },
         series: [
-            { name: 'Hadir', data: @json($chart->pluck('hadir')) },
-            { name: 'Izin', data: @json($chart->pluck('izin')) }
+            { name: 'Hadir', data: JSON.parse(dashboardData.hadir) },
+            { name: 'Izin', data: JSON.parse(dashboardData.izin) }
         ],
-        xaxis: { categories: @json($chart->pluck('date')) },
+        xaxis: { categories: JSON.parse(dashboardData.dates) },
         stroke: { curve: 'smooth', width: 3 },
         dataLabels: { enabled: false },
         colors: ['#0a48b3', '#11805e']
     }).render();
 
-    const attendanceMapPoints = @json($attendanceMapPoints);
-    const geofencePolygon = @json($geofencePolygon);
+    const attendanceMapPoints = JSON.parse(dashboardData.mapPoints);
+    const geofencePolygon = JSON.parse(dashboardData.polygon);
+    const schoolGeofence = JSON.parse(dashboardData.geofence);
     const fallbackCenter = [-7.9656, 110.6036];
 
     const attendanceMap = L.map('attendanceUsersMap', {
@@ -227,7 +236,13 @@
 
     const boundsPoints = [];
 
-    if (Array.isArray(geofencePolygon) && geofencePolygon.length >= 3) {
+    if (schoolGeofence.mode === 'radius' && Number.isFinite(schoolGeofence.center_latitude)
+        && Number.isFinite(schoolGeofence.center_longitude) && schoolGeofence.radius_meters > 0) {
+        const circle = L.circle([schoolGeofence.center_latitude, schoolGeofence.center_longitude], {
+            radius: schoolGeofence.radius_meters, color: '#0a48b3', fillOpacity: 0.08
+        }).addTo(attendanceMap).bindPopup('Radius presensi: ' + schoolGeofence.radius_meters + ' meter');
+        boundsPoints.push(circle.getBounds().getSouthWest(), circle.getBounds().getNorthEast());
+    } else if (schoolGeofence.mode === 'polygon' && Array.isArray(geofencePolygon) && geofencePolygon.length >= 3) {
         const geofenceLatLngs = geofencePolygon.map(point => [Number(point.lat), Number(point.lng)]);
         L.polygon(geofenceLatLngs, {
             color: '#0a48b3',

@@ -450,7 +450,7 @@
                 </div>
 
                 <div class="login-hero-copy" style="text-align: center">
-                    <h1>{{ Helper::apk()->nama_aplikasi }}</h1>
+                    <h1>{{ \App\Providers\Helper::apk()->nama_aplikasi }}</h1>
                     <p>
                         Lembaga Pendidikan Ma'arif NU PCNU Gunungkidul
                     </p>
@@ -484,8 +484,8 @@
                         </div>
                         <div class="app-brand justify-content-center">
                             <img
-                                src="{{ asset('storage/images/logo/' . Helper::apk()->logo) }}"
-                                alt="Logo {{ Helper::apk()->nama_aplikasi }}">
+                                src="{{ asset('storage/images/logo/' . \App\Providers\Helper::apk()->logo) }}"
+                                alt="Logo {{ \App\Providers\Helper::apk()->nama_aplikasi }}">
                         </div>
                         <h4>Masuk ke akun Anda</h4>
                         <p>Silakan gunakan email dan password yang terdaftar untuk melanjutkan ke dashboard.</p>
@@ -565,7 +565,7 @@
                     </form>
 
                     <p class="login-note">
-                         segsrg Tampilan login telah dioptimalkan agar tetap nyaman digunakan pada layar besar maupun layar kecil.
+                        Tampilan login telah dioptimalkan agar tetap nyaman digunakan pada layar besar maupun layar kecil.
                     </p>
                 </div>
             </section>

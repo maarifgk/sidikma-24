@@ -75,7 +75,13 @@ class Attendance extends Model
             return $this->check_in_at;
         }
 
-        return $this->check_type === 'datang' ? $this->checked_at : null;
+        // Daily event data without an accepted timestamp is an unsuccessful attempt.
+        // A later departure can change the row status, but must not accept this arrival.
+        if ($this->check_in_latitude !== null || $this->check_in_longitude !== null || $this->check_in_rejection_code) {
+            return null;
+        }
+
+        return $this->status !== 'ditolak' && !$this->rejection_code && $this->check_type === 'datang' ? $this->checked_at : null;
     }
 
     public function getCheckOutTimeAttribute()
@@ -84,7 +90,11 @@ class Attendance extends Model
             return $this->check_out_at;
         }
 
-        return $this->check_type === 'pulang' ? $this->checked_at : null;
+        if ($this->check_out_latitude !== null || $this->check_out_longitude !== null || $this->check_out_rejection_code) {
+            return null;
+        }
+
+        return $this->status !== 'ditolak' && !$this->rejection_code && $this->check_type === 'pulang' ? $this->checked_at : null;
     }
 
     public function getLatestActivityAtAttribute()
