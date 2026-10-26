@@ -18,6 +18,7 @@ class AttendanceSetting extends Model
         'radius_meters',
         'check_in_time',
         'check_out_time',
+        'check_out_deadline',
         'late_tolerance_minutes',
         'max_gps_accuracy',
         'enable_fake_gps_detection',

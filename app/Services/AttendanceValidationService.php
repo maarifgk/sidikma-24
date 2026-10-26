@@ -20,6 +20,7 @@ class AttendanceValidationService
                 'enable_permission' => true,
                 'check_in_time' => '07:00:00',
                 'check_out_time' => '14:00:00',
+                'check_out_deadline' => '20:00:00',
                 'late_tolerance_minutes' => 10,
                 'max_gps_accuracy' => self::DEFAULT_MAX_GPS_ACCURACY,
                 'enable_fake_gps_detection' => true,
@@ -119,6 +120,11 @@ class AttendanceValidationService
 
         if ($checkType === 'pulang') {
             $checkOutTime = Carbon::parse($checkedAt->toDateString() . ' ' . $setting->check_out_time);
+            $checkOutDeadline = Carbon::parse($checkedAt->toDateString() . ' ' . ($setting->check_out_deadline ?: '20:00:00'));
+
+            if ($checkedAt->gt($checkOutDeadline)) {
+                return $this->rejected('checkout_deadline_exceeded', 'Batas waktu presensi pulang sudah lewat.');
+            }
 
             if ($checkedAt->lt($checkOutTime)) {
                 $earlyCheckoutReason = trim((string) $request->input('early_checkout_reason'));

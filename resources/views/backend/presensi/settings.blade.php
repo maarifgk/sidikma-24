@@ -175,6 +175,12 @@
                             <div class="col-md-6">
                                 <label class="form-label">Jam Pulang</label>
                                 <input type="time" name="check_out_time" class="form-control" value="{{ old('check_out_time', $setting->check_out_time ? substr($setting->check_out_time, 0, 5) : '14:00') }}" required>
+                                <small class="text-muted">Mulai waktu presensi pulang normal.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Batas Presensi Pulang</label>
+                                <input type="time" name="check_out_deadline" class="form-control" value="{{ old('check_out_deadline', $setting->check_out_deadline ? substr($setting->check_out_deadline, 0, 5) : '20:00') }}" required>
+                                <small class="text-muted">Setelah waktu ini, presensi pulang ditolak. Harus sama atau setelah jam pulang.</small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Toleransi Terlambat</label>

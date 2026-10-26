@@ -58,6 +58,7 @@
         <div class="card detail-card">
             <form id="attendanceForm" enctype="multipart/form-data"
                 data-check-out-time="{{ substr($setting->check_out_time, 0, 5) }}"
+                data-check-out-deadline="{{ substr($setting->check_out_deadline ?: '20:00:00', 0, 5) }}"
                 data-polygon="{{ json_encode($setting->geofence_polygon ?? []) }}"
                 data-max-accuracy="{{ $setting->max_gps_accuracy ?: 100 }}"
                 data-user-id="{{ (int) request()->user()->id }}"
@@ -196,6 +197,7 @@
 
     const attendanceConfig = document.getElementById('attendanceForm').dataset;
     const configuredCheckOutTime = attendanceConfig.checkOutTime;
+    const configuredCheckOutDeadline = attendanceConfig.checkOutDeadline || '20:00';
 
     function isBeforeConfiguredCheckOutTime() {
         const parts = configuredCheckOutTime.split(':').map(Number);
@@ -208,6 +210,19 @@
         checkOutTime.setHours(parts[0], parts[1], 0, 0);
 
         return now < checkOutTime;
+    }
+
+    function isAfterConfiguredCheckOutDeadline() {
+        const parts = configuredCheckOutDeadline.split(':').map(Number);
+        if (parts.length < 2 || parts.some(Number.isNaN)) {
+            return false;
+        }
+
+        const now = new Date();
+        const deadline = new Date(now);
+        deadline.setHours(parts[0], parts[1], 0, 0);
+
+        return now > deadline;
     }
 
     async function requestEarlyCheckoutReason() {
@@ -342,6 +357,11 @@
         setAttendanceBusy(true);
         try {
             let earlyCheckoutReason = '';
+
+            if (type === 'pulang' && isAfterConfiguredCheckOutDeadline()) {
+                await Swal.fire('Presensi Ditutup', 'Batas waktu presensi pulang sudah lewat.', 'warning');
+                return;
+            }
 
             if (type === 'pulang' && isBeforeConfiguredCheckOutTime()) {
                 earlyCheckoutReason = await requestEarlyCheckoutReason();

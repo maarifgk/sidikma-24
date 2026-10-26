@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\AttendanceSetting;
 use App\Services\AttendanceValidationService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Tests\TestCase;
 
@@ -76,5 +77,26 @@ class AttendanceValidationTest extends TestCase
         $this->assertSame(30.0, $service->maximumGpsAccuracy(new AttendanceSetting([
             'max_gps_accuracy' => 30,
         ])));
+    }
+
+    public function test_checkout_after_deadline_is_rejected(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-10-26 20:01:00'));
+        $setting = new AttendanceSetting([
+            'enable_check_out' => true,
+            'check_out_time' => '14:00:00',
+            'check_out_deadline' => '20:00:00',
+            'max_gps_accuracy' => 100,
+            'enable_fake_gps_detection' => true,
+            'geofence_polygon' => [[-7, 110], [-7, 111], [-6, 111], [-6, 110]],
+        ]);
+
+        $result = (new AttendanceValidationService())->validateAttendance(Request::create('/', 'POST', [
+            'latitude' => -6.5, 'longitude' => 110.5, 'gps_accuracy' => 5,
+        ]), $setting, 'pulang');
+
+        $this->assertFalse($result['accepted']);
+        $this->assertSame('checkout_deadline_exceeded', $result['rejection_code']);
+        Carbon::setTestNow();
     }
 }
