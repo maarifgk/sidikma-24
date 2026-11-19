@@ -24,7 +24,7 @@
                     <h6 class="m-0 font-weight-bold text-white">DATA PENGAJUAN PROPOSAL</h6>
                 </a>
                 <div class="collapse show" id="informasisiswa">
-                    <div class="card-body">
+                    <div class="card-body proposal-requirements-body">
                         @if (!empty(Helper::apk()->info_proposal))
                             @php $raw = Helper::apk()->info_proposal; $decoded = json_decode($raw, true); @endphp
                             @if (request()->user()->role == 1)
@@ -32,62 +32,29 @@
                                     <a href="/proposal/info/edit" class="btn btn-sm btn-warning">Edit</a>
                                 </div>
                             @endif
-                            <table class="table table-striped">
-                                <tbody>
-                                    <tr>
-                                        <td>1.</td>
-                                        <td>{{ e($decoded['label_1'] ?? '') }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>2.</td>
-                                        <td>{{ e($decoded['label_2'] ?? '') }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>3.</td>
-                                        <td>{{ e($decoded['label_3'] ?? '') }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>4.</td>
-                                        <td>{{ e($decoded['label_4'] ?? '') }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="m-0 font-weight-bold text-danger">NB:</td>
-                                        <td>{!! nl2br(e($decoded['nb'] ?? '')) !!}
-                                            @php $link = $decoded['link_proposal'] ?? null; @endphp
-                                            @if (!empty($link))
-                                                <div class="mt-2">
-                                                    <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">Buka File Template</a>
-                                                </div>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div class="proposal-checklist">
+                                @foreach (['label_1', 'label_2', 'label_3', 'label_4'] as $index => $label)
+                                    <div class="proposal-check-item"><span>{{ $index + 1 }}</span><p>{{ e($decoded[$label] ?? '') }}</p></div>
+                                @endforeach
+                            </div>
+                            <div class="proposal-note"><strong>Catatan:</strong> {!! nl2br(e($decoded['nb'] ?? '')) !!}
+                                @php $link = $decoded['link_proposal'] ?? null; @endphp
+                                @if (!empty($link))
+                                    <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-danger">Buka File Template</a>
+                                @endif
+                            </div>
                         @else
                             @if (request()->user()->role == 1)
                                 <div class="mb-2">
                                     <a href="/proposal/info/edit" class="btn btn-sm btn-warning">Edit</a>
                                 </div>
                             @endif
-                            <table class="table table-striped">
-                                <tbody>
-                                    <tr>
-                                        <td>1. Dokumen Surat Permohonan Bantuan/Proposal dalam bentuk File PDF</td>
-                                    </tr>
-                                    <tr>
-                                        <td>2. Jenis Permohonan Bantuan/Proposal</td>
-                                    </tr>
-                                    <tr>
-                                        <td>3. Nominal yang diajukan</td>
-                                    </tr>
-                                    <tr>
-                                        <td>4. Nama Bank & Nomor Rekening</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="m-0 font-weight-bold text-danger">NB: Jika terdapat kendala atau error silahkan hubungi admin LP. Ma'arif NU PCNU Gunungkidul</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div class="proposal-checklist">
+                                @foreach (['Dokumen Surat Permohonan Bantuan/Proposal dalam bentuk File PDF', 'Jenis Permohonan Bantuan/Proposal', 'Nominal yang diajukan', 'Nama Bank & Nomor Rekening'] as $index => $requirement)
+                                    <div class="proposal-check-item"><span>{{ $index + 1 }}</span><p>{{ $requirement }}</p></div>
+                                @endforeach
+                            </div>
+                            <div class="proposal-note"><strong>Catatan:</strong> Jika terdapat kendala atau error silakan hubungi admin LP. Ma'arif NU PCNU Gunungkidul</div>
                         @endif
                     </div>
                 </div>
@@ -557,3 +524,22 @@
     </script>
 
 @endsection
+
+<style>
+    .proposal-requirements-body { padding: .8rem 1rem !important; }
+    .proposal-checklist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem .8rem; }
+    .proposal-check-item { display: flex; align-items: flex-start; gap: .65rem; min-width: 0; padding: .6rem .7rem; border: 1px solid rgba(18, 100, 58, .1); border-radius: 12px; background: #fbfefd; }
+    .proposal-check-item span { display: inline-flex; flex: 0 0 1.45rem; width: 1.45rem; height: 1.45rem; align-items: center; justify-content: center; border-radius: 50%; color: #12643a; background: #e8f4f1; font-size: .75rem; font-weight: 700; }
+    .proposal-check-item p { margin: .08rem 0 0; color: #31443a; font-size: .86rem; line-height: 1.4; }
+    .proposal-note { display: flex; align-items: center; flex-wrap: wrap; gap: .55rem; margin-top: .7rem; padding: .55rem .7rem; border-radius: 10px; background: #fff8e8; color: #755b17; font-size: .82rem; line-height: 1.45; }
+    .proposal-note strong { color: #624b0e; }
+    .admin-module-table-card { overflow-x: auto; }
+    .admin-module-table-card .table { min-width: 980px; }
+    .admin-module-table-card .table > :not(caption) > * > * { padding: .58rem .62rem; font-size: .82rem; }
+    .admin-module-table-card .table thead th { white-space: nowrap; font-size: .72rem; }
+    .admin-module-table-card .table .btn { padding: .36rem .58rem; font-size: .78rem; }
+    @media (max-width: 767.98px) {
+        .proposal-checklist { grid-template-columns: 1fr; }
+        .proposal-note { align-items: flex-start; flex-direction: column; }
+    }
+</style>

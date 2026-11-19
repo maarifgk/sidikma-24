@@ -23,10 +23,16 @@ class ProposalController extends Controller
     public function view()
     {
         $data['title'] = "PENGAJUAN PROPOSAL";
-        $data['proposal'] = DB::select("SELECT * FROM proposal ORDER BY id DESC");
+        $data['proposal'] = DB::table('proposal')
+            ->leftJoin('kelas', 'kelas.id', '=', 'proposal.kelas_id')
+            ->select('proposal.*', 'kelas.nama_kelas')
+            ->orderByDesc('proposal.id')
+            ->get();
         $data['perm_proposal'] = DB::table('proposal')
+            ->leftJoin('kelas', 'kelas.id', '=', 'proposal.kelas_id')
+            ->select('proposal.*', 'kelas.nama_kelas')
             ->where('kelas_id', request()->user()->kelas_id)
-            ->orderBy('id', 'desc') // juga diurutkan kalau mau
+            ->orderByDesc('proposal.id')
             ->get();
 
         return view('backend.proposal.view', $data);
